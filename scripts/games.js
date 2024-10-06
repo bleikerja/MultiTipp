@@ -125,9 +125,8 @@ async function showSpieltag(n,index = false){
 
     
     gameCarousel.innerHTML = '';
-
-    
-    let selectedOption = daySelect.options[liveDayIsChampion ? liveDay+1: liveDay];
+    let daysBefore = championsLeagueDaysBeforeDay(liveDay);
+    let selectedOption = daySelect.options[liveDayIsChampion ? liveDay+daysBefore+1: liveDay+daysBefore];
     selectedOption.style.fontWeight = "bold";
   
     let options = daySelect.options;
@@ -605,6 +604,7 @@ function isFixBet(data,type,bet = null){
             }
             break;
         case 20:
+            if(isOver(data[data.length-1])) return true
             switch(dailyType){
                 case 1: case 2:
                     if(bet != null){
@@ -808,6 +808,7 @@ function getResult(data,t,dailyT = dailyType){
             let lastScore = [0,0]
             if(goals.length == 0) result.push("kein Tor")
             for(let goal of goals){
+                if(goal.scoreTeam1 == 0 && goal.scoreTeam2 == 0) continue;
                 let goalPlayerTeam = goal.scoreTeam1 > lastScore[0] ? data.team1: data.team2;
                 lastScore = [goal.scoreTeam1,goal.scoreTeam2];
                 if(data.leagueShortcut == "ucl2024" && !germanTeams.includes(getShortName(goalPlayerTeam))) continue;
@@ -1679,6 +1680,18 @@ function getTeamIcon(team){
         case "Stade Brest":
             return "https://derivates.kicker.de/image/fetch/f_webp/w_30%2Ch_30%2Cc_fit%2Cq_auto:best/https://mediadb.kicker.de/2013/fussball/vereine/xxl/1745_20180228949.png"
     }
+}
+
+function championsLeagueDaysBeforeDay(day){
+    let days = 0;
+    for(let i = 0; i < championsLeagueGamedays.length; i++){
+        if(championsLeagueGamedays[i] < day){
+            days += 1;
+        }else{
+            break;
+        }
+    }
+    return days;
 }
 
 function getLastFilled(arr){

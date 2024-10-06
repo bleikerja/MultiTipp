@@ -112,7 +112,8 @@ async function showSpieltag(n=null,index = false){
     daySelect.selectedIndex = n;
 
     
-    let selectedOption = daySelect.options[liveDayIsChampion ? liveDay+1: liveDay];
+    let daysBefore = championsLeagueDaysBeforeDay(liveDay);
+    let selectedOption = daySelect.options[liveDayIsChampion ? liveDay+daysBefore+1: liveDay+daysBefore];
     selectedOption.style.fontWeight = "bold";
   
     let options = daySelect.options;
@@ -951,12 +952,24 @@ function hasStarted(data){
     const date = new Date(data.matchDateTime);
     let now = new Date();
     if(now < date) return false;
-    
+
     return true;
 }
 
 function isOver(data){
     return data.matchIsFinished;
+}
+
+function championsLeagueDaysBeforeDay(day){
+    let days = 0;
+    for(let i = 0; i < championsLeagueGamedays.length; i++){
+        if(championsLeagueGamedays[i] < day){
+            days += 1;
+        }else{
+            break;
+        }
+    }
+    return days;
 }
 
 function save(){
