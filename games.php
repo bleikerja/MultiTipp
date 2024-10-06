@@ -609,7 +609,7 @@
             <div class="menu-item selected">Übersicht</div>
         </a>
         <a class="menu-button" id="link" href="tippen<?php echo isset($_GET['day']) ? '?day='.$_GET['day'] : ''; ?>">
-            <div class="menu-item ">Tippen</div>
+            <div class="menu-item ">Tippppen</div>
         </a>
         <a class="menu-button" href="gruppe">
             <div class="menu-item">Gruppe</div>
