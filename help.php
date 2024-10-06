@@ -48,7 +48,7 @@
             </a>
         </div>
   </div>
-    <h1>Hilfe</h1>
+    <h1>Hilfe FIX</h1>
     <h4>Bundesliga</h4>
     <div class="accordion" id="accordionExample">
     <div class="accordion-item">
