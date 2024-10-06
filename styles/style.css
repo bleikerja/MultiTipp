@@ -1,0 +1,421 @@
+@media (max-width: 1050px){
+    #betContent{
+        width: 45% !important;
+        max-width: 45% !important;
+    }
+    .list-group{
+        width: 45% !important;
+        max-width: 45% !important;
+    }
+    .game{
+        min-width: 100% !important;
+    }
+    .betContent{
+        width: 100% !important;
+    }
+    .small{
+        width: 40px !important;
+        height: 40px !important;
+    }
+}
+
+@media (max-width: 717px){
+    .betContent{
+        margin-left: 3px !important;
+    }
+    #betContent{
+        width: 48% !important;
+        max-width: 48% !important;
+    }
+    .list-group{
+        width: 50% !important;
+        max-width: 50% !important;
+    }
+}
+
+@media (max-width: 649px){
+    .text{
+        display: none !important;
+    }
+    .team1,.team2{
+        width: 35% !important;
+    }
+    .resultDiv{
+        width: 30% !important;
+    }
+    .resultContainer h1{
+        font-size: 6vw !important;
+    }
+}
+
+body, html{
+    height: 100%;
+    max-height: 100%;
+    min-height: 100%;
+    margin: 0;
+    overflow: hidden;
+    background-color: #f0f0f0;
+}
+
+.team1{
+    text-align: end;
+    border-radius: 10px 0px 0px 10px;
+    border-right: solid black;
+    border-width: 1px;
+    background: white;
+    width: 45%;
+}
+
+.team2{
+    text-align: start;
+    border-radius: 0px 10px 10px 0px;
+    border-left: solid black;
+    border-width: 1px;
+    background: white;
+    width: 45%;
+}
+
+.form-control{
+    border-color: black;
+}
+
+.game:hover {
+    cursor: pointer;
+}
+
+.game{
+    align-items: center;
+    border: 3px solid black;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    padding:5px;
+    min-width:474px
+}
+
+.collapse{
+    margin-bottom: 10px;
+}
+
+.oneline {
+    display: inline-block;
+}
+
+.form{
+    margin-top: 20px;
+    margin-left: 20px;
+}
+
+.gap{
+    margin-left: 5px;
+}
+
+.small{
+    width: 50px;
+    height: 50px;
+    text-align: center;
+    padding: 4px;
+    margin: auto 0;
+}
+
+.title{
+    width: 40px;
+    position: relative;
+    align-self: flex-end;
+}
+
+.text{
+    width: fit-content;
+}
+
+.result{
+    text-align: center;
+    padding: 5px;
+    margin: auto;
+    font-size: 18px;
+}
+
+.resultContainer{
+    display: flex;
+    border: solid black;
+    border-radius: 10px;
+    border-width: 1px;
+    margin-bottom: 5px;
+    background-color: #e9ecef;
+}
+
+.resultContainer h1{
+    margin: 3px auto;
+}
+
+.resultDiv{
+    margin: auto;
+    text-align: center;
+    width: 10%;
+    height: fit-content;
+}
+
+.date{
+    /* margin-top: 1px; */
+    margin: auto;
+    font-size: 12px;
+    line-height: 20px;
+}
+
+ul {
+    list-style-type: none; 
+}
+
+.main{
+    margin-left: 30px;
+    margin-top: 10px;
+    max-height: 80%;
+    height: 80%;
+}
+
+.choose{
+    width: fit-content;
+    margin: 3px auto;
+}
+
+.chooseAdd{
+    width: fit-content;
+    margin: 3px auto;
+}
+
+.choose label{
+    background-color: white;
+}
+
+.chooseAdd label{
+    color: red;
+    background-color: white;
+}
+
+.betContent{
+    margin-left: 50px;
+    overflow: hidden auto;
+    height: 100%;
+    max-height: 100%;
+    width: 488px;
+    background-color: white;
+}
+
+.input-group{
+    width: calc(100% - 60px);   
+    margin-left: 30px;
+}
+
+.gameTitle{
+    font-weight: bold;
+    margin: 5px auto;
+    width: fit-content;
+    text-align: center;
+}   
+
+.topBar{
+    display: flex;
+    margin-left: 30px;
+    padding-top: 20px;
+}
+
+.betDisplay{
+    padding: 5px;
+    width:fit-content;
+    border: 1px solid black;
+    border-radius: 0.5rem;
+    margin: 2px auto;
+}
+
+.list-group{
+    overflow: hidden scroll;
+    height: 100%;
+    max-height: 100%;
+}
+
+.list-group::-webkit-scrollbar {
+    display: none;
+  }
+
+.selectedBetDisplay{
+    border: 1px solid black;
+    border-radius: 0.5rem;
+    background: #e9ecef;
+    padding: 5px;
+}
+
+.nav-link{
+    font-size: 1.25rem;
+}
+
+#daySelect{
+    text-align: center;
+}
+
+.menu{
+    display: flex;
+    justify-content:space-between;
+    background-color: lightgray;
+    margin-bottom: 15px;
+    overflow-x: scroll;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.menu-main{
+    display: flex;
+    justify-content:flex-start;
+    overflow-x: scroll;
+}
+
+.menu::-webkit-scrollbar, .menu-main::-webkit-scrollbar{
+    display: none;
+}
+
+.menu-item{
+    padding: 10px 5px 7px 5px;
+    color: gray;
+}
+
+.menu-button{
+    display: flex;
+    justify-content:space-between;
+
+    font-size: large;
+    text-decoration: none;
+}
+
+
+.menu-item.selected{
+    color: black;
+    background-image: linear-gradient(to right, 
+    transparent 0%, 
+    transparent 20%, 
+    black 20%, 
+    black 80%, 
+    transparent 80%, 
+    transparent 100%);
+    background-size: 100% 4px; /* Adjust the height of the border */
+    background-repeat: no-repeat;
+    background-position: bottom;
+}
+
+.menu-item:hover:not(.selected, .logout){
+    color: black;
+    background-image: linear-gradient(to right, 
+    transparent 0%, 
+    transparent 20%, 
+    black 20%, 
+    black 80%, 
+    transparent 80%, 
+    transparent 100%);
+    background-size: 100% 4px; /* Adjust the height of the border */
+    background-repeat: no-repeat;
+    background-position: bottom;
+    animation: border-expand 0.3s ease forwards;
+}
+
+.menu-button.logout{
+    background: linear-gradient(to right, black, black 50%, gray 50%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-size: 200% 100%;
+    background-position: 100%;
+    transition: background-position 275ms ease;  
+}
+
+.menu-button.logout:hover{
+    background-position: 0 100%;
+}
+
+@keyframes border-expand {
+    0% {
+        background-size: 0% 4px;
+    }
+    50% {
+        background-size: 50% 4px;
+    }
+    100% {
+        background-size: 100% 4px;
+        background-image: linear-gradient(to right, 
+            transparent 0%, 
+            transparent 20%, 
+            black 20%, 
+            black 80%, 
+            transparent 80%, 
+            transparent 100%);
+    }
+}
+
+.menu-button .icon {
+    display: none;
+}
+
+.menu-button:hover .icon {
+    display: inline-block;
+}
+
+.icon{
+    color: black;
+}
+
+.menu-account{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#name{
+    margin-right: 5px;
+}
+
+.edit-button{
+    height: 70%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.edit-button svg{
+    height: 120%;
+}
+
+.edit-name{
+    background-color: inherit;
+    border: hidden;
+    width: fit-content;
+    text-align: center;
+}
+
+.edit-name:focus{
+    outline-width: 0;
+}
+
+#Saison-warning{
+    margin-left: 30px;
+    font-weight: bold;
+}
+
+@media (max-width: 661px){
+    .menu-account{
+        display: none;
+    }
+}
+
+@media (min-width: 661px){
+    .hideBig{
+        display: none;
+    }
+}
+
+.filterContainer{
+    display: flex;
+    justify-content: space-between;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.filterContainer select{
+    width: 48%;
+    border-color: black;
+}
