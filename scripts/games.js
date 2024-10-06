@@ -106,6 +106,7 @@ async function showSpieltag(n,index = false){
         showSpieltag(parseInt(daySelect.options[n].value))
         return;
     }
+ 
     if(n == 34){
         document.getElementById("moveFront").style.display = 'none';
     }else{
