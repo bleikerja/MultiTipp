@@ -150,7 +150,7 @@
 
     <script>
         console.log(localStorage.getItem("userData"),document.referrer,localStorage.getItem("userData") && !document.referrer)
-        if(localStorage.getItem("userData") && (!document.referrer || localStorage.getItem("userData").forceLogin)){
+        if(localStorage.getItem("userData") && (!document.referrer || JSON.parse(localStorage.getItem("userData")).forceLogin)){
             console.log("setting")
             let userData = JSON.parse(localStorage.getItem("userData"))
             document.getElementById("username").value = userData.username
