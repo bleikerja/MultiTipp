@@ -679,6 +679,6 @@
     </div>
 
     
-    <script src="scripts/games.js"></script>       
+    <script src="scripts/games1.js"></script>       
 </body>
 </html>
