@@ -149,6 +149,7 @@
     </div>
 
     <script>
+        console.log(localStorage.getItem("userData"))
         if(localStorage.getItem("userData") && !document.referrer){
             let userData = JSON.parse(localStorage.getItem("userData"))
             document.getElementById("username").value = userData.username
