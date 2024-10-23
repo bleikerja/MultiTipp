@@ -67,7 +67,7 @@ async function start(){
     if(championsLeagueGamedays.includes(liveDay) && isOver(dataLiveday[dataLiveday.length - 1]) || championsLeagueGamedays.includes(liveDay - 1) && !hasStarted(dataLiveday[dataLiveday.length - 1])){
         liveDayChampion = championsLeagueGamedays.indexOf(liveDay);
         if(liveDayChampion == -1)  liveDayChampion = championsLeagueGamedays.indexOf(liveDay-1);
-        let startIndex = (liveDayChampion)*5+4
+        let startIndex = liveDayChampion*18+18
         currentMatchDate = new Date(dataLivedayChamp[startIndex].matchDateTime)
         let today = new Date();
         today.setHours(1, 0, 0, 0);
