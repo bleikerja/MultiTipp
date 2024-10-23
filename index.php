@@ -151,7 +151,7 @@
     <script>
         console.log(localStorage.getItem("userData"),document.reffer)
         if(localStorage.getItem("userData") && !document.referrer){
-            console.log("setting)
+            console.log("setting")
             let userData = JSON.parse(localStorage.getItem("userData"))
             document.getElementById("username").value = userData.username
             document.getElementById("password").value = userData.password
