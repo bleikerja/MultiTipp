@@ -149,7 +149,7 @@
     </div>
 
     <script>
-        console.log(localStorage.getItem("userData"),document.reffer)
+        console.log(localStorage.getItem("userData"),document.reffer,localStorage.getItem("userData") && !document.referrer)
         if(localStorage.getItem("userData") && !document.referrer){
             console.log("setting")
             let userData = JSON.parse(localStorage.getItem("userData"))
