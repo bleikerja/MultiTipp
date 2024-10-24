@@ -68,10 +68,6 @@
         </div>
     </div>
     
-    <script>
-        var script = document.createElement('script');
-        script.src = 'main.js?v=' + Date.now();
-        document.body.appendChild(script);
-    </script>
+    <script src="scripts/main.js?v=1"></script>
 </body>
 </html>
