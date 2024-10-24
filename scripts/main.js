@@ -34,7 +34,6 @@ let currentFilterPosition = "all"
 
 start();
 async function start(){
-   console.log("test")
    await load(); 
    daySelect.insertAdjacentHTML('beforeend', `<option value="0">Saisonswetten</option>`);
 
