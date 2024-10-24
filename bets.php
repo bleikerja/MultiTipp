@@ -68,6 +68,6 @@
         </div>
     </div>
     
-    <script src="scripts/main.js?v=1"></script>
+    <script src="scripts/main.js?v=2"></script>
 </body>
 </html>
