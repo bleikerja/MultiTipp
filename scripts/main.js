@@ -20,6 +20,7 @@ let currentDayIndex = 0;
 let liveDay = 0;
 let liveDayChampion = 0
 let liveDayIsChampion = false
+let champiosDayData = null
 let username = "";
 let d = null
 
@@ -48,25 +49,18 @@ async function start(){
     const currentDaySearch = await fetch(new URL(`https://api.openligadb.de/getcurrentgroup/bl1`));
     const currentDayData = await currentDaySearch.json();
     liveDay = currentDayData.groupOrderID;
-    const urlLiveday = new URL(`https://api.openligadb.de/getmatchdata/bl1/2024/${liveDay}`);
-    const responseLiveday = await fetch(urlLiveday);
-    const dataLiveday = await responseLiveday.json();
-    const urlLivedayChamp = new URL(`https://api.openligadb.de/getmatchdata/ucl2024/2024/1`);
-    const responseLivedayChamp = await fetch(urlLivedayChamp);
-    const dataLivedayChamp = await responseLivedayChamp.json();
+    const responseLiveday = await fetch(new URL(`https://api.openligadb.de/getmatchdata/bl1/2024/${liveDay}`));
+    liveDayData = await responseLiveday.json();
 
-    if(championsLeagueGamedays.includes(liveDay) && isOver(dataLiveday[dataLiveday.length - 1]) || championsLeagueGamedays.includes(liveDay - 1) && !hasStarted(dataLiveday[dataLiveday.length - 1])){
-        liveDayChampion = championsLeagueGamedays.indexOf(liveDay);
-        if(liveDayChampion == -1)  liveDayChampion = championsLeagueGamedays.indexOf(liveDay-1);
-        let startIndex = (liveDayChampion)*5+4
-        currentMatchDate = new Date(dataLivedayChamp[startIndex].matchDateTime)
+    if(championsLeagueGamedays.includes(liveDay) && isOver(liveDayData[liveDayData.length - 1]) || championsLeagueGamedays.includes(liveDay - 1) && !hasStarted(liveDayData[liveDayData.length - 1])){
         let today = new Date();
-        today.setHours(1, 0, 0, 0);
-        if (today > currentMatchDate) {
-            liveDayIsChampion = false
-        }else{
+        if (today.getDay() >= 1 && today.getDay() <= 2){
             liveDayIsChampion = true
-        }  
+            const currentChampionsDayResponse = await fetch(new URL("https://api.openligadb.de/getmatchdata/ucl2024/2024/1"));
+            championsDayData = await currentChampionsDayResponse.json();
+        }else{
+            liveDayIsChampion = false
+        }
     }else{
         for(let i of championsLeagueGamedays){
             if(i <= liveDay) liveDayChampion = championsLeagueGamedays.indexOf(i)
@@ -127,10 +121,7 @@ async function showSpieltag(n=null,index = false){
         }
     }
 
-
-    const url = new URL(`https://api.openligadb.de/getmatchdata/bl1/2024/${n}`);
-    const response = await fetch(url);
-    const data = await response.json();
+    const data = n == liveDay ? liveDayData: await fetch(new URL(`https://api.openligadb.de/getmatchdata/bl1/2024/${n}`)).then(response => response.json());
     d = data;
 
     const url1 = new URL(`https://api.openligadb.de/getavailableteams/bl1/2024`);
@@ -142,10 +133,8 @@ async function showSpieltag(n=null,index = false){
         const responseDay3 = await fetch(urlDay3);
         const dataDay3 = await responseDay3.json();
         let saisonHasStarted = liveDay > 4 ? true: (liveDay < 4 ? false: hasStarted(dataDay3[0]))
-        const urlChamp = new URL(`https://api.openligadb.de/getmatchdata/ucl2024/2024/1`);
-        const responseChamp = await fetch(urlChamp);
-        let dataChamp = await responseChamp.json();
-        let championHasStarted = hasStarted(dataChamp[0])
+        if(champiosDayData == null) championsDayData = await fetch(new URL(`https://api.openligadb.de/getmatchdata/ucl2024/2024/1`)).then(response => response.json());
+        let championHasStarted = hasStarted(champiosDayData[0])
         
         showSaison(data,1,saisonHasStarted)
         showSaison(data,2,saisonHasStarted)
@@ -156,9 +145,8 @@ async function showSpieltag(n=null,index = false){
         return;
     }
     if(n > 34){
-        const urlChamp = new URL(`https://api.openligadb.de/getmatchdata/ucl2024/2024/1`);
-        const responseChamp = await fetch(urlChamp);
-        let tempChamp = await responseChamp.json();
+        if(champiosDayData == null) championsDayData = await fetch(new URL(`https://api.openligadb.de/getmatchdata/ucl2024/2024/1`)).then(response => response.json());
+        let tempChamp = champiosDayData
 
         let rand = new RND(n);
         typesLeft = [1,4,5,6,8];

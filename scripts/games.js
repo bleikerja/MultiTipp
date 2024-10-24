@@ -14,6 +14,7 @@ let dailyType = 2;
 
 let d = null;
 let dUnchanged = null
+let liveDayData = null
 let lastDay = null
 let firstDay = null
 let goalgetters = null
@@ -57,25 +58,18 @@ async function start(){
     const currentDaySearch = await fetch(new URL(`https://api.openligadb.de/getcurrentgroup/bl1`));
     const currentDayData = await currentDaySearch.json();
     liveDay = currentDayData.groupOrderID;
-    const urlLiveday = new URL(`https://api.openligadb.de/getmatchdata/bl1/2024/${liveDay}`);
-    const responseLiveday = await fetch(urlLiveday);
-    const dataLiveday = await responseLiveday.json();
-    const urlLivedayChamp = new URL(`https://api.openligadb.de/getmatchdata/ucl2024/2024/1`);
-    const responseLivedayChamp = await fetch(urlLivedayChamp);
-    const dataLivedayChamp = await responseLivedayChamp.json();
+    const responseLiveday = await fetch(new URL(`https://api.openligadb.de/getmatchdata/bl1/2024/${liveDay}`));
+    liveDayData = await responseLiveday.json();
     
-    if(championsLeagueGamedays.includes(liveDay) && isOver(dataLiveday[dataLiveday.length - 1]) || championsLeagueGamedays.includes(liveDay - 1) && !hasStarted(dataLiveday[dataLiveday.length - 1])){
-        liveDayChampion = championsLeagueGamedays.indexOf(liveDay);
-        if(liveDayChampion == -1)  liveDayChampion = championsLeagueGamedays.indexOf(liveDay-1);
-        let startIndex = liveDayChampion*18+18
-        currentMatchDate = new Date(dataLivedayChamp[startIndex].matchDateTime)
+    if(championsLeagueGamedays.includes(liveDay) && isOver(liveDayData[liveDayData.length - 1]) || championsLeagueGamedays.includes(liveDay - 1) && !hasStarted(liveDayData[liveDayData.length - 1])){        
         let today = new Date();
-        today.setHours(1, 0, 0, 0);
-        if (today > currentMatchDate) {
-            liveDayIsChampion = false
-        }else{
+        if (today.getDay() >= 1 && today.getDay() <= 2){
             liveDayIsChampion = true
-        }  
+            const currentChampionsDayResponse = await fetch(new URL("https://api.openligadb.de/getmatchdata/ucl2024/2024/1"));
+            championsDayData = await currentChampionsDayResponse.json();    
+        }else{
+            liveDayIsChampion = false
+        }
     }else{
         for(let i of championsLeagueGamedays){
             if(i <= liveDay) liveDayChampion = championsLeagueGamedays.indexOf(i)
@@ -147,9 +141,7 @@ async function showSpieltag(n,index = false){
     
     
     if(n > 34){
-        const url = new URL(`https://api.openligadb.de/getmatchdata/ucl2024/2024/1`);
-        const response = await fetch(url);
-        let tempChamp = await response.json();
+        let tempChamp = championsDayData != null ? championsDayData: await fetch(new URL(`https://api.openligadb.de/getmatchdata/ucl2024/2024/1`)).then(response => response.json());
         let rand = new RND(n);
         
         let startIndex = (n-35)*18
@@ -186,48 +178,34 @@ async function showSpieltag(n,index = false){
         return
     }
     
-    const url = new URL(`https://api.openligadb.de/getmatchdata/bl1/2024/${n}`);
-    const response = await fetch(url);
-    const data = await response.json();
+    const data = n == liveDay ? liveDayData: await fetch(new URL(`https://api.openligadb.de/getmatchdata/bl1/2024/${n}`)).then(response => response.json());
     d = [...data]
     dUnchanged = [...data]
 
     if(n == 0){
-        const url3= new URL(`https://api.openligadb.de/getmatchdata/bl1/2024/4`);
-        const response3 = await fetch(url3);
+        const response3 = await fetch(new URL(`https://api.openligadb.de/getmatchdata/bl1/2024/4`));
         const data3 = await response3.json();
         dataDay3 = data3
 
-        const tableUrl = new URL(`https://api.openligadb.de/getbltable/bl1/2024`);
-        const tableResponse = await fetch(tableUrl);
+        const tableResponse = await fetch(new URL(`https://api.openligadb.de/getbltable/bl1/2024`));
         const tableData = await tableResponse.json();
         wholeTable = tableData
         
-        const tableUrlChampion = new URL(`https://api.openligadb.de/getbltable/ucl2024/2024`);
-        const tableResponseChampion = await fetch(tableUrlChampion);
+        const tableResponseChampion = await fetch(new URL(`https://api.openligadb.de/getbltable/ucl2024/2024`));
         const tableDataChampion = await tableResponseChampion.json();
         wholeTableChampion = tableDataChampion
         
-        const lastDayUrl = new URL(`https://api.openligadb.de/getmatchdata/bl1/2024/34`);
-        const lastDayResponse = await fetch(lastDayUrl);
+        const lastDayResponse = await fetch(new URL(`https://api.openligadb.de/getmatchdata/bl1/2024/34`));
         lastDay = await lastDayResponse.json();
         
-        const firstDayUrl = new URL(`https://api.openligadb.de/getmatchdata/bl1/2024/1`);
-        const firstDayResponse = await fetch(firstDayUrl);
-        firstDay = await firstDayResponse.json();
-        
-        const goalgetterUrl = new URL(`https://api.openligadb.de/getgoalgetters/bl1/2024`);
-        const goalgetterResponse = await fetch(goalgetterUrl);
+        const goalgetterResponse = await fetch(new URL(`https://api.openligadb.de/getgoalgetters/bl1/2024`));
         const goalgetterData = await goalgetterResponse.json();
         goalgetters = goalgetterData
 
-        const championsDayUrl = new URL(`https://api.openligadb.de/getcurrentgroup/ucl2024`);
-        const championsDayResponse = await fetch(championsDayUrl);
+        const championsDayResponse = await fetch(new URL(`https://api.openligadb.de/getcurrentgroup/ucl2024`));
         championsDay = await championsDayResponse.json();
 
-        const currentChampionsDayUrl = new URL(`https://api.openligadb.de/getmatchdata/ucl2024/2024/${championsDay.groupOrderID}`);
-        const currentChampionsDayResponse = await fetch(currentChampionsDayUrl);
-        championsDayData = await currentChampionsDayResponse.json();
+        if(championsDayData == null) championsDayData = await fetch(new URL(`https://api.openligadb.de/getmatchdata/ucl2024/2024/1`)).then(response => response.json());
         
         showData(tableData,100,true,false,goalgetterData)
         showData(goalgetterData,101,false,false,tableData)
@@ -1501,9 +1479,8 @@ async function load(){
 
 async function loadPoints(){
     let startIndex = getLastFilled(points)
-    
 
-    for(let day = startIndex; day <= liveDay; day++){
+    for(let day = startIndex; day < liveDay; day++){
         let rand = new RND(day+1);
         let typesLeftN = [1,2,3,4,5,6,7,8,9];
         let typesN = []
@@ -1514,10 +1491,7 @@ async function loadPoints(){
             typesN.push(next);
         }
         dailyInt = rand.nextInRange(1,5)
-
-        const url = new URL(`https://api.openligadb.de/getmatchdata/bl1/2024/${day+1}`);
-        const response = await fetch(url);
-        const data = await response.json();
+        const data = day+1 == liveDay ? liveDayData: await fetch(new URL(`https://api.openligadb.de/getmatchdata/bl1/2024/${day+1}`)).then(response => response.json());
 
         for(let playerindex = 0; playerindex < bets.length; playerindex++){
             if(day > bets[playerindex.length-1]) break;
@@ -1551,9 +1525,7 @@ async function loadPoints(){
         }
         dailyInt = rand.nextInRange(1,3)
 
-        const url = new URL(`https://api.openligadb.de/getmatchdata/ucl2024/2024/1`);
-        const response = await fetch(url);
-        let tempChamp = await response.json();
+        let tempChamp = championsDayData != null ? championsDayData: await fetch(new URL(`https://api.openligadb.de/getmatchdata/ucl2024/2024/1`)).then(response => response.json());
         let startIndexThis = (day-34)*18
         let data = [];
         let germanTeams = ["Stuttgart","Dortmund","Bayern","Leipzig","Leverkusen"]
@@ -1585,12 +1557,6 @@ async function loadPoints(){
         var xhr = new XMLHttpRequest();
         xhr.open("GET", "php/savePoints.php?data=" + encodeURIComponent(JSON.stringify(points[i]))
         + "&user=" + encodeURIComponent(playernames[i]), true);
-        xhr.onload = function() {
-            if (xhr.status == 200) {
-                // Antwort von der PHP-Funktion
-                
-            }
-        };
         xhr.send();
     }
 }
