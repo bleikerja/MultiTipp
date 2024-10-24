@@ -68,6 +68,6 @@
         </div>
     </div>
     
-   <script src="scripts/main.js?567"></script>
+   <script src="scripts/main.js?"+ Date.now()></script>
 </body>
 </html>
