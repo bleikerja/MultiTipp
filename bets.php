@@ -70,7 +70,7 @@
     
     <script>
         var script = document.createElement('script');
-        script.src = 'script.js?v=' + Date.now();
+        script.src = 'main.js?v=' + Date.now();
         document.body.appendChild(script);
     </script>
 </body>
