@@ -20,7 +20,7 @@ let currentDayIndex = 0;
 let liveDay = 0;
 let liveDayChampion = 0
 let liveDayIsChampion = false
-let champiosDayData = null
+let championsDayData = null
 let username = "";
 let d = null
 
@@ -133,8 +133,8 @@ async function showSpieltag(n=null,index = false){
         const responseDay3 = await fetch(urlDay3);
         const dataDay3 = await responseDay3.json();
         let saisonHasStarted = liveDay > 4 ? true: (liveDay < 4 ? false: hasStarted(dataDay3[0]))
-        if(champiosDayData == null) championsDayData = await fetch(new URL(`https://api.openligadb.de/getmatchdata/ucl2024/2024/1`)).then(response => response.json());
-        let championHasStarted = hasStarted(champiosDayData[0])
+        if(championsDayData == null) championsDayData = await fetch(new URL(`https://api.openligadb.de/getmatchdata/ucl2024/2024/1`)).then(response => response.json());
+        let championHasStarted = hasStarted(championsDayData[0])
         
         showSaison(data,1,saisonHasStarted)
         showSaison(data,2,saisonHasStarted)
@@ -145,8 +145,8 @@ async function showSpieltag(n=null,index = false){
         return;
     }
     if(n > 34){
-        if(champiosDayData == null) championsDayData = await fetch(new URL(`https://api.openligadb.de/getmatchdata/ucl2024/2024/1`)).then(response => response.json());
-        let tempChamp = champiosDayData
+        if(championsDayData == null) championsDayData = await fetch(new URL(`https://api.openligadb.de/getmatchdata/ucl2024/2024/1`)).then(response => response.json());
+        let tempChamp = championsDayData
 
         let rand = new RND(n);
         typesLeft = [1,4,5,6,8];
@@ -358,7 +358,6 @@ function getTeams(data){
 
 
 function getBetContent(data,type,num,champions=false,saisonHasStarted=null){
-    
     let elements = "";
     let teams = [];
     let allPlayers = []
@@ -440,32 +439,41 @@ function getBetContent(data,type,num,champions=false,saisonHasStarted=null){
                     elements = "";
                     teams = []
                     if(bets[currentDay-1].length <= num) bets[currentDay-1].push([])
-                    for(let team of allTeams){
-                        teams.push(getShortName(team))
+                    for(let game of data){
+                        if(!hasStarted(game) || bets[currentDay-1][9].length != 0 || hasStarted(data[data.length - 1])){
+                            teams.push(getShortName(game.team1))
+                            teams.push(getShortName(game.team2))
+                        }
                     }
                     teams.sort()
                     for(let team of teams){
-                        elements += getButtonToggle(data[0],team,"Daily",num,type)
+                        elements += getButtonToggle(data[0],team,"Daily",num,type,true,hasStarted(data[0]) && !hasStarted(data[data.length - 1]) ? bets[currentDay-1][9].length != 0: null)
                     }
                     return getTitle("Welches Team schießt die meisten Tore?") + getSearch([teams],"Daily") + `<div id="Daily">` + elements + "</div>"
                 case 2:
                     elements = "";
                     let teamList = []
                     allPlayers = []
-                    for(let team of Object.keys(players)){
-                        teamList.push(getPlayers(team));
-                        allPlayers = allPlayers.concat(getPlayers(team))
+                    for(let game of data){
+                        if(!hasStarted(game) || bets[currentDay-1][9].length != 0 || hasStarted(data[data.length - 1])){
+                            teamList.push(getPlayers(game.team1.teamName))
+                            teamList.push(getPlayers(game.team2.teamName));
+                            allPlayers = allPlayers.concat(getPlayers(game.team1.teamName))
+                            allPlayers = allPlayers.concat(getPlayers(game.team2.teamName));
+                        }
                     }
                     allPlayers = sortPlayers(allPlayers)
                     for(let player of allPlayers){
-                        elements += getButtonToggle(data[0],player,"Daily",num,type)
+                        elements += getButtonToggle(data[0],player,"Daily",num,type,true,hasStarted(data[0]) && !hasStarted(data[data.length - 1]) ? bets[currentDay-1][9].length != 0: null)
                     }
                     elements += getAddButton(data[0],"Daily",num,type)
                     return getTitle("Welcher Spieler schießt die meisten Tore?") + getSearch(teamList,"Daily",allTeams) + `<div id="Daily">` + elements + "</div>"
                 case 3:
                     elements = getTitle("In welchem Spiel fallen die meisten Tore?")
                     for(let game of data){
-                        elements += getButtonToggle(data[0],getShortName(game.team1) + " : " + getShortName(game.team2),"Daily",num,type)
+                        if(!hasStarted(game) || bets[currentDay-1][9].length != 0 || hasStarted(data[data.length - 1])){
+                            elements += getButtonToggle(data[0],getShortName(game.team1) + " : " + getShortName(game.team2),"Daily",num,type,true,hasStarted(data[0]) && !hasStarted(data[data.length - 1]) ? bets[currentDay-1][9].length != 0: null)
+                        }
                     }
                     return elements
                 case 4:
@@ -476,20 +484,26 @@ function getBetContent(data,type,num,champions=false,saisonHasStarted=null){
                         teams.push(getShortName(team))
                     }
                     teams.sort()
-                    for(let team of teams){
-                        elements += getButtonToggle(data[0],team,"Daily",num,type,false)
+                    for(let game of data){
+                        if(!hasStarted(game) || bets[currentDay-1][9].length != 0 || hasStarted(data[data.length - 1])){
+                            elements += getButtonToggle(data[0],game.team1,"Daily",num,type,false,hasStarted(data[0]) && !hasStarted(data[data.length - 1]) ? bets[currentDay-1][9].length != 0: null)
+                            elements += getButtonToggle(data[0],game.team2,"Daily",num,type,false,hasStarted(data[0]) && !hasStarted(data[data.length - 1]) ? bets[currentDay-1][9].length != 0: null)
+                        }
                     }
                     return getTitle("Welche Teams schießen kein Tor?") + getButtonToggle(data[0],"kein Team","Daily",num,type) + getSearch([teams],"Daily") + `<div id="Daily">` + elements + "</div>"
                 case 5:
                     elements = "";
                     teams = []
                     if(bets[currentDay-1].length <= num) bets[currentDay-1].push([])
-                    for(let team of allTeams){
-                        teams.push(getShortName(team))
+                    for(let game of data){
+                        if(!hasStarted(game) || bets[currentDay-1][9].length != 0 || hasStarted(data[data.length - 1])){
+                            teams.push(getShortName(game.team1))
+                            teams.push(getShortName(game.team2))
+                        }
                     }
                     teams.sort()
                     for(let team of teams){
-                        elements += getButtonToggle(data[0],team,"Daily",num,type)
+                        elements += getButtonToggle(data[0],team,"Daily",num,type,true,hasStarted(data[0]) && !hasStarted(data[data.length - 1]) ? bets[currentDay-1][9].length != 0: null)
                     }
                     return getTitle("Welches Team gewinnt mit dem höchsten Abstand?") + getSearch([teams],"Daily") + `<div id="Daily">` + elements + "</div>"
             }
@@ -834,10 +848,9 @@ function showBet(id){
 }
 
 function saveBet(bet,i,type,id,team1,team2,groupId){
-    
     document.body.scrollTop = document.documentElement.scrollTop = 0;
-    if(type < 100 && ((type != 10 && type != 20) && hasStarted(d[i]) || (type == 10 || type == 20) && hasStarted(d[0]))){
-        document.getElementById(bets[currentDay - 1][i][type == 6.5 ||type == 7.5 ? 1:0]+groupId).checked = true
+    if(type < 100 && ((type != 10 && type != 20) && hasStarted(d[i]))){
+        if(bets[currentDay - 1][i].length > 0) document.getElementById(bets[currentDay - 1][i][type == 6.5 ||type == 7.5 ? 1:0]+groupId).checked = true
         document.getElementById(bet+groupId).checked = false
         return;
     }

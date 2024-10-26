@@ -13,7 +13,6 @@ let extraInfo = [];
 let dailyType = 2;
 
 let d = null;
-let dUnchanged = null
 let liveDayData = null
 let lastDay = null
 let firstDay = null
@@ -154,7 +153,6 @@ async function showSpieltag(n,index = false){
 
 
         d = [...data]
-        dUnchanged = [...data]
 
         typesLeft = [1,4,5,6,8];
         types = []
@@ -180,7 +178,6 @@ async function showSpieltag(n,index = false){
     
     const data = n == liveDay ? liveDayData: await fetch(new URL(`https://api.openligadb.de/getmatchdata/bl1/2024/${n}`)).then(response => response.json());
     d = [...data]
-    dUnchanged = [...data]
 
     if(n == 0){
         const response3 = await fetch(new URL(`https://api.openligadb.de/getmatchdata/bl1/2024/4`));
@@ -672,9 +669,13 @@ function displayAllBets(num,data,hasStarted,t){
             </div>
         </div>`
 
-        
-        if(!hasStarted && playernames[i] != username){
+        if(!hasStarted && playernames[i] != username || num == 9 && ((bets[playernames.indexOf(username)][currentDay-1] == null || bets[playernames.indexOf(username)][currentDay-1][num].length == 0) && !this.hasStarted(d[d.length-1]))){
+            let extraInfo = ""
+            if(player[currentDay-1] != null && player[currentDay-1][num].length != 0){
+                extraInfo = getBetDisplay("?")
+            }
             display += `<div class="gap border rounded-3 border-black betsDisplay" style="padding:5px;background-color:${changeColor(data,t)}">
+                ${extraInfo}
             </div>`
             continue;
         } 
@@ -1174,73 +1175,6 @@ function shiftPlayerOrder(forward){
         shift--;
     }
     
-    updateDisplay();
-}
-
-function shiftBetOrder(forward){
-    if(currentDay == 0){
-        if(forward){
-            if(saisonShift >= (saisonOrder.length) - getPlayerDisplayCount()) return;
-            saisonOrder.push(saisonOrder.shift());
-            for (let i = 0; i < saisonBets.length; i++) {
-                if(saisonBets[i] != null) saisonBets[i].push(saisonBets[i].shift());
-            }
-            saisonShift++;
-        }else{
-            if(saisonShift == 0) return;
-            saisonOrder.unshift(saisonOrder.pop());
-            for (let i = 0; i < saisonBets.length; i++) {
-                if(saisonBets[i] != null) saisonBets[i].unshift(saisonBets[i].pop());
-            }
-            saisonShift--;
-        }
-
-        if(saisonShift >= (saisonOrder.length) - getPlayerDisplayCount()) {
-            document.getElementById("shiftBetForward").hidden = true
-        }else{
-            document.getElementById("shiftBetForward").hidden = false
-        }
-    
-        if(saisonShift == 0) {
-            document.getElementById("shiftBetBack").hidden = true
-        }else{
-            document.getElementById("shiftBetBack").hidden = false
-        }
-        updateDisplay()
-        return
-    }
-    if((types.length + 1) - getPlayerDisplayCount() <= 0) return;
-    if(forward){
-        if(shift >= (types.length +1) - getPlayerDisplayCount()) return;
-        types.push(types.shift());
-        d.push(d.shift());
-        for (let i = 0; i < bets.length; i++) {
-            if(bets[i][currentDay-1] != null) bets[i][currentDay-1].push(bets[i][currentDay-1].shift());
-        }
-        shift++;
-        positionDaily--;
-    }else{
-        if(shift == 0) return;
-        types.unshift(types.pop());
-        d.unshift(d.pop());
-        for (let i = 0; i < bets.length; i++) {
-            if(bets[i][currentDay-1] != null) bets[i][currentDay-1].unshift(bets[i][currentDay-1].pop());
-        }
-        shift--;
-        positionDaily++;
-    }
-    
-    if(shift >= (types.length +1) - getPlayerDisplayCount()) {
-        document.getElementById("shiftBetForward").hidden = true
-    }else{
-        document.getElementById("shiftBetForward").hidden = false
-    }
-
-    if(shift == 0) {
-        document.getElementById("shiftBetBack").hidden = true
-    }else{
-        document.getElementById("shiftBetBack").hidden = false
-    }
     updateDisplay();
 }
 
