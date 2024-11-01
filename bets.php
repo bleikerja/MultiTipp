@@ -13,17 +13,20 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <title>Multi Tipp</title>
     <link rel="stylesheet" href="styles/style.css">
+    <link rel="stylesheet" href="styles/menu.css">
 </head>
 <body>
-
     <div class="menu">
         <div class="menu-main">
         <img id="logo" src="logo.png" alt="logo" width="44" height="44">
-        <a class="menu-button" id="link" href="übersicht<?php echo isset($_GET['day']) ? '?day='.$_GET['day'] : ''; ?>">
+        <a class="menu-button" id="link" href="übersicht">
             <div class="menu-item">Übersicht</div>
         </a>
         <a class="menu-button selected" aria-disabled="true">
             <div class="menu-item selected">Tippen</div>
+        </a>
+        <a class="menu-button" id="link2" href="punkte">
+            <div class="menu-item">Punkte</div>
         </a>
         <a class="menu-button" href="gruppe">
             <div class="menu-item">Gruppe</div>

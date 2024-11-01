@@ -99,6 +99,7 @@ async function showSpieltag(n=null,index = false){
 
     window.history.replaceState('', '', updateURLParameter(window.location.href, "day", n));
     document.getElementById("link").href = "übersicht?day=" + n
+    document.getElementById("link2").href = "punkte?day=" + n
 
 
     list.innerHTML = "";

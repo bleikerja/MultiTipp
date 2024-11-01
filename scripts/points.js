@@ -45,8 +45,9 @@ let groupInput = document.getElementById("groupInput");
 let removeForm = document.getElementById("groupRemove");
 let removeInput = document.getElementById("groupDelete");
 
+let sortedByTotal = true;
+
 let editingName = false
-let selectedCarouselItem = 0
  
 start();
 async function start(){
@@ -111,11 +112,10 @@ async function showSpieltag(n,index = false){
     newURL = updateURLParameter(newURL, 'resId', 'newResId');
 
     window.history.replaceState('', '', updateURLParameter(window.location.href, "day", n));
-    document.getElementById("link").href = "tippen?day=" + n
-    document.getElementById("link2").href = "punkte?day=" + n
+    document.getElementById("link").href = "übersicht?day=" + n
+    document.getElementById("link2").href = "tippen?day=" + n
 
     
-    gameCarousel.innerHTML = '';
     let daysBefore = championsLeagueDaysBeforeDay(liveDay);
     let selectedOption = daySelect.options[liveDayIsChampion ? liveDay+daysBefore+1: liveDay+daysBefore];
     selectedOption.style.fontWeight = "bold";
@@ -161,10 +161,6 @@ async function showSpieltag(n,index = false){
         dailyType = rand.nextInRange(1,3);
 
         if(!bets[0][n-1]) bets[0][n-1] = [[],[],[],[],[],[]]
-        showData(data,0,true,false,null,true);
-        for(let i = 1; i <= 5; i++){
-            showData(data,i,false,false,null,true);
-        }
         
         displayPlayerPoints();
         displayPoints(n)
@@ -200,12 +196,6 @@ async function showSpieltag(n,index = false){
 
         if(championsDayData == null) championsDayData = await fetch(new URL(`https://api.openligadb.de/getmatchdata/ucl2024/2024/1`)).then(response => response.json());
         
-        showData(tableData,100,true,false,goalgetterData)
-        showData(goalgetterData,101,false,false,tableData)
-        showData(tableData,102,false,false,tableDataChampion)
-        showData(tableDataChampion,103,false,false,championsDay,true)
-        showData([championsDay],104,false,false,null,true)
-
         displayPlayerPoints();
         displayPoints(n)
         return
@@ -225,23 +215,26 @@ async function showSpieltag(n,index = false){
     
     if(!bets[0][n-1]) bets[0][n-1] = [[],[],[],[],[],[],[],[],[],[]]
     
-    showData(data,0,true);
-    for(let i = 1; i <= data.length; i++){
-        showData(data,i);
-    }
-    
     displayPlayerPoints();
     displayPoints(n)
-    selectCarouselItem(getLastStarted(data))
 }
 
 function displayPoints(n){
-    
+    let mostPoints = 0;
+    let totalPlayerPoints = [];
+
     for(let i = 0; i < playernames.length; i++){
         if(!points[i][n-1]) points[i][n-1] = 0;
         let player = playernames[i];
         let totalPoints = getTotalPoints(i)
         let dayPoints = points[i][n-1]
+        if(sortedByTotal){
+            totalPlayerPoints.push(totalPoints)
+            if(totalPoints > mostPoints) mostPoints = totalPoints;
+        }else{
+            totalPlayerPoints.push(dayPoints)
+            if(dayPoints > mostPoints) mostPoints = dayPoints;
+        }
         document.getElementById("totalPoints" + player).innerHTML = totalPoints;
         document.getElementById("dayPoints" + player).innerHTML = dayPoints;
         document.getElementById("name" + player).innerText = player
@@ -252,40 +245,14 @@ function displayPoints(n){
             n.innerHTML = dayPoints
         }
     }
-
+    for(let i = 0; i < playernames.length; i++){
+        document.getElementById("player" + playernames[i]).style.width = window.innerWidth * 0.9 * totalPlayerPoints[i] / mostPoints + "px";
+    }
 }
 
 function updateDisplay(){
-    let data = d;
-    gameCarousel.innerHTML = '';
-    
-    if(currentDay != 0){
-        if(currentDay > 34){
-            showData(data,0,true,false,null,true);
-            for(let i = 1; i <= 5; i++){
-                showData(data,i,false,false,null,true);
-            }
-        }else{
-            showData(data,0,true);
-            for(let i = 1; i <= data.length; i++){
-                showData(data,i);
-            }
-        }
-    }else{
-        for(let n of saisonOrder){
-            if(n == 100){
-                showData(wholeTable,100,true)
-            }else if(n == 101){
-                showData(goalgetters,101)
-            }else if(n == 102){
-                showData(wholeTable,102)
-            }
-        }
-    }
-    
     displayPlayerPoints();
     displayPoints(currentDay)
-    selectCarouselItem(selectedCarouselItem)
 }
 
 function moveGameday(num){
@@ -322,63 +289,6 @@ function updateURLParameter(url, param, paramVal){
 
     var rows_txt = temp + "" + param + "=" + paramVal;
     return baseURL + "?" + newAdditionalURL + rows_txt;
-}
-
-function showData(data,num,first=false,returnResult=false,nextData = null,champions=false){
-    if(num % getPlayerDisplayCount() != 0 && !returnResult) return;
-    
-    if(num > data.length-1 && num < 100 || champions && num == 5) {
-        if(returnResult) return showDaily(data,data.length,true,champions)
-        showDaily(data,data.length,false,champions)
-        return
-    }
-    let thisData = data[num]
-    let newDisplay = document.getElementById("gameCarousel")
-
-    let newHtml = returnResult ? "": `<div class="carouselItem carousel-item ${first ? "active":""}">
-          <div class="d-flex">`
-    
-    if(num >= 100){
-        
-        newHtml += showSaison(data,num)
-    }else{
-        newHtml += `<div class="flex-fill p-2">
-        <div class="betContainer2">
-            <div class="border rounded-3 border-black resultDisplay">
-                <div id="bet${thisData.matchID}" class="d-flex flex-row mb-2 game border rounded-3 border-black" aria-expanded="false" style="background-color:${changeColor(thisData,types[num],true)}">
-                    <div class="border-end rounded-start-3 border-black team1 bg-white"> 
-                        <div class="oneline p-2 teamText" id="name">${getShortName(thisData.team1)}</div>
-                        <div class="oneline p-2 small"><img src="${getTeamIcon(thisData.team1)}" alt="img" height="100%" id="image"></div>
-                        <br class="newLine" hidden>
-                        <div class="oneline p-2 teamText1" id="name" hidden>${getShortName(thisData.team1)}</div>
-                    </div>
-                    <div class="p-2 gap resultDiv" id="games">
-                        ${getGameResult(thisData)}
-                    </div>
-                    <div class="gap border-start rounded-end-3 border-black team2 bg-white">
-                        <div class="oneline p-2 small"><img src="${getTeamIcon(thisData.team2)}" alt="img" height="100%" id="image"></div>
-                        <br class="newLine" hidden>
-                        <div class="oneline p-2 teamText1" id="name">${getShortName(thisData.team2)}</div>
-                    </div>
-                </div>
-                <div class="border rounded-3 border-black" style="min-height:77px;padding:5px;background-color:${changeColor(thisData,types[num])}">
-                    ${displayResults(thisData,hasStarted(thisData),types[num])}
-                </div>
-            </div>
-            ${displayAllBets(num,data[num],hasStarted(data[num]),types[num])}
-    
-        </div>
-        </div>`
-    
-    }    
-    newHtml += (num + 1) % getPlayerDisplayCount() != 0 && num != 104 ? showData(nextData != null ? nextData: data,num+1,false,true,null,champions):""  
-    newHtml += returnResult ? "": `</div></div></div>`;
-    
-
-    if(returnResult) {
-        return newHtml;
-    }
-    newDisplay.insertAdjacentHTML('beforeend', newHtml);
 }
 
 function changeColor(data,type,result = false){
@@ -430,52 +340,6 @@ function changeColorBet(data,type,hasStarted,i,bet,playerindex){
             return "lightgray"
         }
     }
-}
-
-function showDaily(data,num,returnResult = true,champions=false){
-    let newDisplay = document.getElementById("gameCarousel")
-    
-    let newHtml = returnResult ? "": `<div class="carouselItem carousel-item">
-          <div class="d-flex">`
-
-    newHtml += `<div class="flex-fill p-2">
-        <div class="betContainer">
-            <div id="dailyContainer" class="border rounded-3 border-black">
-                <div id="betDaily" class="d-flex flex-row mb-2 game border rounded-3 border-black bg-white" aria-expanded="false">
-                    <h3>Spieltag</h3>
-                </div>
-                <div class="border rounded-3 border-black" style="min-height:77px;padding:5px;background-color:${changeColor(data,10)}">
-                    ${displayResults(data,hasStarted(data[0]),champions ? 20: 10)}
-                </div>
-            </div>
-        </div>
-        ${displayAllBets(num,data,hasStarted(data[0]),champions ? 20: 10)}
-
-    </div>`;
-    
-    newHtml += returnResult ? "": `</div></div></div>`;
-    if(returnResult) return newHtml
-
-    newDisplay.insertAdjacentHTML('beforeend', newHtml);
-}
-
-function showSaison(data,num){
-    let saisonHasStarted = num < 103 ? hasStarted(dataDay3[0]): (championsDay.groupOrderID > 1 ? true: hasStarted(championsDayData[0]))
-    const newHtml = `<div class="saison flex-fill p-2">
-        <div class="betContainer">
-            <div id="SaisonContainer" class="border rounded-3 border-black saisonContainer">
-                <div id="betDaily" class="d-flex flex-row mb-2 game border rounded-3 border-black bg-white" aria-expanded="false">
-                    <h1>${num < 103 ? ("Bundesliga #"+ (num-99)):("Champions League #"+ (num-102))}</h1>
-                </div>
-                <div class="border rounded-3 border-black" style="min-height:77px;padding:5px;background-color:${changeColor(data,num,true)}">
-                    ${displayResults([...data],saisonHasStarted,num)}
-                </div>
-            </div>
-            
-        </div>
-        ${displayAllBets(num-100,[...data],saisonHasStarted,num)}
-    </div>`;
-    return newHtml
 }
 
 function isFix(data,type){
@@ -1081,6 +945,7 @@ function hasStarted(data){
     const date = new Date(data.matchDateTime);
     let now = new Date();
     if(now < date) return false;
+    //throw new Error("nooo")
     return true;
 }
 
@@ -1133,7 +998,7 @@ function displayPlayerPoints(){
         let player = playernames[i]
         let display = 
         `
-        <div class="betContainer">
+        <div class="betContainer" id="player${player}">
             <div class="playerPointDiv">
                 
                 <p class=playername id="name${player}">${player}</p>
@@ -1175,8 +1040,7 @@ function shiftPlayerOrder(forward){
 
 function changePlayerOrder(total){
     shift = 0;
-    selectedCarouselItem = getSelectedCarouselItem()
-    gameCarousel.innerHTML = '';
+    sortedByTotal = total
     if(total){
         let indices = Array.from({length: playernames.length}, (_, i) => i);
         indices.sort((a, b) => comparePoints(playernames[a],playernames[b]));
@@ -1190,9 +1054,6 @@ function changePlayerOrder(total){
         bets = indices.map(i => bets[i]);
         points = indices.map(i => points[i]);
     }
-    
-    
-    
     updateDisplay()
 }
 
@@ -1634,22 +1495,6 @@ function editName(){
         nameText.innerText = input.value;
     }
     editingName = !editingName
-}
-
-function selectCarouselItem(index){
-    let children = document.getElementById("gameCarousel").children
-    for(let n of children) n.classList.remove("active");
-    if(index > children.length-1){
-        children[0].classList.add("active");
-    }else{
-        children[index].classList.add("active");
-    }
-}
-
-function getSelectedCarouselItem(){
-    let children = document.getElementById("gameCarousel").children
-    for(let i = 0; i < children.length; i++) if(children[i].classList.contains("active")) return i
-    return 0
 }
 
 function getLastStarted(data){
