@@ -905,6 +905,7 @@ function getResult(data,t,dailyT = dailyType){
                     let highestGame = []
                     highestGoal = 0;
                     for(let game of data){
+                        if(!hasStarted(game)) continue;
                         totalGoals = getGoals(game)[0] + getGoals(game)[1]
                         if(totalGoals > highestGoal){
                             highestGoal = totalGoals;
