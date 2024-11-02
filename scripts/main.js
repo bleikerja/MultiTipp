@@ -1012,8 +1012,8 @@ function changeColorBet(data,type,hasStarted,i,bet){
     
     let fixBet = getFix((type < 10 ? data.matchID: (type < 100 ? "daily" + data[0].group.groupOrderID: "saison" + (type-100))),i,username)
     if(fixBet != null) bet = fixBet.fix_data
-   
-    let typeMod = type < 10 ? type+(i*0.5):type
+    
+    let typeMod = type < 10 && type != 4 ? type+(i*0.5):type
     
     if((type != 6 && type != 7 && result.includes(bet)) || ((type == 6 || type == 7) && result[i] == bet)){
         if(isFixBet(data,typeMod,bet)){

@@ -401,27 +401,21 @@ function changeColor(data,type,result = false){
 }
 
 function changeColorBet(data,type,hasStarted,i,bet,playerindex){    
-    
     if(!hasStarted) return "white"
-
     let result = getResult(data,type)
-    
     
     for(let j = 0; j < result.length; j++){
         let fixResult = getFix((type < 10 ? data.matchID: (type < 100 ? "daily" + data[0].group.groupOrderID: "saison" + (type-100))),j);
         if(fixResult != null) result[j] = fixResult.fix_data
     }
 
-    
     let fixBet = getFix((type < 10 ? data.matchID: (type < 100 ? "daily" + data[0].group.groupOrderID: "saison" + (type-100))),i,playernames[playerindex])
     if(fixBet != null) bet = fixBet.fix_data
     
-
-
-    let typeMod = type < 10 ? type+(i*0.5):type
-    
+    let typeMod = type < 10 && type != 4 ? type+(i*0.5):type
     
     if((type != 6 && type != 7 && result.includes(bet)) || ((type == 6 || type == 7) && result[i] == bet)){
+        console.log(data,typeMod,bet)
         if(isFixBet(data,typeMod,bet)){
             return "green"
         }else{
