@@ -415,7 +415,6 @@ function changeColorBet(data,type,hasStarted,i,bet,playerindex){
     let typeMod = type < 10 && type != 4 ? type+(i*0.5):type
     
     if((type != 6 && type != 7 && result.includes(bet)) || ((type == 6 || type == 7) && result[i] == bet)){
-        console.log(data,typeMod,bet)
         if(isFixBet(data,typeMod,bet)){
             return "green"
         }else{
