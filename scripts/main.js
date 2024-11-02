@@ -366,7 +366,7 @@ function displayResults(num,data,t,teams = null){
             display += getTitle(teams == null ? getShortName(getTeams(data)[i]): teams[i],false)
         }
         let bet = result[i]
-        let fixBet = getFix((t < 10 ? data.matchID: (t < 100 ? "daily" + data[0].group.groupOrderID: "saison" + (t-100))),i,username)
+        let fixBet = data == null ? null: getFix((t < 10 ? data.matchID: (t < 100 ? "daily" + data[0].group.groupOrderID: "saison" + (t-100))),i,username)
         if(fixBet != null) bet = fixBet.fix_data    
         display += getBetDisplay(bet,changeColorBet(data,t,data == null ? false: hasStarted(data),i,bet));
     }
