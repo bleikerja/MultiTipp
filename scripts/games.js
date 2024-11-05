@@ -94,8 +94,6 @@ async function start(){
     showSpieltag(day != null ? day: (!liveDayIsChampion ? liveDay: liveDayChampion+35));
 }
 async function showSpieltag(n,index = false){
-    console.log(n,index)
-    console.log(liveDayChampion)
     if(index){
         showSpieltag(parseInt(daySelect.options[n].value))
         return;
