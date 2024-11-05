@@ -63,15 +63,14 @@ async function start(){
     if(championsLeagueGamedays.includes(liveDay) && isOver(liveDayData[liveDayData.length - 1]) || championsLeagueGamedays.includes(liveDay - 1) && !hasStarted(liveDayData[liveDayData.length - 1])){        
         let today = new Date();
         if (today.getDay() >= 1 && today.getDay() <= 2){
+            for(let i of championsLeagueGamedays){
+                if(i <= liveDay) liveDayChampion = championsLeagueGamedays.indexOf(i)
+            }
             liveDayIsChampion = true
             const currentChampionsDayResponse = await fetch(new URL("https://api.openligadb.de/getmatchdata/ucl2024/2024/1"));
             championsDayData = await currentChampionsDayResponse.json();    
         }else{
             liveDayIsChampion = false
-        }
-    }else{
-        for(let i of championsLeagueGamedays){
-            if(i <= liveDay) liveDayChampion = championsLeagueGamedays.indexOf(i)
         }
     }
     await load(); 
@@ -95,6 +94,8 @@ async function start(){
     showSpieltag(day != null ? day: (!liveDayIsChampion ? liveDay: liveDayChampion+35));
 }
 async function showSpieltag(n,index = false){
+    console.log(n,index)
+    console.log(liveDayChampion)
     if(index){
         showSpieltag(parseInt(daySelect.options[n].value))
         return;
