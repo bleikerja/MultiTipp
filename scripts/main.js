@@ -1219,6 +1219,7 @@ function getResult(data,t,dailyT = dailyType){
                 
                 if(!result.includes(goalPlayer) && !goal.isOwnGoal) result.push(goalPlayer);
             }
+            if(result.length == 0) result.push("kein Tor")
             break;
         case 5:
             if(totalGoalCount >= 6){
