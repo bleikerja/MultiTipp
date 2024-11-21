@@ -346,31 +346,30 @@ function showData(data,num,first=false,returnResult=false,nextData = null,champi
         newHtml += showSaison(data,num)
     }else{
         newHtml += `<div class="flex-fill p-2">
-        <div class="betContainer2">
+            <div class="betContainer2">
             <div class="border rounded-3 border-black resultDisplay">
-                <div id="bet${thisData.matchID}" class="d-flex flex-row mb-2 game border rounded-3 border-black" aria-expanded="false" style="background-color:${changeColor(thisData,types[num],true)}">
-                    <div class="border-end rounded-start-3 border-black team1 bg-white"> 
-                        <div class="oneline p-2 teamText" id="name">${getShortName(thisData.team1)}</div>
-                        <div class="oneline p-2 small"><img src="${getTeamIcon(thisData.team1)}" alt="img" height="100%" id="image"></div>
-                        <br class="newLine" hidden>
-                        <div class="oneline p-2 teamText1" id="name" hidden>${getShortName(thisData.team1)}</div>
+                    <div id="bet${thisData.matchID}" class="d-flex flex-row mb-2 game border rounded-3 border-black" aria-expanded="false" style="background-color:${changeColor(thisData,types[num],true)}">
+                        <div class="border-end rounded-start-3 border-black team1 bg-white"> 
+                            <div class="oneline p-2 teamText" id="name">${getShortName(thisData.team1)}</div>
+                            <div class="oneline p-2 small"><img src="${getTeamIcon(thisData.team1)}" alt="img" height="100%" id="image"></div>
+                            <br class="newLine" hidden>
+                            <div class="oneline p-2 teamText1" id="name" hidden>${getShortName(thisData.team1)}</div>
+                        </div>
+                        <div class="p-2 gap resultDiv" id="games">
+                            ${getGameResult(thisData)}
+                        </div>
+                        <div class="gap border-start rounded-end-3 border-black team2 bg-white">
+                            <div class="oneline p-2 small"><img src="${getTeamIcon(thisData.team2)}" alt="img" height="100%" id="image"></div>
+                            <br class="newLine" hidden>
+                            <div class="oneline p-2 teamText1" id="name">${getShortName(thisData.team2)}</div>
+                        </div>
                     </div>
-                    <div class="p-2 gap resultDiv" id="games">
-                        ${getGameResult(thisData)}
-                    </div>
-                    <div class="gap border-start rounded-end-3 border-black team2 bg-white">
-                        <div class="oneline p-2 small"><img src="${getTeamIcon(thisData.team2)}" alt="img" height="100%" id="image"></div>
-                        <br class="newLine" hidden>
-                        <div class="oneline p-2 teamText1" id="name">${getShortName(thisData.team2)}</div>
+                    <div class="border rounded-3 border-black" style="min-height:77px;padding:5px;background-color:${changeColor(thisData,types[num])}">
+                        ${displayResults(thisData,hasStarted(thisData),types[num])}
                     </div>
                 </div>
-                <div class="border rounded-3 border-black" style="min-height:77px;padding:5px;background-color:${changeColor(thisData,types[num])}">
-                    ${displayResults(thisData,hasStarted(thisData),types[num])}
-                </div>
+                ${displayAllBets(num,data[num],hasStarted(data[num]),types[num])}
             </div>
-            ${displayAllBets(num,data[num],hasStarted(data[num]),types[num])}
-    
-        </div>
         </div>`
     
     }    
@@ -1342,7 +1341,6 @@ async function load(){
         return response.json();
     });
 
-
     username = userData.username
     
     const data = await fetch('php/data.php')
@@ -1654,6 +1652,7 @@ function getSelectedCarouselItem(){
 function getLastStarted(data){
     let j = -1
     for(let i = 0; i < data.length; i++){
+        if(!hasStarted(data[i]) && j != -1) return j
         if(i % getPlayerDisplayCount() == 0) j++
         if(hasStarted(data[i]) && !isOver(data[i])) return j
     }

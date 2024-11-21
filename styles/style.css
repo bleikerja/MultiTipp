@@ -55,6 +55,7 @@ body, html{
     margin: 0;
     overflow: hidden;
     background-color: #f0f0f0;
+    font-family: 'Roboto', sans-serif;
 }
 
 .team1{
@@ -224,6 +225,7 @@ ul {
     border: 1px solid black;
     border-radius: 0.5rem;
     margin: 2px auto;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2), 0 6px 20px rgba(0, 0, 0, 0.19);
 }
 
 .list-group{
