@@ -844,6 +844,7 @@ function getResult(data,t,dailyT = dailyType){
                     let highestTeam = []
                     let highestGoals = 0
                     for(let game of data){
+                        if(!hasStarted(game)) continue;
                         let gameGoals = getGoals(game);
                         if(gameGoals[0] > highestGoals){
                             highestGoals = gameGoals[0]
@@ -873,6 +874,7 @@ function getResult(data,t,dailyT = dailyType){
                         });                    
                         let lastScore = [0,0];
                         for(let goal of gameGoals){
+                            if(!hasStarted(game)) continue;
                             let goalPlayerTeam = goal.scoreTeam1 > lastScore[0] ? game.team1.teamName: game.team2.teamName;
                             lastScore = [goal.scoreTeam1,goal.scoreTeam2];
                             if(goal.isOwnGoal) continue;
@@ -920,7 +922,9 @@ function getResult(data,t,dailyT = dailyType){
                     let highestWinner = []
                     let highestDifference = 0;
                     for(let game of data){
+                        if(!hasStarted(game)) continue;
                         goals = getGoals(game);
+                        if(goals[0] == goals[1]) continue;
                         let winner = goals[0] > goals[1] ? getShortName(game.team1): getShortName(game.team2);
                         let difference = Math.abs(goals[0] - goals[1]);
                         if(difference > highestDifference){
