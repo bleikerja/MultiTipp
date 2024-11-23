@@ -1492,6 +1492,13 @@ function getPlayerName(name,team=null){
     return playerName;
 }
 
+function isHalbzeit(data){
+    const time = new Date(data.matchDateTime);
+    const now = new Date();
+    const diff = Math.floor((now - time) / (1000 * 60));
+    return diff > 55;
+}
+
 function save(){
     var xhr = new XMLHttpRequest();
     xhr.open("GET", "php/saveData.php?data=" + encodeURIComponent(JSON.stringify(bets)), true);

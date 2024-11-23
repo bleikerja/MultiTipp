@@ -52,7 +52,18 @@ let removeInput = document.getElementById("groupDelete");
 let editingName = false
 let selectedCarouselItem = 0
  
+let carouselWidth = 0;
+
 start();
+
+setInterval(() => {
+    const carousel = document.querySelector('#carousel');
+    if(carouselWidth == 0) carouselWidth = carousel.offsetWidth
+    if (carousel.offsetWidth != carouselWidth) {
+        carousel.style.width = carouselWidth+"px";
+        console.log('Carousel width:', carousel.offsetWidth);
+    }
+}, 100);
 async function start(){
     const currentDaySearch = await fetch(new URL(`https://api.openligadb.de/getcurrentgroup/bl1`));
     const currentDayData = await currentDaySearch.json();
@@ -342,7 +353,6 @@ function showData(data,num,first=false,returnResult=false,nextData = null,champi
           <div class="d-flex">`
     
     if(num >= 100){
-        
         newHtml += showSaison(data,num)
     }else{
         newHtml += `<div class="flex-fill p-2">
