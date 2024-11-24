@@ -782,9 +782,7 @@ function getShortName(team){
     return teamname
 }
 
-function getTeamIcon(team){
-    if(team.teamIconUrl != "" && team.teamName != "Juventus Turin" && team.teamName != "Dinamo Zagreb") return team.teamIconUrl
-    
+function getTeamIcon(team){    
     switch(team.teamName){
         case "Dinamo Zagreb":
             return "https://derivates.kicker.de/image/fetch/f_webp/w_76%2Ch_76%2Cc_fit%2Cq_auto:best/https://mediadb.kicker.de/2021/fussball/vereine/xxl/1029_20210309974.png"
@@ -804,7 +802,11 @@ function getTeamIcon(team){
             return "https://upload.wikimedia.org/wikipedia/de/thumb/2/20/SK_Sturm_Graz_Logo.svg/300px-SK_Sturm_Graz_Logo.svg.png"
         case "Stade Brest":
             return "https://derivates.kicker.de/image/fetch/f_webp/w_30%2Ch_30%2Cc_fit%2Cq_auto:best/https://mediadb.kicker.de/2013/fussball/vereine/xxl/1745_20180228949.png"
+        case "Roter Stern Belgrad":
+            return "https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/FK_Crvena_Zvezda_Logo.svg/1200px-FK_Crvena_Zvezda_Logo.svg.png"
     }
+    
+    return team.teamIconUrl
 }
 
 
