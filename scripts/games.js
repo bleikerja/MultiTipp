@@ -61,7 +61,6 @@ setInterval(() => {
     if(carouselWidth == 0) carouselWidth = carousel.offsetWidth
     if (carousel.offsetWidth != carouselWidth) {
         carousel.style.width = carouselWidth+"px";
-        console.log('Carousel width:', carousel.offsetWidth);
     }
 }, 100);
 async function start(){
@@ -1088,11 +1087,10 @@ function getGameResult(data){
 }
 
 function hasStarted(data){
-    
+    if(!data) return false;
     const date = new Date(data.matchDateTime);
     let now = new Date();
     if(now < date) return false;
-    //throw new Error("nooo")
     return true;
 }
 
@@ -1560,6 +1558,8 @@ function getShortName(team){
             return "Brest"
         case "Madrid":
             return "Real"
+        case "München":
+            return "Bayern"
     }
     return teamname
 }
@@ -1604,9 +1604,11 @@ function championsLeagueDaysBeforeDay(day){
 }
 
 function getLastFilled(arr){
-    for(let player of arr){
-        for(let i = player.length-1; i >= 0; i--){
-            if(player[i] != 0 && i < 34) return i
+    for(let i = 33; i >= 0; i--){
+        for(let player of arr){
+            if(player[i] > 0){
+                return i
+            };
         }
     }
     return 0
