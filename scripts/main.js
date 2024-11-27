@@ -778,6 +778,8 @@ function getShortName(team){
             return "Brest"
         case "Madrid":
             return "Real"
+        case "München":
+            return "Bayern"
     }
     return teamname
 }
