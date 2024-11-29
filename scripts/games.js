@@ -69,6 +69,7 @@ async function start(){
     liveDay = currentDayData.groupOrderID;
     const responseLiveday = await fetch(new URL(`https://api.openligadb.de/getmatchdata/bl1/2024/${liveDay}`));
     liveDayData = await responseLiveday.json();
+    liveDayChampion = (await fetch(new URL(`https://api.openligadb.de/getcurrentgroup/cl24de`)).then(response => response.json())).groupOrderID;
     
     if(championsLeagueGamedays.includes(liveDay) && isOver(liveDayData[liveDayData.length - 1]) || championsLeagueGamedays.includes(liveDay - 1) && !hasStarted(liveDayData[liveDayData.length - 1])){        
         let today = new Date();
@@ -77,7 +78,7 @@ async function start(){
                 if(i <= liveDay) liveDayChampion = championsLeagueGamedays.indexOf(i)
             }
             liveDayIsChampion = true
-            const currentChampionsDayResponse = await fetch(new URL("https://api.openligadb.de/getmatchdata/ucl2024/2024/1"));
+            const currentChampionsDayResponse = await fetch(new URL(`https://api.openligadb.de/getmatchdata/cl24de/2024/${championsDay}`));	
             championsDayData = await currentChampionsDayResponse.json();    
         }else{
             liveDayIsChampion = false
@@ -149,17 +150,9 @@ async function showSpieltag(n,index = false){
     
     
     if(n > 34){
-        let tempChamp = championsDayData != null ? championsDayData: await fetch(new URL(`https://api.openligadb.de/getmatchdata/ucl2024/2024/1`)).then(response => response.json());
+        championsDay = n - 34
+        let data = championsDayData != null ? championsDayData: await fetch(new URL(`https://api.openligadb.de/getmatchdata/cl24de/2024/${championsDay}`)).then(response => response.json());
         let rand = new RND(n);
-        
-        let startIndex = (n-35)*18
-        let data = [];
-        let germanTeams = ["Stuttgart","Dortmund","Bayern","Leipzig","Leverkusen"]
-        
-        for(let i = startIndex; i < startIndex+18; i++){
-            if(germanTeams.includes(getShortName(tempChamp[i].team1)) || germanTeams.includes(getShortName(tempChamp[i].team2))) data.push(tempChamp[i]);
-        }
-
 
         d = [...data]
 
@@ -197,7 +190,7 @@ async function showSpieltag(n,index = false){
         const tableData = await tableResponse.json();
         wholeTable = tableData
         
-        const tableResponseChampion = await fetch(new URL(`https://api.openligadb.de/getbltable/ucl2024/2024`));
+        const tableResponseChampion = await fetch(new URL(`https://api.openligadb.de/getbltable/cl24de/2024`));
         const tableDataChampion = await tableResponseChampion.json();
         wholeTableChampion = tableDataChampion
         
@@ -208,10 +201,10 @@ async function showSpieltag(n,index = false){
         const goalgetterData = await goalgetterResponse.json();
         goalgetters = goalgetterData
 
-        const championsDayResponse = await fetch(new URL(`https://api.openligadb.de/getcurrentgroup/ucl2024`));
+        const championsDayResponse = await fetch(new URL(`https://api.openligadb.de/getcurrentgroup/cl24de`));
         championsDay = await championsDayResponse.json();
 
-        if(championsDayData == null) championsDayData = await fetch(new URL(`https://api.openligadb.de/getmatchdata/ucl2024/2024/1`)).then(response => response.json());
+        if(championsDayData == null) championsDayData = await fetch(new URL(`https://api.openligadb.de/getmatchdata/cl24de/2024/${championsDay.groupOrderID}`)).then(response => response.json());
         
         showData(tableData,100,true,false,goalgetterData)
         showData(goalgetterData,101,false,false,tableData)
@@ -395,7 +388,7 @@ function showData(data,num,first=false,returnResult=false,nextData = null,champi
 function changeColor(data,type,result = false){
     if(type >= 100){
         if(isOver(lastDay[0])) return "#949494"
-        let saisonHasStarted = type < 103 ? hasStarted(dataDay3[0]): (championsDay.groupOrderID > 1 ? true: hasStarted(championsDayData[0]))
+        let saisonHasStarted = type < 103 ? hasStarted(dataDay3[0]): (championsDay > 1 ? true: hasStarted(championsDayData[0]))
         if(saisonHasStarted) return "#ffd599";
         return "#f5f5f5";
     }
@@ -464,7 +457,7 @@ function showDaily(data,num,returnResult = true,champions=false){
 }
 
 function showSaison(data,num){
-    let saisonHasStarted = num < 103 ? hasStarted(dataDay3[0]): (championsDay.groupOrderID > 1 ? true: hasStarted(championsDayData[0]))
+    let saisonHasStarted = num < 103 ? hasStarted(dataDay3[0]): (championsDay > 1 ? true: hasStarted(championsDayData[0]))
     const newHtml = `<div class="saison flex-fill p-2">
         <div class="betContainer">
             <div id="SaisonContainer" class="border rounded-3 border-black saisonContainer">
@@ -506,7 +499,13 @@ function isFixBet(data,type,bet = null){
         case 2: case 3:
             return getFirstGoal(data) != null;
         case 4:
-            if(bet == null && data.goals.length != 0) return true
+            console.log(bet)
+            if(bet == null && data.goals.length != 0 && data.leagueShortcut != "cl24de") return true
+            if(bet == null && data.leagueShortcut == "cl24de"){
+                let goals = getGoals(data);
+                if(goals[0] == 0 && germanTeams.includes(getShortName(data.team1))) return false;
+                if(goals[1] == 0 && germanTeams.includes(getShortName(data.team2))) return false;
+            }
             if(bet == "kein Tor" && !isOver(data)) return false
             return getResult(data,type).includes(bet) 
         case 5:
@@ -621,7 +620,7 @@ function isFixBet(data,type,bet = null){
         case 100:case 101:case 102:
             return isOver(lastDay[0])
         case 103:
-            return championsDay.groupOrderID > 1
+            return championsDay > 1
         case 104:
             false
     }
@@ -698,7 +697,7 @@ function dayhasStarted(data){
 
 function displayResults(data,started,t){
     let display = t < 10 ? getTitle(titles[t-1]): (t < 100 ? (getTitle(t == 10 ? dailyTitles[dailyType-1]: championsLeagueTitles[dailyType-1])): getTitle(saisonTitles[t-100]));
-    if(data.leagueShortcut == "ucl2024" && t == 4){
+    if(data.leagueShortcut == "cl24de" && t == 4){
         let germanTeams = ["Stuttgart","Dortmund","Bayern","Leipzig","Leverkusen"]
         let germanTeam = germanTeams.includes(getShortName(data.team1)) ? getShortName(data.team1): getShortName(data.team2)
         display = display.replace("Spieler",germanTeam+" Spieler")
@@ -791,7 +790,7 @@ function getResult(data,t,dailyT = dailyType){
                 if(goal.scoreTeam1 == 0 && goal.scoreTeam2 == 0) continue;
                 let goalPlayerTeam = goal.scoreTeam1 > lastScore[0] ? data.team1: data.team2;
                 lastScore = [goal.scoreTeam1,goal.scoreTeam2];
-                if(data.leagueShortcut == "ucl2024" && !germanTeams.includes(getShortName(goalPlayerTeam))) continue;
+                if(data.leagueShortcut == "cl24de" && !germanTeams.includes(getShortName(goalPlayerTeam))) continue;
                 
                 let goalPlayer = goal.goalGetterName != "" ? getPlayerName(goal.goalGetterName,goalPlayerTeam.teamName): "?";
                 
@@ -831,12 +830,14 @@ function getResult(data,t,dailyT = dailyType){
             }
             break;
         case 8:
+            let diff = Math.abs(totalGoals[0] - totalGoals[1]);
+            if(diff >= 4){
+                diff = "4+";
+            }
             if(totalGoals[0] == totalGoals[1]){
                 result.push("Unentschieden");
-            }else if(totalGoals[0] < totalGoals[1]){
-                result.push(winningTeam + " & " + (totalGoals[1] - totalGoals[0]));
             }else{
-                result.push(winningTeam + " & " + (totalGoals[0] - totalGoals[1]));
+                result.push(winningTeam + " & " + diff);
             }
             break;
         case 9:
@@ -1450,7 +1451,6 @@ async function loadPoints(){
 
     startIndex = getLastFilledChamp(points)
     
-    
     for(let day = startIndex; day <= 34 + liveDayChampion; day++){
         let rand = new RND(day+1);
         let typesLeftN = [1,4,5,6,8];
@@ -1463,20 +1463,12 @@ async function loadPoints(){
         }
         dailyInt = rand.nextInRange(1,3)
 
-        let tempChamp = championsDayData != null ? championsDayData: await fetch(new URL(`https://api.openligadb.de/getmatchdata/ucl2024/2024/1`)).then(response => response.json());
-        let startIndexThis = (day-34)*18
-        let data = [];
-        let germanTeams = ["Stuttgart","Dortmund","Bayern","Leipzig","Leverkusen"]
-        
-        for(let i = startIndexThis; i < startIndexThis+18; i++){
-            if(germanTeams.includes(getShortName(tempChamp[i].team1)) || germanTeams.includes(getShortName(tempChamp[i].team2))) data.push(tempChamp[i]);
-        }
-
+        let data = championsDayData != null ? championsDayData: await fetch(new URL(`https://api.openligadb.de/getmatchdata/cl24de/2024/${day-33}`)).then(response => response.json());
         
         for(let playerindex = 0; playerindex < bets.length; playerindex++){
             if(day > bets[playerindex.length-1]) break;
             let bet = bets[playerindex][day]
-            
+
             points[playerindex][day] = 0;
             
             if(!bet) continue;
@@ -1504,90 +1496,11 @@ function getShortName(team){
     switch(teamname){
         case "BVB":
             return "Dortmund"
-        case "AC Milan":
-            return "Milan"
-        case "AS Monaco":
-            return "Monaco"
-        case "Aston Villa FC":
-            return "Aston Villa"
-        case "Atalanta Bergamo":
-            return "Atalanta"
-        case "Atletico Madrid":
-            return "Atletico"
-        case "Bologna FC":
-            return "Bologna"
-        case "Benfica Lissabon":
-            return "Benfica"
-        case "YB":
-            return "Bern"
-        case "Celtic Glasgow":
-            return "Glasgow"
-        case "Dinamo Zagreb":
-            return "Dinamo"
-        case "FC Barcelona":
-            return "Barcelona"
-        case "FC Brügge":
-            return "Brügge"
-        case "FC Liverpool":
-            return "Liverpool"
-        case "FC Red Bull Salzburg":
-            return "Salzburg"
-        case "Feyenoord Rotterdam":
-            return "Feyenoord"
-        case "Inter Mailand":
-            return "Inter"
-        case "Juve":
-            return "Juventus"
-        case "Manchester City":
-            return "Manchester"
-        case "OSC Lille":
-            return "Lille"
-        case "Paris Saint-Germain":
-            return "Paris"
-        case "PSV Eindhoven":
-            return "Eindhoven"
-        case "Roter Stern Belgrad":
-            return "Belgrad"
-        case "Shakhtar Donetsk":
-            return "Donezk"
-        case "Sparta Prag":
-            return "Prag"
-        case "Sporting CP":
-            return "Sporting"
-        case "Stade Brest":
-            return "Brest"
-        case "Madrid":
-            return "Real"
-        case "München":
-            return "Bayern"
     }
     return teamname
 }
 
-function getTeamIcon(team){    
-    switch(team.teamName){
-        case "Dinamo Zagreb":
-            return "https://derivates.kicker.de/image/fetch/f_webp/w_76%2Ch_76%2Cc_fit%2Cq_auto:best/https://mediadb.kicker.de/2021/fussball/vereine/xxl/1029_20210309974.png"
-        case "AC Milan":
-            return "https://upload.wikimedia.org/wikipedia/de/thumb/1/16/AC_Milan_Logo.svg/1200px-AC_Milan_Logo.svg.png"
-        case "Benfica Lissabon":
-            return "https://tmssl.akamaized.net/images/wappen/big/10330.png?lm=1535908439"
-        case "FC Barcelona":
-            return "https://upload.wikimedia.org/wikipedia/de/thumb/a/aa/Fc_barcelona.svg/180px-Fc_barcelona.svg.png"
-        case "Juventus Turin":
-            return "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Juventus_FC_-_pictogram_black_%28Italy%2C_2017%29.svg/800px-Juventus_FC_-_pictogram_black_%28Italy%2C_2017%29.svg.png"
-        case "Shakhtar Donetsk":
-            return "https://upload.wikimedia.org/wikipedia/de/thumb/1/13/Fc_shaktar_%28neu%29.svg/180px-Fc_shaktar_%28neu%29.svg.png"
-        case "ŠK Slovan Bratislava":
-            return "https://upload.wikimedia.org/wikipedia/commons/thumb/0/01/SK_Slovan_Bratislava_logo.svg/285px-SK_Slovan_Bratislava_logo.svg.png"
-        case "SK Sturm Graz":
-            return "https://upload.wikimedia.org/wikipedia/de/thumb/2/20/SK_Sturm_Graz_Logo.svg/300px-SK_Sturm_Graz_Logo.svg.png"
-        case "Stade Brest":
-            return "https://derivates.kicker.de/image/fetch/f_webp/w_30%2Ch_30%2Cc_fit%2Cq_auto:best/https://mediadb.kicker.de/2013/fussball/vereine/xxl/1745_20180228949.png"
-        case "Roter Stern Belgrad":
-            return "https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/FK_Crvena_Zvezda_Logo.svg/1200px-FK_Crvena_Zvezda_Logo.svg.png"
-    }
-    
+function getTeamIcon(team){
     return team.teamIconUrl
 }
 
