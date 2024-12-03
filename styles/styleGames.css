@@ -90,6 +90,10 @@ html,body{
         margin: auto !important;
         width: 95vw; /* Set a fixed width for the carousel */
     }
+    .carousel-control-prev, .carousel-control-next {
+        top: 50% !important;
+        height: 95% !important;
+    }
     .saison, .saisonContainer{
         min-width: 1px !important;
     }
