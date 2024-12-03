@@ -521,7 +521,6 @@ function isFixBet(data,type,bet = null){
         case 2: case 3:
             return getFirstGoal(data) != null;
         case 4:
-            console.log(bet)
             if(bet == null && data.goals.length != 0 && data.leagueShortcut != "cl24de") return true
             if(bet == null && data.leagueShortcut == "cl24de"){
                 let goals = getGoals(data);
