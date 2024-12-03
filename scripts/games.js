@@ -24,7 +24,7 @@ let championsDayData = null
 
 let shift = 0
 let saisonShift = 0
-
+let sortingByTotal = true;
 
 let bets = [];
 let saisonBetsFix = []
@@ -63,7 +63,9 @@ setInterval(() => {
         carousel.style.width = carouselWidth+"px";
     }
 }, 100);
+
 async function start(){
+    document.getElementById("gameCarousel").innerHTML = "";
     const currentDaySearch = await fetch(new URL(`https://api.openligadb.de/getcurrentgroup/bl1`));
     const currentDayData = await currentDaySearch.json();
     liveDay = currentDayData.groupOrderID;
@@ -102,7 +104,8 @@ async function start(){
     const urlParams = new URLSearchParams(queryString);
     let day = isNaN(parseInt(urlParams.get('day'))) ? urlParams.get('day'): parseInt(urlParams.get('day'))
     
-    showSpieltag(day != null ? day: (!liveDayIsChampion ? liveDay: liveDayChampion+35));
+    await showSpieltag(day != null ? day: (!liveDayIsChampion ? liveDay: liveDayChampion+35));
+    changePlayerOrder(sortingByTotal);
 }
 async function showSpieltag(n,index = false){
     if(index){
@@ -239,6 +242,7 @@ async function showSpieltag(n,index = false){
     displayPlayerPoints();
     displayPoints(n)
     selectCarouselItem(getLastStarted(data))
+    changePlayerOrder(sortingByTotal);
 }
 
 function displayPoints(n){
@@ -250,7 +254,6 @@ function displayPoints(n){
         let dayPoints = points[i][n-1]
         document.getElementById("totalPoints" + player).innerHTML = totalPoints;
         document.getElementById("dayPoints" + player).innerHTML = dayPoints;
-        document.getElementById("name" + player).innerText = player
         for(let n of document.getElementsByClassName("totalPoints" + player)){
             n.innerHTML = totalPoints
         }
@@ -292,6 +295,24 @@ function updateDisplay(){
     displayPlayerPoints();
     displayPoints(currentDay)
     selectCarouselItem(selectedCarouselItem)
+
+    if(sortingByTotal){
+        for(let i = 0; i < document.getElementsByClassName("sortTotal").length; i++){
+            let sortTotal = document.getElementsByClassName("sortTotal")[i];
+            sortTotal.classList.add("selected");
+        }
+        for(let i = 0; i < document.getElementsByClassName("sortDay").length; i++){
+            let sortDay = document.getElementsByClassName("sortDay")[i];
+            sortDay.classList.remove("selected");
+        }
+    }else{
+        for(let sortTotal of document.getElementsByClassName("sortTotal")){
+            sortTotal.classList.remove("selected");
+        }
+        for(let sortDay of document.getElementsByClassName("sortDay")){
+            sortDay.classList.add("selected");
+        }
+    }
 }
 
 function moveGameday(num){
@@ -347,9 +368,10 @@ function showData(data,num,first=false,returnResult=false,nextData = null,champi
     if(num >= 100){
         newHtml += showSaison(data,num)
     }else{
-        newHtml += `<div class="flex-fill p-2">
+        newHtml += `
+        <div class="flex-fill p-2">
             <div class="betContainer2">
-            <div class="border rounded-3 border-black resultDisplay">
+                <div class="border rounded-3 border-black resultDisplay">
                     <div id="bet${thisData.matchID}" class="d-flex flex-row mb-2 game border rounded-3 border-black" aria-expanded="false" style="background-color:${changeColor(thisData,types[num],true)}">
                         <div class="border-end rounded-start-3 border-black team1 bg-white"> 
                             <div class="oneline p-2 teamText" id="name">${getShortName(thisData.team1)}</div>
@@ -650,42 +672,53 @@ function isOver(data){
 }
 
 function displayAllBets(num,data,hasStarted,t){
-    let display = `<div class="pointsTopSmall">
-                <p id="noplayer"></p>
-                <div class="playerPointsTop">
-                    <p id="totalPoints" onclick="changePlayerOrder(true)">Gesamt</p>
-                    <p id="dayPoints" onclick="changePlayerOrder(false)">Spieltag</p>  
-                </div>
-            </div>`;
+    let display = `
+        <div class="sort mobile">
+            <div class="sortTotal sortText ${sortingByTotal ? "selected":""}" onclick="changePlayerOrder(true)">Gesamt</div>
+            <div class="sortDay sortText ${!sortingByTotal ? "selected":""}" onclick="changePlayerOrder(false)">Spieltag</div>
+        </div>
+    `
+
     for(let i = 0; i < playernames.length; i++){
         let player = currentDay != 0 ? bets[i]: saisonBets[i];
-        display += 
-        `<div class="playernameBar">
-            <p class="playernameTop nameTop${playernames[i]}" id="name${playernames[i]}">${playernames[i]}</p>
-            <div class="playerPoints">
-                <p class="totalPoints${playernames[i]}"></p>
-                <p class="dayPoints${playernames[i]}"></p>  
-            </div>
-        </div>`
 
         if(!hasStarted && playernames[i] != username || num == 9 && ((bets[playernames.indexOf(username)][currentDay-1] == null || bets[playernames.indexOf(username)][currentDay-1][num].length == 0) && !this.hasStarted(d[d.length-1]))){
             let extraInfo = ""
             if(player[currentDay-1] != null && player[currentDay-1][num].length != 0){
                 extraInfo = getBetDisplay("?")
             }
-            display += `<div class="gap border rounded-3 border-black betsDisplay" style="padding:5px;background-color:${changeColor(data,t)}">
-                ${extraInfo}
-            </div>`
+            display += getBetsDisplay(extraInfo,changeColor(data,t), playernames[i], i);
             continue;
         } 
-        display += `<div class="gap border rounded-3 border-black betsDisplay" style="padding:5px;background-color:${changeColor(data,t)}">
-            ${displayBet(num,data,hasStarted,player,t,i)}
-        </div>`
+        display += getBetsDisplay(displayBet(num,data,hasStarted,player,t,i),changeColor(data,t),playernames[i], i)
     }
     
     return display;
 }
 
+function getBetsDisplay(content, color, playername, i){
+    let place = 1;
+    let pointsThis = getTotalPoints(i)
+    for(let j = 0; j < playernames.length; j++){
+        if(j == i) continue;
+        if(getTotalPoints(j) > pointsThis) place++;
+    }
+    return `
+    <div class="gap border rounded-3 border-black betsDisplay desktop" style="padding:5px;background-color:${color}">
+        ${content}
+    </div>
+    <div class="boxM mobile" style="background-color:${color}">
+        <div class="playerM">
+            <div class="playernameM">${place}. ${playername}</div>
+            <div class="pointsM">
+                <div class="pointsTotalM pointsTextM">${pointsThis}</div>
+                <div class="pointsDayM pointsTextM">${points[i][currentDay-1]}</div>
+            </div>
+        </div>
+        <div class="betsDisplay">${content}</div>
+    </div>
+    ` 
+}
 
 function dayhasStarted(data){
     for(n of data){
@@ -693,7 +726,6 @@ function dayhasStarted(data){
     }
     return false
 }
-
 
 function displayResults(data,started,t){
     let display = t < 10 ? getTitle(titles[t-1]): (t < 100 ? (getTitle(t == 10 ? dailyTitles[dailyType-1]: championsLeagueTitles[dailyType-1])): getTitle(saisonTitles[t-100]));
@@ -1104,10 +1136,10 @@ function displayBet(num,data,hasStarted,currentBets,t,index){
         let bet = currentBet[num][i]
         //if(t == 7 || t == 6) newType = t + (0.5 * i)
         if(t == 7){
-            display += getTitle(`${i+1}. Halbzeit`,false)
+            display += "<div class='multiDisplay'>" +  getTitle(`${i+1}. Halbzeit`,false)
         }
         if(t == 6){
-            display += getTitle(getShortName(getTeams(data)[i]),false)
+            display += "<div class='multiDisplay'>" +  getTitle(getShortName(getTeams(data)[i]),false)
         }
 
         let fix = getFix((t < 10 ? data.matchID: (t < 100 ? "daily" + data[0].group.groupOrderID: "saison" + (t-100))),i,playernames[index]);
@@ -1118,6 +1150,7 @@ function displayBet(num,data,hasStarted,currentBets,t,index){
         }else{
             display += getBetDisplay(fix.fix_data,changeColorBet(data,t,hasStarted,i,bet,index),playernames[index],fix.game_id,i)
         }
+        if(t == 7 || t == 6) display += "</div>"
     }
     return display;
 }
@@ -1134,27 +1167,29 @@ function displayPlayerPoints(){
     setIn.innerHTML = `
             <div class="pointsTop">
                 <p id="noplayer"></p>
-                <div class="playerPointsTop">
-                    <p id="totalPoints" onclick="changePlayerOrder(true)">Gesamt</p>
-                    <p id="dayPoints" onclick="changePlayerOrder(false)">Spieltag</p>  
+                <div class="sort desktop">
+                    <div class="sortTotal sortText ${sortingByTotal ? "selected":""}" onclick="changePlayerOrder(true)">Gesamt</div>
+                    <div class="sortDay sortText ${!sortingByTotal ? "selected":""}" onclick="changePlayerOrder(false)">Spieltag</div>
                 </div>
             </div>
             `
     for(let i = 0;i < playernames.length;i++){
+        let place = 1;
+        let pointsThis = getTotalPoints(i)
+        for(let j = 0; j < playernames.length; j++){
+            if(j == i) continue;
+            if(getTotalPoints(j) > pointsThis) place++;
+        }
         let player = playernames[i]
         let display = 
         `
         <div class="betContainer">
             <div class="playerPointDiv">
-                
-                <p class=playername id="name${player}">${player}</p>
-
-            
+                <p class=playername id="name${player}">${place}. ${player}</p>
                 <div class="playerPoints">
                     <p id="totalPoints${player}"></p>
                     <p id="dayPoints${player}"></p>  
                 </div>
-                
             </div>
         </div>`;
         setIn.insertAdjacentHTML("beforeend",display);
@@ -1165,29 +1200,11 @@ function displayPlayerPoints(){
     
 }
 
-function shiftPlayerOrder(forward){
-    if(playernames.length - getPlayerDisplayCount() <= 0) return;
-    if(forward){
-        if(shift >= playernames.length - getPlayerDisplayCount()) return;
-        playernames.push(playernames.shift());
-        bets.push(bets.shift());
-        points.push(points.shift());
-        shift++;
-    }else{
-        if(shift == 0) return;
-        playernames.unshift(playernames.pop());
-        bets.unshift(bets.pop());
-        points.unshift(points.pop());
-        shift--;
-    }
-    
-    updateDisplay();
-}
-
 function changePlayerOrder(total){
     shift = 0;
     selectedCarouselItem = getSelectedCarouselItem()
     gameCarousel.innerHTML = '';
+    sortingByTotal = total;
     if(total){
         let indices = Array.from({length: playernames.length}, (_, i) => i);
         indices.sort((a, b) => comparePoints(playernames[a],playernames[b]));
@@ -1201,9 +1218,7 @@ function changePlayerOrder(total){
         bets = indices.map(i => bets[i]);
         points = indices.map(i => points[i]);
     }
-    
-    
-    
+
     updateDisplay()
 }
 
