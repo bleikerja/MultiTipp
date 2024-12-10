@@ -402,6 +402,11 @@ ul {
     .menu-account{
         display: none;
     }
+    .main{
+        margin-left: 5px !important;
+        max-height: 83% !important;
+        height: 83% !important;
+    }
 }
 
 @media (min-width: 661px){

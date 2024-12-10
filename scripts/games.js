@@ -154,9 +154,10 @@ async function showSpieltag(n,index = false){
     
     if(n > 34){
         championsDay = n - 34
-        let data = championsDayData != null ? championsDayData: await fetch(new URL(`https://api.openligadb.de/getmatchdata/cl24de/2024/${championsDay}`)).then(response => response.json());
+        let data = championsDayData?.length != 0 ? championsDayData: await fetch(new URL(`https://api.openligadb.de/getmatchdata/cl24de/2024/${championsDay}`)).then(response => response.json());
         let rand = new RND(n);
-
+        
+        console.log(championsDay,data,championsDayData)
         d = [...data]
 
         typesLeft = [1,4,5,6,8];
@@ -352,6 +353,7 @@ function updateURLParameter(url, param, paramVal){
 }
 
 function showData(data,num,first=false,returnResult=false,nextData = null,champions=false){
+    console.log(data)
     if(num % getPlayerDisplayCount() != 0 && !returnResult) return;
     
     if(num > data.length-1 && num < 100 || champions && num == 5) {
@@ -727,6 +729,8 @@ function dayhasStarted(data){
 }
 
 function displayResults(data,started,t){
+    if(data.length == 0 && t<10) throw new Error("No data provided for displayResults")
+
     let display = t < 10 ? getTitle(titles[t-1]): (t < 100 ? (getTitle(t == 10 ? dailyTitles[dailyType-1]: championsLeagueTitles[dailyType-1])): getTitle(saisonTitles[t-100]));
     if(data.leagueShortcut == "cl24de" && t == 4){
         let germanTeams = ["Stuttgart","Dortmund","Bayern","Leipzig","Leverkusen"]

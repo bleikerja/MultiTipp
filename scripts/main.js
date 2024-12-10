@@ -170,7 +170,7 @@ async function showSpieltag(n=null,index = false){
     }
     if(n > 34){
         championsDay = n - 34
-        let dataChamp = championsDayData != null ? championsDayData: await fetch(new URL(`https://api.openligadb.de/getmatchdata/cl24de/2024/${championsDay}`)).then(response => response.json());
+        let dataChamp = championsDayData?.length != 0 ? championsDayData: await fetch(new URL(`https://api.openligadb.de/getmatchdata/cl24de/2024/${championsDay}`)).then(response => response.json());
 
         let rand = new RND(n);
         typesLeft = [1,4,5,6,8];
