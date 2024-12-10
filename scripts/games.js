@@ -20,7 +20,7 @@ let goalgetters = null
 let wholeTable = null
 let wholeTableChampion = null
 let championsDay = null
-let championsDayData = null
+let championsDayData = []
 
 let shift = 0
 let saisonShift = 0
@@ -154,7 +154,7 @@ async function showSpieltag(n,index = false){
     
     if(n > 34){
         championsDay = n - 34
-        let data = championsDayData?.length != 0 ? championsDayData: await fetch(new URL(`https://api.openligadb.de/getmatchdata/cl24de/2024/${championsDay}`)).then(response => response.json());
+        let data = championsDayData.length != 0 ? championsDayData: await fetch(new URL(`https://api.openligadb.de/getmatchdata/cl24de/2024/${championsDay}`)).then(response => response.json());
         let rand = new RND(n);
         
         d = [...data]
@@ -207,7 +207,7 @@ async function showSpieltag(n,index = false){
         const championsDayResponse = await fetch(new URL(`https://api.openligadb.de/getcurrentgroup/cl24de`));
         championsDay = await championsDayResponse.json();
 
-        if(championsDayData == null) championsDayData = await fetch(new URL(`https://api.openligadb.de/getmatchdata/cl24de/2024/${championsDay.groupOrderID}`)).then(response => response.json());
+        if(championsDayData.length == 0) championsDayData = await fetch(new URL(`https://api.openligadb.de/getmatchdata/cl24de/2024/${championsDay.groupOrderID}`)).then(response => response.json());
         
         showData(tableData,100,true,false,goalgetterData)
         showData(goalgetterData,101,false,false,tableData)
@@ -1465,8 +1465,8 @@ async function loadPoints(){
         }
     }
 
-    startIndex = getLastFilledChamp(points)
-    
+    startIndex = getLastFilledChamp(points);
+    console.log(startIndex,liveDayChampion)
     for(let day = startIndex; day <= 34 + liveDayChampion; day++){
         let rand = new RND(day+1);
         let typesLeftN = [1,4,5,6,8];
@@ -1479,7 +1479,7 @@ async function loadPoints(){
         }
         dailyInt = rand.nextInRange(1,3)
 
-        let data = championsDayData != null ? championsDayData: await fetch(new URL(`https://api.openligadb.de/getmatchdata/cl24de/2024/${day-33}`)).then(response => response.json());
+        let data = championsDayData.length != 0 ? championsDayData: await fetch(new URL(`https://api.openligadb.de/getmatchdata/cl24de/2024/${day-33}`)).then(response => response.json());
         
         for(let playerindex = 0; playerindex < bets.length; playerindex++){
             if(day > bets[playerindex.length-1]) break;
@@ -1493,7 +1493,7 @@ async function loadPoints(){
                     points[playerindex][day] += 2 * getPoints(num,data,bet[num],20,hasStarted(data[0]),dailyInt,playerindex);
                     break;
                 }
-                
+                console.log(getPoints(num,data[num],bet[num],typesN[num],hasStarted(data[num]),null,playerindex))
                 points[playerindex][day] += getPoints(num,data[num],bet[num],typesN[num],hasStarted(data[num]),null,playerindex);
             }
         }
