@@ -960,6 +960,7 @@ function getResult(data,t,dailyT = dailyType){
                         if(goals[0] == 0) result.push(getShortName(game.team1));
                         if(goals[1] == 0) result.push(getShortName(game.team2));
                     }
+                    if(result.length == 0) result.push("kein Team");
                     break;
                 case 5:
                     let highestWinner = []
