@@ -1018,7 +1018,7 @@ function isFixBet(data,type,bet = null){
                     }else if(bet == "kein Team"){
                         for(let game of data){
                             let totalGoals = getGoals(game)
-                            if(totalGoals[0] == 0 && totalGoals[1] == 0 && isOver(game)) return true
+                            if(totalGoals[0] == 0 || totalGoals[1] == 0 && isOver(game)) return true
                         }
                         return false
                     }
