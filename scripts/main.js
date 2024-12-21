@@ -965,7 +965,7 @@ function isFixBet(data,type,bet = null){
             return getFirstGoal(data) != null;
         case 4:
             if(bet == null && data.goals.length != 0) return true
-            if(bet == "kein Tor" && !isOver(data)) return false
+            if(bet == "kein Tor" && getFirstGoal(data) != null) return true
             return getResult(data,type).includes(bet) 
         case 5:
             if(bet == null || bet == "6+") return (getGoals(data)[0] + getGoals(data)[1]) >= 6
@@ -1018,9 +1018,9 @@ function isFixBet(data,type,bet = null){
                     }else if(bet == "kein Team"){
                         for(let game of data){
                             let totalGoals = getGoals(game)
-                            if(totalGoals[0] == 0 && totalGoals[1] == 0) return false
+                            if(totalGoals[0] == 0 && totalGoals[1] == 0 && isOver(game)) return true
                         }
-                        return true
+                        return false
                     }
                 case 1: case 3: case 5:
                     if(bet != null){

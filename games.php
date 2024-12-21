@@ -87,6 +87,6 @@
         </div>
         
     </div>
-    <script src="scripts/games.js?v=20"></script>
+    <script src="scripts/games.js?v=21"></script>
 </body>
 </html>
