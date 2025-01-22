@@ -77,7 +77,7 @@ async function start(){
         let today = new Date();
         if (today.getDay() >= 2 && today.getDay() <= 3){
             for(let i of championsLeagueGamedays){
-                if(i <= liveDay) liveDayChampion = championsLeagueGamedays.indexOf(i)
+                //if(i <= liveDay) liveDayChampion = championsLeagueGamedays.indexOf(i)
             }
             liveDayIsChampion = true
             const currentChampionsDayResponse = await fetch(new URL(`https://api.openligadb.de/getmatchdata/cl24de/2024/${championsDay}`));	
@@ -104,7 +104,7 @@ async function start(){
     const urlParams = new URLSearchParams(queryString);
     let day = isNaN(parseInt(urlParams.get('day'))) ? urlParams.get('day'): parseInt(urlParams.get('day'))
     
-    await showSpieltag(day != null ? day: (!liveDayIsChampion ? liveDay: liveDayChampion+35));
+    await showSpieltag(day != null ? day: (!liveDayIsChampion ? liveDay: liveDayChampion+34));
     changePlayerOrder(sortingByTotal);
 }
 async function showSpieltag(n,index = false){
@@ -1467,7 +1467,6 @@ async function loadPoints(){
     }
 
     startIndex = getLastFilledChamp(points);
-    console.log(startIndex,liveDayChampion)
     for(let day = startIndex; day <= 34 + liveDayChampion; day++){
         let rand = new RND(day+1);
         let typesLeftN = [1,4,5,6,8];
@@ -1494,7 +1493,6 @@ async function loadPoints(){
                     points[playerindex][day] += 2 * getPoints(num,data,bet[num],20,hasStarted(data[0]),dailyInt,playerindex);
                     break;
                 }
-                console.log(getPoints(num,data[num],bet[num],typesN[num],hasStarted(data[num]),null,playerindex))
                 points[playerindex][day] += getPoints(num,data[num],bet[num],typesN[num],hasStarted(data[num]),null,playerindex);
             }
         }
