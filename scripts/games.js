@@ -175,6 +175,7 @@ async function showSpieltag(n,index = false){
             showData(data,i,false,false,null,true);
         }
         
+        selectCarouselItem(getLastStarted(data))
         displayPlayerPoints();
         displayPoints(n)
 
