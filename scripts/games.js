@@ -1214,14 +1214,12 @@ function changePlayerOrder(total){
         playernames.sort((a, b) => comparePoints(a,b));
         bets = indices.map(i => bets[i]);
         points = indices.map(i => points[i]);
-        saisonBets = indices.map(i => saisonBets[i]);
     }else{
         let indices = Array.from({length: playernames.length}, (_, i) => i);    
         indices.sort((a, b) => comparePointsDay(playernames[a],playernames[b]));
         playernames.sort((a, b) => comparePointsDay(a,b));
         bets = indices.map(i => bets[i]);
         points = indices.map(i => points[i]);
-        saisonBets = indices.map(i => saisonBets[i]);
     }
 
     updateDisplay()
