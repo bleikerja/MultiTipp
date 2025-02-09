@@ -5,7 +5,10 @@ let dailyTitles = ["Welches Team schießt die meisten Tore?","Welcher Spieler sc
 const saisonTitles = ["Wer wird Meister?", "Welcher Spieler schießt die meisten Tore?", "Welche Teams belegen die letzten 3 Plätze?","Welches deutsche Team hat die beste Platzierung?","Welches deutsche Team kommt am weitesten?"]
 
 let championsLeagueTitles = ["In welchem Spiel fallen die meisten Tore?","Welches deutsche Team spielt am besten?","Welche deutschen Teams gewinnen?"]
+let championsLeagueKnockoutTitles = ["In welcher Begegnung fallen die meisten Tore?","Welches deutsche Team spielt am besten?","Welche deutschen Teams kommen weiter?"]
 const championsLeagueGamedays = [3,5,7,9,11,13,18,19]
+const champiosLeagueKnockout = [{name:"Playoffs",days:[21,22]}]
+let germanTeams = ["Stuttgart","Dortmund","Bayern","Leipzig","Leverkusen"]
 
 let types = [];
 let typesLeft = [1,2,3,4,5,6,7,8,9];
@@ -89,13 +92,17 @@ async function start(){
     await load(); 
     await loadPoints(); 
 
-    daySelect.insertAdjacentHTML('beforeend', `<option value="0">Saisonswetten</option>`);
+    //daySelect.insertAdjacentHTML('beforeend', `<option value="0">Saisonswetten</option>`);
 
     let j = 1
     for(let i = 1; i <= 34; i++){
         daySelect.insertAdjacentHTML('beforeend', `<option value="${i}">${i}. Spieltag</option>`);
         if(championsLeagueGamedays.includes(i)){
             daySelect.insertAdjacentHTML('beforeend', `<option value="${34+j}">Champions League #${j}</option>`);
+            j++;
+        }else if(champiosLeagueKnockout.some(e => e.days.includes(i))){
+            let thisDay = champiosLeagueKnockout.find(e => e.days.includes(i));
+            daySelect.insertAdjacentHTML('beforeend', `<option value="${35+championsLeagueGamedays.length+champiosLeagueKnockout.indexOf(thisDay)}">Champions League ${thisDay.name}</option>`);
             j++;
         }
     }
@@ -118,7 +125,7 @@ async function showSpieltag(n,index = false){
     }else{
         document.getElementById("moveFront").style.display = '';
     }
-    if(n == 0){
+    if(n == 1){
         document.getElementById("moveBack").style.display = 'none';
     }else{
         document.getElementById("moveBack").style.display = '';
@@ -417,7 +424,7 @@ function changeColor(data,type,result = false){
     }
     
     
-    if(((type == 10 || type == 20) && !hasStarted(data[0])) || !hasStarted(data)) return "#f5f5f5";
+    if(((type == 10 || type == 20 || type == 25) && !hasStarted(data[0])) || !hasStarted(data)) return "#f5f5f5";
     if((!result && !isFix(data,type) || (result && !isOver(data)))) return "#ffd599";
 
     return "#949494"
@@ -465,11 +472,11 @@ function showDaily(data,num,returnResult = true,champions=false){
                     <h3>Spieltag</h3>
                 </div>
                 <div class="border rounded-3 border-black" style="min-height:77px;padding:5px;background-color:${changeColor(data,10)}">
-                    ${displayResults(data,hasStarted(data[0]),champions ? 20: 10)}
+                    ${displayResults(data,hasStarted(data[0]),champions ? (data[0].group.groupOrderID <= 8 ? 20: 25): 10)}
                 </div>
             </div>
         </div>
-        ${displayAllBets(num,data,hasStarted(data[0]),champions ? 20: 10)}
+        ${displayAllBets(num,data,hasStarted(data[0]),champions ? (data[0].group.groupOrderID <= 8 ? 20: 25): 10)}
 
     </div>`;
     
@@ -500,7 +507,7 @@ function showSaison(data,num){
 
 function isFix(data,type){
     if(!hasStarted(data) || type == 10 && !hasStarted(data[data.length-1])) return false;
-    if((type == 10 || type == 20) && isOver(data[data.length-1])) return true
+    if((type == 10 || type == 20 || type == 25) && isOver(data[data.length-1])) return true
     if(isOver(data)) return true;
     switch (type){
         case 2: case 3:
@@ -516,7 +523,6 @@ function isFix(data,type){
 function isFixBet(data,type,bet = null){
     if(type > 10 && type < 20) type = 10;
     if(isOver(data) && type != 10) return true;
-    let germanTeams = ["Stuttgart","Dortmund","Bayern","Leipzig","Leverkusen"]
 
     switch (type){
         case 2: case 3:
@@ -616,7 +622,6 @@ function isFixBet(data,type,bet = null){
                         return isOver(gameData);
                     }
                 case 3:
-                    
                     if(bet != null && bet != "kein Team"){
                         let gameData = null
                         for(let game of data){
@@ -639,10 +644,48 @@ function isFixBet(data,type,bet = null){
                     }
             }
             break;
+        case 25:
+            if(isOver(data[data.length-1])) return true
+            switch(dailyType){
+                case 1: case 2:
+                    if(bet != null){
+                        if(getResult(data,25).includes(bet)) return false
+                        let gameData = null
+                        for(let game of data){
+                            let teams = getTeams(game)
+                            if(bet.includes(getShortName(teams[0])) || bet.includes(getShortName(teams[1]))){
+                                gameData = game;
+                            }
+                        }
+                        return isOver(gameData);
+                    }
+                case 3:
+                    if(bet != null && bet != "kein Team"){
+                        let gameData = null
+                        for(let game of data){
+                            let teams = getTeams(game)
+                            if(getShortName(teams[0]) == bet || getShortName(teams[1]) == bet){
+                                gameData = game;
+                            }
+                        }
+                        return isOver(gameData);
+                    }else if(bet == "kein Team"){
+                        let result = getResult(gameData,25)
+                        for(let i = (data.length / 2)-1; i >= 0; i--){
+                            if(isOver(data[i])){
+                                let teams = getTeams(game)
+                                teamNum = germanTeams.includes(getShortName(teams[0])) ? 0: 1;
+                                if(!result.includes(getShortName(teams[teamNum]))) return true
+                            }
+                        }
+                        return false
+                    }
+            }
+            break;
         case 100:case 101:case 102:
             return isOver(lastDay[0])
         case 103:
-            return championsDay > 1
+            return championsDay > 8
         case 104:
             false
     }
@@ -730,9 +773,8 @@ function dayhasStarted(data){
 function displayResults(data,started,t){
     if(data.length == 0 && t<10) throw new Error("No data provided for displayResults")
 
-    let display = t < 10 ? getTitle(titles[t-1]): (t < 100 ? (getTitle(t == 10 ? dailyTitles[dailyType-1]: championsLeagueTitles[dailyType-1])): getTitle(saisonTitles[t-100]));
+    let display = t < 10 ? getTitle(titles[t-1]): (t < 100 ? (getTitle(t == 10 ? dailyTitles[dailyType-1]: (t == 20 ? championsLeagueTitles[dailyType-1]: championsLeagueKnockoutTitles[dailyType-1] ))): getTitle(saisonTitles[t-100]));
     if(data.leagueShortcut == "cl24de" && t == 4){
-        let germanTeams = ["Stuttgart","Dortmund","Bayern","Leipzig","Leverkusen"]
         let germanTeam = germanTeams.includes(getShortName(data.team1)) ? getShortName(data.team1): getShortName(data.team2)
         display = display.replace("Spieler",germanTeam+" Spieler")
     }
@@ -774,7 +816,6 @@ function getFix(game,i,user=""){
 
 function getResult(data,t,dailyT = dailyType){
     let result,totalGoals,goals,team1,team2,firstGoal,winningTeam,totalGoalCount;
-    let germanTeams = ["Stuttgart","Dortmund","Bayern","Leipzig","Leverkusen"]
     result = [];
     if(t != 10 && t != 20 && t < 100){
         totalGoals = getGoals(data);
@@ -1030,6 +1071,71 @@ function getResult(data,t,dailyT = dailyType){
                     }
                     if(result.length == 0) result.push("kein Team")
                     break;
+            }
+            break;
+        case 25:
+            switch(dailyT){
+                case 1:{
+                    let goalsGermanTeams = []
+                    let opponents = []
+                    for(let n of germanTeams){
+                        goalsGermanTeams.push(0)
+                    }
+                    for(let game of data){
+                        totalGoals = getGoals(game)[0] + getGoals(game)[1]
+                        let germanIndex = germanTeams.indexOf(germanTeams.includes(getShortName(game.team1)) ? getShortName(game.team1): getShortName(game.team2));
+                        opponents[germanIndex] = germanTeams.includes(getShortName(game.team1)) ? getShortName(game.team2): getShortName(game.team1);
+                        goalsGermanTeams[germanIndex] += totalGoals;
+                    }
+                    let maxIndex = germanTeams.indexOf(germanTeams[goalsGermanTeams.indexOf(Math.max(...goalsGermanTeams))])
+                    result = [germanTeams[maxIndex] + " : " + opponents[maxIndex]]
+                    break;
+                }
+                case 2:{
+                    let differences = []
+                    let bestDifference = [0,-100];
+                    let bestTeams = []
+                    for(let n of germanTeams){
+                        differences.push(0)
+                    }
+                    for(let game of data){
+                        let goals = getGoals(game);
+                        let germanTeam = germanTeams.includes(getShortName(game.team1)) ? 0 : 1
+                        let germanIndex = germanTeams.indexOf(germanTeam == 0 ? getShortName(game.team1): getShortName(game.team2));
+                        differences[germanIndex] += goals[germanTeam] - goals[(germanTeam+1)%2];
+                        if(differences[germanIndex] > bestDifference[0] - bestDifference[1]){
+                            bestDifference = [goals[germanTeam],goals[(germanTeam+1)%2]]
+                            bestTeams = [germanTeams[germanIndex]]
+                        }else if(differences[germanIndex] == bestDifference[0] - bestDifference[1]){
+                            if(goals[germanTeam] > bestDifference[0]){
+                                bestDifference = [goals[germanTeam],goals[(germanTeam+1)%2]]
+                                bestTeams = [germanTeams[germanIndex]]
+                            }else if(goals[germanTeam] == bestDifference[0]){
+                                bestTeams.push(germanTeams[germanIndex])
+                            }
+                        }else if(bestTeams.includes(germanTeams[germanIndex])){
+                            bestTeams.splice(bestTeams.indexOf(germanTeams[germanIndex]),1)
+                        }
+                    }
+                    result = bestTeams
+                    break;
+                }
+                case 3:{
+                    let differences = []
+                    for(let n of germanTeams){
+                        differences.push(0)
+                    }
+                    for(let game of data){
+                        let goals = getGoals(game);
+                        let germanTeam = germanTeams.includes(getShortName(game.team1)) ? 0 : 1
+                        let germanIndex = germanTeams.indexOf(germanTeam == 0 ? getShortName(game.team1): getShortName(game.team2));
+                        differences[germanIndex] += goals[germanTeam] - goals[(germanTeam+1)%2];
+                    }
+                    for(let i = 0; i < differences.length; i++){
+                        if(differences[i] > 0) result.push(germanTeams[i]);
+                    }
+                    break;
+                }
             }
             break;
         case 100:
@@ -1491,7 +1597,7 @@ async function loadPoints(){
             if(!bet) continue;
             for(let num = 0; num < bet.length; num++){
                 if(num == 5){
-                    points[playerindex][day] += 2 * getPoints(num,data,bet[num],20,hasStarted(data[0]),dailyInt,playerindex);
+                    points[playerindex][day] += 2 * getPoints(num,data,bet[num],day <= 41 ? 20: 25,hasStarted(data[0]),dailyInt,playerindex);
                     break;
                 }
                 points[playerindex][day] += getPoints(num,data[num],bet[num],typesN[num],hasStarted(data[num]),null,playerindex);

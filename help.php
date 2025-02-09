@@ -160,10 +160,16 @@
         <p class="betHeadline">In welchem Spiel fallen die meisten Tore?</p>
         <p class="betExplain">Für das Vorraussagen des richtigen Spiels gibt es zwei Punkte</p>
         <p class="betHeadline">Welches deutsche Team spielt am besten?</p>
-        <p class="betExplain">Das Vorraussagen des Teams mit dem höchsten Sieg bzw. geringsten Niederlage gibt zwei Punkte. Bei gleicher Differenz entscheiden die eigenen Tore</p>
+        <p class="betExplain">Das Vorraussagen des Teams mit der höchsten Differenz gibt zwei Punkte. Bei gleicher Differenz entscheiden die eigenen Tore</p>
         <p class="betHeadline">Welche deutschen Teams gewinnen?</p>
         <p class="betExplain">Für jeden richtig Vorrausgesagten Gewinner gibt es einen Punkt. Für jeden falschen Tipp wird ein Punkt abgezogen (min. 0 Punkte)</p>
-
+        <p class="betHeadline">KO-Phase:</p>
+        <p class="betHeadline">In welcher Begegnung fallen die meisten Tore?</p>
+        <p class="betExplain">Für das Vorraussagen der richtigen Begegnung (Hin- und Rückspiel) gibt es zwei Punkte</p>
+        <p class="betHeadline">Welches deutsche Team spielt am besten?</p>
+        <p class="betExplain">Das Vorraussagen des Teams mit der höchsten Differenz (nach Hin- und Rückspiel) gibt zwei Punkte. Bei gleicher Differenz entscheiden die eigenen Tore</p>
+        <p class="betHeadline">Welche deutschen Teams kommen weiter?</p>
+        <p class="betExplain">Für jedes richtig Vorrausgesagtes weitergekommenes Teams gibt es einen Punkt. Für jeden falschen Tipp wird ein Punkt abgezogen (min. 0 Punkte)</p>
       </div>
     </div>
   </div>
