@@ -68,6 +68,10 @@
         </div>
     </div>
     
+<<<<<<< HEAD
     <script src="scripts/main.js?v=30"></script>
+=======
+    <script src="scripts/main.js?v=22"></script>
+>>>>>>> e7876e078d2c1d4f598ca33b6c0474feee64a616
 </body>
 </html>
