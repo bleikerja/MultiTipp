@@ -87,10 +87,6 @@
         </div>
         
     </div>
-<<<<<<< HEAD
-    <script src="scripts/games.js?v=30"></script>
-=======
-    <script src="scripts/games.js?v=26"></script>
->>>>>>> e7876e078d2c1d4f598ca33b6c0474feee64a616
+    <script src="scripts/games.js?v=32"></script>
 </body>
 </html>
