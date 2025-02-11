@@ -54,6 +54,10 @@ async function start(){
         if(championsLeagueGamedays.includes(i)){
             daySelect.insertAdjacentHTML('beforeend', `<option value="${34+j}">Champions League #${j}</option>`);
             j++;
+        }else if(champiosLeagueKnockout.some(e => e.days.includes(i))){
+            let thisDay = champiosLeagueKnockout.find(e => e.days.includes(i));
+            daySelect.insertAdjacentHTML('beforeend', `<option value="${35+championsLeagueGamedays.length+champiosLeagueKnockout.indexOf(thisDay)}">Champions League ${thisDay.name}</option>`);
+            j++;
         }
     }
     const currentDaySearch = await fetch(new URL(`https://api.openligadb.de/getcurrentgroup/bl1`));
@@ -1155,7 +1159,6 @@ function getResult(data,t,dailyT = dailyType){
     let result,totalGoals,goals,team1,team2,firstGoal,winningTeam,totalGoalCount;
     result = [];
     if(t < 10){
-        
         totalGoals = getGoals(data);
         goals = data.goals.sort((a, b) => {
             const sumA = a.scoreTeam1 + a.scoreTeam2;
@@ -1267,6 +1270,7 @@ function getResult(data,t,dailyT = dailyType){
                     let highestTeam = []
                     let highestGoals = 0
                     for(let game of data){
+                        if(!hasStarted(game)) continue;
                         let gameGoals = getGoals(game);
                         if(gameGoals[0] > highestGoals){
                             highestGoals = gameGoals[0]
@@ -1296,6 +1300,7 @@ function getResult(data,t,dailyT = dailyType){
                         });                    
                         let lastScore = [0,0];
                         for(let goal of gameGoals){
+                            if(!hasStarted(game)) continue;
                             let goalPlayerTeam = goal.scoreTeam1 > lastScore[0] ? game.team1.teamName: game.team2.teamName;
                             lastScore = [goal.scoreTeam1,goal.scoreTeam2];
                             if(goal.isOwnGoal) continue;
@@ -1344,7 +1349,9 @@ function getResult(data,t,dailyT = dailyType){
                     let highestWinner = []
                     let highestDifference = 0;
                     for(let game of data){
+                        if(!hasStarted(game)) continue;
                         goals = getGoals(game);
+                        if(goals[0] == goals[1]) continue;
                         let winner = goals[0] > goals[1] ? getShortName(game.team1): getShortName(game.team2);
                         let difference = Math.abs(goals[0] - goals[1]);
                         if(difference > highestDifference){
@@ -1413,16 +1420,25 @@ function getResult(data,t,dailyT = dailyType){
                     let goalsGermanTeams = []
                     let opponents = []
                     for(let n of germanTeams){
-                        goalsGermanTeams.push(0)
+                        goalsGermanTeams.push(-100)
                     }
                     for(let game of data){
+                        if(!hasStarted(game)) continue;
                         totalGoals = getGoals(game)[0] + getGoals(game)[1]
                         let germanIndex = germanTeams.indexOf(germanTeams.includes(getShortName(game.team1)) ? getShortName(game.team1): getShortName(game.team2));
                         opponents[germanIndex] = germanTeams.includes(getShortName(game.team1)) ? getShortName(game.team2): getShortName(game.team1);
+                        if(goalsGermanTeams[germanIndex] == -100) goalsGermanTeams[germanIndex] = 0
                         goalsGermanTeams[germanIndex] += totalGoals;
                     }
-                    let maxIndex = germanTeams.indexOf(germanTeams[goalsGermanTeams.indexOf(Math.max(...goalsGermanTeams))])
-                    result = [germanTeams[maxIndex] + " : " + opponents[maxIndex]]
+                    let maxGoals = 0;
+                    for(let i = 0; i < goalsGermanTeams.length; i++){
+                        if(goalsGermanTeams[i] > maxGoals){
+                            maxGoals = goalsGermanTeams[i]
+                            result = [germanTeams[i] + " : " + opponents[i]]
+                        }else if(goalsGermanTeams[i] == maxGoals){
+                            result.push(germanTeams[i] + " : " + opponents[i])
+                        }
+                    }
                     break;
                 }
                 case 2:{
@@ -1430,12 +1446,14 @@ function getResult(data,t,dailyT = dailyType){
                     let bestDifference = [0,-100];
                     let bestTeams = []
                     for(let n of germanTeams){
-                        differences.push(0)
+                        differences.push(-100)
                     }
                     for(let game of data){
+                        if(!hasStarted(game)) continue;
                         let goals = getGoals(game);
                         let germanTeam = germanTeams.includes(getShortName(game.team1)) ? 0 : 1
                         let germanIndex = germanTeams.indexOf(germanTeam == 0 ? getShortName(game.team1): getShortName(game.team2));
+                        if(differences[germanIndex] == -100) differences[germanIndex] = 0
                         differences[germanIndex] += goals[germanTeam] - goals[(germanTeam+1)%2];
                         if(differences[germanIndex] > bestDifference[0] - bestDifference[1]){
                             bestDifference = [goals[germanTeam],goals[(germanTeam+1)%2]]
@@ -1457,12 +1475,14 @@ function getResult(data,t,dailyT = dailyType){
                 case 3:{
                     let differences = []
                     for(let n of germanTeams){
-                        differences.push(0)
+                        differences.push(-100)
                     }
                     for(let game of data){
+                        if(!hasStarted(game)) continue;
                         let goals = getGoals(game);
                         let germanTeam = germanTeams.includes(getShortName(game.team1)) ? 0 : 1
                         let germanIndex = germanTeams.indexOf(germanTeam == 0 ? getShortName(game.team1): getShortName(game.team2));
+                        if(differences[germanIndex] == -100) differences[germanIndex] = 0;
                         differences[germanIndex] += goals[germanTeam] - goals[(germanTeam+1)%2];
                     }
                     for(let i = 0; i < differences.length; i++){
