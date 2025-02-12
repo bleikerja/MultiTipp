@@ -1472,7 +1472,7 @@ function getPoints(num,data,bet,t,hasStarted,daily = null,playerindex){
     }else if(t == 4){
         count = correct.length - (bet.length - correct.length)
         if(count < 0) count = 0;
-    }else if(t == 20 && dailyInt == 3 || t == 10 && dailyInt == 4){
+    }else if((t == 20 || t == 25) && dailyInt == 3 || t == 10 && dailyInt == 4){
         count = (correct.length - (bet.length - correct.length)) / 2
         if(count < 0) count = 0;
     }else{
@@ -1614,8 +1614,8 @@ async function loadPoints(){
             points[playerindex][day] = 0;
             
             if(!bet) continue;
-            for(let num = 0; num < bet.length; num++){
-                if(num == 5){
+            for(let num = 0; num <= data.length; num++){
+                if(num == data.length){
                     points[playerindex][day] += 2 * getPoints(num,data,bet[num],day <= 41 ? 20: 25,hasStarted(data[0]),dailyInt,playerindex);
                     break;
                 }
