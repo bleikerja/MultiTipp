@@ -179,7 +179,7 @@ async function showSpieltag(n,index = false){
 
         if(!bets[0][n-1]) bets[0][n-1] = [[],[],[],[],[],[]]
         showData(data,0,true,false,null,true);
-        for(let i = 1; i <= 5; i++){
+        for(let i = 1; i <= data.length; i++){
             showData(data,i,false,false,null,true);
         }
         
@@ -280,7 +280,7 @@ function updateDisplay(){
     if(currentDay != 0){
         if(currentDay > 34){
             showData(data,0,true,false,null,true);
-            for(let i = 1; i <= 5; i++){
+            for(let i = 1; i <= data.length; i++){
                 showData(data,i,false,false,null,true);
             }
         }else{
