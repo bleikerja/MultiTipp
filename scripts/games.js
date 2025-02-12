@@ -76,15 +76,16 @@ async function start(){
     liveDayData = await responseLiveday.json();
     liveDayChampion = (await fetch(new URL(`https://api.openligadb.de/getcurrentgroup/cl24de`)).then(response => response.json())).groupOrderID;
     
-    if(championsLeagueGamedays.includes(liveDay) && isOver(liveDayData[liveDayData.length - 1]) || championsLeagueGamedays.includes(liveDay - 1) && !hasStarted(liveDayData[liveDayData.length - 1])){        
+    if((championsLeagueGamedays.includes(liveDay) || champiosLeagueKnockout.some(e => e.days.includes(liveDay))) && isOver(liveDayData[liveDayData.length - 1]) 
+        || (championsLeagueGamedays.includes(liveDay - 1) || champiosLeagueKnockout.some(e => e.days.includes(liveDay))) && !hasStarted(liveDayData[liveDayData.length - 1])){
         let today = new Date();
         if (today.getDay() >= 2 && today.getDay() <= 3){
-            for(let i of championsLeagueGamedays){
-                //if(i <= liveDay) liveDayChampion = championsLeagueGamedays.indexOf(i)
-            }
+            /*for(let i of championsLeagueGamedays){
+                if(i <= liveDay) liveDayChampion = championsLeagueGamedays.indexOf(i)
+            }*/
             liveDayIsChampion = true
-            const currentChampionsDayResponse = await fetch(new URL(`https://api.openligadb.de/getmatchdata/cl24de/2024/${championsDay}`));	
-            championsDayData = await currentChampionsDayResponse.json();    
+            const currentChampionsDayResponse = await fetch(new URL(`https://api.openligadb.de/getmatchdata/cl24de/2024/${championsDay}`));
+            championsDayData = await currentChampionsDayResponse.json();
         }else{
             liveDayIsChampion = false
         }
@@ -714,7 +715,7 @@ function isOver(data){
     return data.matchIsFinished;
 }
 
-function displayAllBets(num,data,hasStarted,t){
+function displayAllBets(num,data,started,t){
     let display = `
         <div class="sort mobile">
             <div class="sortTotal sortText ${sortingByTotal ? "selected":""}" onclick="changePlayerOrder(true)">Gesamt</div>
@@ -722,18 +723,21 @@ function displayAllBets(num,data,hasStarted,t){
         </div>
     `
 
+    let thisPlayerBets = bets[playernames.indexOf(username)][currentDay-1]
     for(let i = 0; i < playernames.length; i++){
-        let player = currentDay != 0 ? bets[i]: saisonBets[i];
-
-        if(!hasStarted && playernames[i] != username || num == 9 && ((bets[playernames.indexOf(username)][currentDay-1] == null || bets[playernames.indexOf(username)][currentDay-1][num].length == 0) && !this.hasStarted(d[d.length-1]))){
+        let playerBets = currentDay != 0 ? bets[i]: saisonBets[i];
+        
+        if(!started && playernames[i] != username 
+            || num == 9 && ((thisPlayerBets == null || thisPlayerBets[num].length == 0) && !hasStarted(d[d.length-1]))
+            || (t == 20 || t == 25) && ((thisPlayerBets == null || thisPlayerBets[num].length == 0) && !hasStarted(d[(d.length/2)-1]))){
             let extraInfo = ""
-            if(player[currentDay-1] != null && player[currentDay-1][num].length != 0){
+            if(playerBets[currentDay-1] != null && playerBets[currentDay-1][num].length != 0){
                 extraInfo = getBetDisplay("?")
             }
             display += getBetsDisplay(extraInfo,changeColor(data,t), playernames[i], i);
             continue;
         } 
-        display += getBetsDisplay(displayBet(num,data,hasStarted,player,t,i),changeColor(data,t),playernames[i], i)
+        display += getBetsDisplay(displayBet(num,data,started,playerBets,t,i),changeColor(data,t),playernames[i], i)
     }
     
     return display;

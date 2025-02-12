@@ -67,12 +67,13 @@ async function start(){
     liveDayData = await responseLiveday.json();
     liveDayChampion = (await fetch(new URL(`https://api.openligadb.de/getcurrentgroup/cl24de`)).then(response => response.json())).groupOrderID;
 
-    if(championsLeagueGamedays.includes(liveDay) && isOver(liveDayData[liveDayData.length - 1]) || championsLeagueGamedays.includes(liveDay - 1) && !hasStarted(liveDayData[liveDayData.length - 1])){
+    if((championsLeagueGamedays.includes(liveDay) || champiosLeagueKnockout.some(e => e.days.includes(liveDay))) && isOver(liveDayData[liveDayData.length - 1]) 
+        || (championsLeagueGamedays.includes(liveDay - 1) || champiosLeagueKnockout.some(e => e.days.includes(liveDay))) && !hasStarted(liveDayData[liveDayData.length - 1])){
         let today = new Date();
         if (today.getDay() >= 2 && today.getDay() <= 3){
-            for(let i of championsLeagueGamedays){
+            /*for(let i of championsLeagueGamedays){
                 if(i <= liveDay) liveDayChampion = championsLeagueGamedays.indexOf(i)
-            }
+            }*/
             liveDayIsChampion = true
             const currentChampionsDayResponse = await fetch(new URL(`https://api.openligadb.de/getmatchdata/cl24de/2024/${championsDay}`));
             championsDayData = await currentChampionsDayResponse.json();
@@ -85,7 +86,7 @@ async function start(){
     const urlParams = new URLSearchParams(queryString);
     let day = isNaN(parseInt(urlParams.get('day'))) ? urlParams.get('day'): parseInt(urlParams.get('day'))
     
-    showSpieltag(day != null ? day: (!liveDayIsChampion ? liveDay: liveDayChampion+35));
+    showSpieltag(day != null ? day: (!liveDayIsChampion ? liveDay: liveDayChampion+34));
 }
 
 async function showSpieltag(n=null,index = false){
@@ -545,20 +546,22 @@ function getBetContent(data,type,num,champions=false,saisonHasStarted=null){
                 case 1:
                     elements = getTitle(championsLeagueTitles[dailyType-1])
                     for(let game of data){
-                        elements += getButtonToggle(data[0],getShortName(game.team1) + " : " + getShortName(game.team2),"Daily",num,type)
+                        elements += getButtonToggle(data[0],getShortName(game.team1) + " : " + getShortName(game.team2),"Daily",num,type,true,hasStarted(data[0]) && !hasStarted(game) ? bets[currentDay-1][data.length].length != 0: null)
                     }
                     return elements
                 case 2:
                     elements = getTitle(championsLeagueTitles[dailyType-1])
                     for(let team of germanTeams){
-                        elements += getButtonToggle(data[0],team,"Daily",num,type)
+                        let game = data.find(game => getShortName(game.team1) == team || getShortName(game.team2) == team)
+                        elements += getButtonToggle(data[0],team,"Daily",num,type,true,hasStarted(data[0]) && !hasStarted(game) ? bets[currentDay-1][data.length].length != 0: null)
                     }
                     return elements
                 case 3:
                     elements = getTitle(championsLeagueTitles[dailyType-1])
                     elements += getButtonToggle(data[0],"kein Team","Daily",num,type,false)
                     for(let team of germanTeams){
-                        elements += getButtonToggle(data[0],team,"Daily",num,type,false)
+                        let game = data.find(game => getShortName(game.team1) == team || getShortName(game.team2) == team)
+                        elements += getButtonToggle(data[0],team,"Daily",num,type,false,hasStarted(data[0]) && !hasStarted(game) ? bets[currentDay-1][data.length].length != 0: null)
                     }
                     return elements
             }
@@ -572,20 +575,26 @@ function getBetContent(data,type,num,champions=false,saisonHasStarted=null){
                         let germanIndex = germanTeams.includes(getShortName(game.team1)) ? 0: 1
                         let germanTeam = germanIndex == 0 ? game.team1: game.team2
                         let otherTeam = germanIndex == 0 ? game.team2: game.team1
-                        elements += getButtonToggle(data[0],getShortName(germanTeam) + " : " + getShortName(otherTeam),"Daily",num,type)
+                        elements += getButtonToggle(data[0],getShortName(germanTeam) + " : " + getShortName(otherTeam),"Daily",num,type,true,hasStarted(data[0]) && !hasStarted(game) ? bets[currentDay-1][data.length].length != 0: null)
                     }
                     return elements
                 case 2:
                     elements = getTitle(championsLeagueKnockoutTitles[dailyType-1])
-                    for(let team of germanTeams){
-                        elements += getButtonToggle(data[0],team,"Daily",num,type)
+                    for(let i = 0; i < data.length/2; i++){
+                        let game = data[i]
+                        let germanIndex = germanTeams.includes(getShortName(game.team1)) ? 0: 1
+                        let germanTeam = germanIndex == 0 ? game.team1: game.team2
+                        elements += getButtonToggle(data[0],getShortName(germanTeam),"Daily",num,type,true,hasStarted(data[0]) && !hasStarted(game) ? bets[currentDay-1][data.length].length != 0: null)
                     }
                     return elements
                 case 3:
                     elements = getTitle(championsLeagueKnockoutTitles[dailyType-1])
                     elements += getButtonToggle(data[0],"kein Team","Daily",num,type,false)
-                    for(let team of germanTeams){
-                        elements += getButtonToggle(data[0],team,"Daily",num,type,false)
+                    for(let i = 0; i < data.length/2; i++){
+                        let game = data[i]
+                        let germanIndex = germanTeams.includes(getShortName(game.team1)) ? 0: 1
+                        let germanTeam = germanIndex == 0 ? game.team1: game.team2
+                        elements += getButtonToggle(data[0],getShortName(germanTeam),"Daily",num,type,false,hasStarted(data[0]) && !hasStarted(game) ? bets[currentDay-1][data.length].length != 0: null)
                     }
                     return elements
             }
@@ -935,7 +944,6 @@ function getGameResult(data){
 }
 
 function hasStarted(data){
-    console.log(data)
     const date = new Date(data.matchDateTime);
     let now = new Date();
     if(now < date) return false;
