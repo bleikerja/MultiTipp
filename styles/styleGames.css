@@ -163,7 +163,7 @@ html,body{
 
 .resultDisplay{
     padding:5px;
-    width:474px;
+    min-width:474px;
     margin-bottom: 20px;
     background-color: white;
 }
@@ -209,6 +209,10 @@ ul {
     /*padding: 5px;*/
     margin: 5px 0px;
     min-height: 52px;
+}
+
+.betContainer div{
+    width: 100%;
 }
 
 .betContainer2{
