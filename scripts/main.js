@@ -904,7 +904,7 @@ function saveBet(bet,i,type,id,team1,team2,groupId){
     let thisBetDisplay = document.getElementById("betContainer" + id.replace("2.Hz","").replace("team2",""))
     thisBetDisplay.innerHTML = '';
     thisBetDisplay.innerHTML = displayResults(i,null,types[i],[team1,team2])
-    save();
+    save(currentDay - 1,i < d.length ? d[i].matchDateTime: null);
 }
 
 function RND(s) {
@@ -1585,15 +1585,25 @@ function isHalbzeit(data){
     return diff > 55;
 }
 
-function save(){
+function save(index,betTime){
     var xhr = new XMLHttpRequest();
-    xhr.open("GET", "php/saveData.php?data=" + encodeURIComponent(JSON.stringify(bets)), true);
+    xhr.open("GET", "php/saveData.php?data=" + encodeURIComponent(JSON.stringify(bets[index]))
+        + "&index=" + encodeURIComponent(index), true);
     xhr.onload = function() {
         if (xhr.status == 200) {
-            // Antwort von der PHP-Funktion
+            //console.log(xhr.response)
         }
     };
     xhr.send();
+
+    var xhrBetTime = new XMLHttpRequest();
+    xhrBetTime.open("GET", "php/updateBetDate.php?data=" + encodeURIComponent(betTime), true);
+    xhrBetTime.onload = function() {
+        if (xhrBetTime.status == 200) {
+            console.log(xhrBetTime.responseText)
+        }
+    };
+    xhrBetTime.send();
 }
 
 function saveSaison(){
