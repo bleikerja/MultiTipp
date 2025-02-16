@@ -70,6 +70,8 @@ foreach ($users as $user) {
     foreach ($webPush->flush() as $report) {
         if (!$report->isSuccess()) {
             echo "Failed to send notification: " . $report->getReason() . "\n";
+        }else{
+            echo "Successfully sent notification: " . json_encode($report) . "\n";
         }
     }
 }

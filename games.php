@@ -87,7 +87,7 @@
         </div>
         
     </div>
-    <script src="scripts/games.js?v=36"></script>
+    <script src="scripts/games.js?v=37"></script>
     <script>
         navigator.serviceWorker.register('sw.js');
     </script>

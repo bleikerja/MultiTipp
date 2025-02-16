@@ -1745,7 +1745,15 @@ function getPermission(){
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify(subscription),
                     });
-                    console.log("Subscribed")
+                    var xhr = new XMLHttpRequest();
+                    xhr.open("GET", "send.php", true);
+                    xhr.onload = function() {
+                        if (xhr.status == 200) {
+                            console.log("send")
+                            console.log(xhr.response)
+                        }
+                    };
+                    xhr.send();
                 })
             })
         }
