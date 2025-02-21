@@ -116,7 +116,7 @@
         <p class="betHeadline">Wer wird Meister?</p>
         <p class="betExplain">Für den Tipp des richtigen Erstplazierten gibt es 10 Punkte</p>
         <p class="betHeadline">Welcher Spieler schießt die meisten Tore?</p>
-        <p class="betExplain">Für den Tipp des Richtigen Spielers mit den meisten Toren der Saison gibt es 10 Punkte</p>
+        <p class="betExplain">Für den Tipp des richtigen Spielers mit den meisten Toren der Saison gibt es 10 Punkte</p>
         <p class="betHeadline">Welche Teams belegen die letzten 3 Plätze?</p>
         <p class="betExplain">Für jedes richtige Team gibt es 5 Punkte (Reihenfolge egal)</p>
       </div>

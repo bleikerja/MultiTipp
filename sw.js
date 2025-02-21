@@ -15,5 +15,3 @@ self.addEventListener("notificationclick", (event) => {
         clients.openWindow(event.notification.data.url)        
     );
 });
-
-// { "title": "Hello", "body": "World", "url": "./tippen" }
