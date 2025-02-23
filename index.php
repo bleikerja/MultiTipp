@@ -149,18 +149,10 @@
     </div>
 
     <script>
-        console.log(localStorage.getItem("userData"),document.referrer,localStorage.getItem("userData") && !document.referrer)
-        if(localStorage.getItem("userData") && (!document.referrer || JSON.parse(localStorage.getItem("userData")).forceLogin)){
-            console.log("setting")
-            let userData = JSON.parse(localStorage.getItem("userData"))
-            document.getElementById("username").value = userData.username
-            document.getElementById("password").value = userData.password
-            if(userData.autoLogin) document.getElementById("form").submit();
-        }
+        let errormessage = '<?php echo isset($_SESSION["error_message"]) ? $_SESSION["error_message"]:""; ?>';
         let errorText = document.getElementById("error")
         errorText.style.display = "none"
-        if(document.referrer == document.URL){
-            let errormessage =  '<?php echo isset($_SESSION["error_message"]) ? $_SESSION["error_message"]:""; ?>';
+        if(document.referrer == document.URL && errormessage != ""){
             console.log(errormessage)
             errorText.style.display = ""
             if(errormessage == "benutzername"){
@@ -170,6 +162,13 @@
             }else{
                 errorText.style.display = "none"
             }
+        }else{
+            if(localStorage.getItem("userData") && (!document.referrer || JSON.parse(localStorage.getItem("userData")).forceLogin) ){
+                let userData = JSON.parse(localStorage.getItem("userData"))
+                document.getElementById("username").value = userData.username
+                document.getElementById("password").value = userData.password
+                if(userData.autoLogin) document.getElementById("form").submit();
+            }   
         }
     </script>    
 </body>
