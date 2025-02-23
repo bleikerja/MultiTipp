@@ -243,6 +243,7 @@ function updateURLParameter(url, param, paramVal){
 }
 
 function moveGameday(num){
+    let selectedIndex = daySelect.selectedIndex
     let maxValue = daySelect.options.length
     if(currentDayIndex + num > maxValue || currentDayIndex + num < 0) return;
     if(currentDayIndex + num == maxValue){
@@ -256,9 +257,8 @@ function moveGameday(num){
         document.getElementById("moveBack").style.display = '';
     }
     showSpieltag(currentDayIndex + num,true);
+    daySelect.selectedIndex = selectedIndex + num
 }
-
-
 
 function showData(data,num,champions=false){
     const days = ["So.","Mo.","Di.","Mi.","Do.","Fr.","Sa."]
@@ -374,8 +374,10 @@ function displayResults(num,data,t,teams = null){
         }
         let bet = result[i]
         let fixBet = data == null ? null: getFix((t < 10 ? data.matchID: (t < 100 ? "daily" + data[0].group.groupOrderID: "saison" + (t-100))),i,username)
-        if(fixBet != null) bet = fixBet.fix_data    
-        display += getBetDisplay(bet,changeColorBet(data,t,data == null ? false: hasStarted(data),i,bet));
+        if(fixBet != null) bet = fixBet.fix_data
+        let displayBet = bet;
+        if(t >= 10 && t < 100) displayBet = getDailyDisplay(data,bet,t != 10, t == 25);
+        display += getBetDisplay(displayBet,changeColorBet(data,t,data == null ? false: hasStarted(data),i,bet));
     }
     return display;
 }
@@ -959,9 +961,14 @@ function championsLeagueDaysBeforeDay(day){
     let days = 0;
     for(let i = 0; i < championsLeagueGamedays.length; i++){
         if(championsLeagueGamedays[i] < day){
-            days += 1;
+            days++;
         }else{
             break;
+        }
+    }
+    for(let i = 0; i < champiosLeagueKnockout.length; i++){
+        if(champiosLeagueKnockout[i].days[0] < day){
+            days++;
         }
     }
     return days;
@@ -1161,6 +1168,129 @@ function isFixBet(data,type,bet = null){
             false
     }
     return false;
+}
+
+function getDailyDisplay(data, bet, isChampion = false, isKnockout = false){
+    if(!isChampion){
+        switch(dailyType){
+            case 1:
+                for(let game of data){
+                    if(getShortName(game.team1) != bet && getShortName(game.team2) != bet) continue;
+                    if(!hasStarted(game)) return bet;
+                    let teamNum = getShortName(game.team1) == bet ? 0: 1;
+                    let gameGoals = getGoals(game);
+                    return bet + " (" + gameGoals[teamNum] + ")";
+                }
+            case 2:{
+                let playerTeam = null;
+                for(let team of Object.keys(players)){
+                    for(let player of getPlayers(team)){
+                        if(player == bet) playerTeam = team;
+                    }
+                }
+                let goals = 0;
+                for(let game of data){
+                    if(!hasStarted(game)){
+                        if(game.team1.teamName == playerTeam || game.team2.teamName == playerTeam) return bet;
+                        continue;
+                    }
+                    let gameGoals = game.goals.sort((a, b) => {
+                        const sumA = a.scoreTeam1 + a.scoreTeam2;
+                        const sumB = b.scoreTeam1 + b.scoreTeam2;
+                        return sumA - sumB;
+                    });  
+                    let lastScore = [0,0];
+                    for(let goal of gameGoals){
+                        let goalPlayerTeam = goal.scoreTeam1 > lastScore[0] ? game.team1.teamName: game.team2.teamName;
+                        lastScore = [goal.scoreTeam1,goal.scoreTeam2];
+                        if(goal.isOwnGoal || getPlayerName(goal.goalGetterName,goalPlayerTeam) != bet) continue;
+                        goals ++;
+                    }
+                }
+                return bet + " (" + goals + ")"
+            }
+            case 3:{
+                for(let game of data){
+                    if((getShortName(game.team1) + " : " + getShortName(game.team2)) != bet) continue;
+                    if(!hasStarted(game)) return bet;
+                    return bet + " (" + (getGoals(game)[0] + getGoals(game)[1]) + ")"
+                }
+            }
+            case 4:
+                return bet
+            case 5:
+                for(let game of data){
+                    if((getShortName(game.team1) != bet && getShortName(game.team2) != bet)) continue;
+                    if(!hasStarted(game)) return bet;
+                    let teamNum = getShortName(game.team1) == bet ? 0: 1;
+                    let goals = getGoals(game);
+                    if(goals[teamNum] > goals[teamNum == 0 ? 1: 0]){
+                        return bet + " (" + (goals[teamNum] - goals[teamNum == 0 ? 1: 0]) + ")";
+                    }else{
+                        return bet + " (-)";
+                    }
+                }
+        }
+    }else if(!isKnockout){
+        switch(dailyType){
+            case 1:{
+                for(let game of data){
+                    if((getShortName(game.team1) + " : " + getShortName(game.team2)) != bet) continue;
+                    if(!hasStarted(game)) return bet;
+                    return bet + " (" + (getGoals(game)[0] + getGoals(game)[1]) + ")"
+                }
+            }
+            case 2:{
+                for(let game of data){
+                    if(getShortName(game.team1) != bet && getShortName(game.team2) != bet) continue;
+                    if(!hasStarted(game)) return bet;
+                    let teamNum = getShortName(game.team1) == bet ? 0: 1;
+                    let goals = getGoals(game);
+                    return bet + " (" + goals[teamNum] + ":" + goals[teamNum == 0 ? 1: 0] + ")";
+                }
+            }
+            case 3:{
+                return bet
+            }
+        }
+    }else{
+        switch(dailyType){
+            case 1:{
+                let goals = 0;
+                let started = false
+                for(let game of data){
+                    if(!hasStarted(game)) continue;
+                    let teamNum = getShortName(game.team1) == bet.split(" : ")[0] ? 0: 1;
+                    let germanTeam = teamNum == 0 ? getShortName(game.team1): getShortName(game.team2);
+                    let otherTeam = teamNum == 0 ? getShortName(game.team2): getShortName(game.team1);
+                    if((germanTeam + " : " + otherTeam) != bet) continue;
+                    started = true
+                    goals += getGoals(game)[0] + getGoals(game)[1]
+                }
+                if(!started) return bet
+                return bet + " (" + goals + ")"
+            }
+            case 2:{
+                let onwGoals = 0;
+                let otherGoals = 0;
+                let started = false
+                for(let game of data){
+                    if(!hasStarted(game) || (getShortName(game.team1) != bet && getShortName(game.team2) != bet)) continue;
+                    started = true
+                    let teamNum = getShortName(game.team1) == bet ? 0: 1;
+                    let goals = getGoals(game);
+                    onwGoals += goals[teamNum];
+                    otherGoals += goals[teamNum == 0 ? 1: 0];
+                }
+                if(!started) return bet
+                return bet + " (" + onwGoals + ":" + otherGoals + ")";
+            }
+            case 3:{
+                return bet;
+            }
+        }
+    }
+    return bet
 }
 
 function getResult(data,t,dailyT = dailyType){
@@ -1578,6 +1708,17 @@ function getPlayerName(name,team=null){
     return playerName;
 }
 
+function getGoalsHz(data,hz){
+    let goalsHZ = 0;
+    if(data.matchResults.length != 0){
+        goalsHZ = data.matchResults[0].pointsTeam1 + data.matchResults[0].pointsTeam2;
+    }else{
+        goalsHZ = getGoals(data)[0] + getGoals(data)[1];
+    }
+    if(hz == 1) return goalsHZ;
+    return (getGoals(data)[0] + getGoals(data)[1]) - goalsHZ;
+}
+
 function isHalbzeit(data){
     const time = new Date(data.matchDateTime);
     const now = new Date();
@@ -1600,7 +1741,7 @@ function save(index,betTime){
     xhrBetTime.open("GET", "php/updateBetDate.php?data=" + encodeURIComponent(betTime), true);
     xhrBetTime.onload = function() {
         if (xhrBetTime.status == 200) {
-            console.log(xhrBetTime.responseText)
+            //console.log(xhrBetTime.responseText)
         }
     };
     xhrBetTime.send();

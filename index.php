@@ -153,7 +153,6 @@
         let errorText = document.getElementById("error")
         errorText.style.display = "none"
         if(document.referrer == document.URL && errormessage != ""){
-            console.log(errormessage)
             errorText.style.display = ""
             if(errormessage == "benutzername"){
                 errorText.innerText = "falscher Benutzername"

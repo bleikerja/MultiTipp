@@ -114,7 +114,6 @@ async function start(){
     let day = isNaN(parseInt(urlParams.get('day'))) ? urlParams.get('day'): parseInt(urlParams.get('day'))
     
     await showSpieltag(day != null ? day: (!liveDayIsChampion ? liveDay: liveDayChampion+34));
-    changePlayerOrder(sortingByTotal);
 }
 async function showSpieltag(n,index = false){
     if(index){
@@ -179,14 +178,9 @@ async function showSpieltag(n,index = false){
         dailyType = rand.nextInRange(1,3);
 
         if(!bets[0][n-1]) bets[0][n-1] = [[],[],[],[],[],[]]
-        showData(data,0,true,false,null,true);
-        for(let i = 1; i <= data.length; i++){
-            showData(data,i,false,false,null,true);
-        }
         
+        changePlayerOrder(sortingByTotal);
         selectCarouselItem(getLastStarted(data))
-        displayPlayerPoints();
-        displayPoints(n)
 
         return
     }
@@ -244,19 +238,11 @@ async function showSpieltag(n,index = false){
     
     if(!bets[0][n-1]) bets[0][n-1] = [[],[],[],[],[],[],[],[],[],[]]
     
-    showData(data,0,true);
-    for(let i = 1; i <= data.length; i++){
-        showData(data,i);
-    }
-    
-    displayPlayerPoints();
-    displayPoints(n)
-    selectCarouselItem(getLastStarted(data))
     changePlayerOrder(sortingByTotal);
+    selectCarouselItem(getLastStarted(data))
 }
 
 function displayPoints(n){
-    
     for(let i = 0; i < playernames.length; i++){
         if(!points[i][n-1]) points[i][n-1] = 0;
         let player = playernames[i];
@@ -326,6 +312,7 @@ function updateDisplay(){
 }
 
 function moveGameday(num){
+    let selectedIndex = daySelect.selectedIndex
     let maxValue = daySelect.options.length
     if(currentDayIndex + num > maxValue || currentDayIndex + num < 0) return;
     if(currentDayIndex + num == maxValue){
@@ -339,6 +326,7 @@ function moveGameday(num){
         document.getElementById("moveBack").style.display = '';
     }
     showSpieltag(currentDayIndex + num,true);
+    daySelect.selectedIndex = selectedIndex + num
 }
 
 function updateURLParameter(url, param, paramVal){
@@ -796,10 +784,11 @@ function displayResults(data,started,t){
             display += getTitle(getShortName(getTeams(data)[i]),false)
         }
         let fix = getFix((t < 10 ? data.matchID: (t < 100 ? "daily" + data[0].group.groupOrderID: "saison" + (t-100))),i);
+        let betDisplay = t < 10 ? (fix ? fix.fix_data : result[i]) : getDailyDisplay(data,(fix ? fix.fix_data : result[i]),t != 10, t == 25);
         if(fix == null){
-            display += getBetDisplay(result[i],t < 100 ? (isFixBet(data,newType,t >= 10 ? result[i]: null) ? "gray": "white"): "gray","",(t < 10 ? data.matchID: t < 100 ? ("daily" + data[0].group.groupOrderID): "saison" + (t-100).toString()),i);
+            display += getBetDisplay(betDisplay,t < 100 ? (isFixBet(data,newType,t >= 10 ? result[i]: null) ? "gray": "white"): "gray","",(t < 10 ? data.matchID: t < 100 ? ("daily" + data[0].group.groupOrderID): "saison" + (t-100).toString()),i);
         }else{
-            display += getBetDisplay(fix.fix_data,t < 100 ? (isFixBet(data,newType,t >= 10 ? result[i]: null) ? "gray": "white"): "gray","",fix.game_id,i)
+            display += getBetDisplay(betDisplay,t < 100 ? (isFixBet(data,newType,t >= 10 ? result[i]: null) ? "gray": "white"): "gray","",fix.game_id,i)
         }
     }
     display += "</div>"
@@ -817,6 +806,129 @@ function getFix(game,i,user=""){
         }
     }
     return null
+}
+
+function getDailyDisplay(data, bet, isChampion = false, isKnockout = false){
+    if(!isChampion){
+        switch(dailyType){
+            case 1:
+                for(let game of data){
+                    if(getShortName(game.team1) != bet && getShortName(game.team2) != bet) continue;
+                    if(!hasStarted(game)) return bet;
+                    let teamNum = getShortName(game.team1) == bet ? 0: 1;
+                    let gameGoals = getGoals(game);
+                    return bet + " (" + gameGoals[teamNum] + ")";
+                }
+            case 2:{
+                let playerTeam = null;
+                for(let team of Object.keys(players)){
+                    for(let player of getPlayers(team)){
+                        if(player == bet) playerTeam = team;
+                    }
+                }
+                let goals = 0;
+                for(let game of data){
+                    if(!hasStarted(game)){
+                        if(game.team1.teamName == playerTeam || game.team2.teamName == playerTeam) return bet;
+                        continue;
+                    }
+                    let gameGoals = game.goals.sort((a, b) => {
+                        const sumA = a.scoreTeam1 + a.scoreTeam2;
+                        const sumB = b.scoreTeam1 + b.scoreTeam2;
+                        return sumA - sumB;
+                    });  
+                    let lastScore = [0,0];
+                    for(let goal of gameGoals){
+                        let goalPlayerTeam = goal.scoreTeam1 > lastScore[0] ? game.team1.teamName: game.team2.teamName;
+                        lastScore = [goal.scoreTeam1,goal.scoreTeam2];
+                        if(goal.isOwnGoal || getPlayerName(goal.goalGetterName,goalPlayerTeam) != bet) continue;
+                        goals ++;
+                    }
+                }
+                return bet + " (" + goals + ")"
+            }
+            case 3:{
+                for(let game of data){
+                    if((getShortName(game.team1) + " : " + getShortName(game.team2)) != bet) continue;
+                    if(!hasStarted(game)) return bet;
+                    return bet + " (" + (getGoals(game)[0] + getGoals(game)[1]) + ")"
+                }
+            }
+            case 4:
+                return bet
+            case 5:
+                for(let game of data){
+                    if((getShortName(game.team1) != bet && getShortName(game.team2) != bet)) continue;
+                    if(!hasStarted(game)) return bet;
+                    let teamNum = getShortName(game.team1) == bet ? 0: 1;
+                    let goals = getGoals(game);
+                    if(goals[teamNum] > goals[teamNum == 0 ? 1: 0]){
+                        return bet + " (" + (goals[teamNum] - goals[teamNum == 0 ? 1: 0]) + ")";
+                    }else{
+                        return bet + " (-)";
+                    }
+                }
+        }
+    }else if(!isKnockout){
+        switch(dailyType){
+            case 1:{
+                for(let game of data){
+                    if((getShortName(game.team1) + " : " + getShortName(game.team2)) != bet) continue;
+                    if(!hasStarted(game)) return bet;
+                    return bet + " (" + (getGoals(game)[0] + getGoals(game)[1]) + ")"
+                }
+            }
+            case 2:{
+                for(let game of data){
+                    if(getShortName(game.team1) != bet && getShortName(game.team2) != bet) continue;
+                    if(!hasStarted(game)) return bet;
+                    let teamNum = getShortName(game.team1) == bet ? 0: 1;
+                    let goals = getGoals(game);
+                    return bet + " (" + goals[teamNum] + ":" + goals[teamNum == 0 ? 1: 0] + ")";
+                }
+            }
+            case 3:{
+                return bet
+            }
+        }
+    }else{
+        switch(dailyType){
+            case 1:{
+                let goals = 0;
+                let started = false
+                for(let game of data){
+                    if(!hasStarted(game)) continue;
+                    let teamNum = getShortName(game.team1) == bet.split(" : ")[0] ? 0: 1;
+                    let germanTeam = teamNum == 0 ? getShortName(game.team1): getShortName(game.team2);
+                    let otherTeam = teamNum == 0 ? getShortName(game.team2): getShortName(game.team1);
+                    if((germanTeam + " : " + otherTeam) != bet) continue;
+                    started = true
+                    goals += getGoals(game)[0] + getGoals(game)[1]
+                }
+                if(!started) return bet
+                return bet + " (" + goals + ")"
+            }
+            case 2:{
+                let onwGoals = 0;
+                let otherGoals = 0;
+                let started = false
+                for(let game of data){
+                    if(!hasStarted(game) || (getShortName(game.team1) != bet && getShortName(game.team2) != bet)) continue;
+                    started = true
+                    let teamNum = getShortName(game.team1) == bet ? 0: 1;
+                    let goals = getGoals(game);
+                    onwGoals += goals[teamNum];
+                    otherGoals += goals[teamNum == 0 ? 1: 0];
+                }
+                if(!started) return bet
+                return bet + " (" + onwGoals + ":" + otherGoals + ")";
+            }
+            case 3:{
+                return bet;
+            }
+        }
+    }
+    return bet
 }
 
 function getResult(data,t,dailyT = dailyType){
@@ -1261,7 +1373,6 @@ function displayBet(num,data,hasStarted,currentBets,t,index){
     if(currentBet[num] == null) currentBet[num] = []
     for(let i = 0; i < currentBet[num].length; i++){
         let bet = currentBet[num][i]
-        //if(t == 7 || t == 6) newType = t + (0.5 * i)
         if(t == 7){
             display += "<div class='multiDisplay'>" +  getTitle(`${i+1}. Halbzeit`,false)
         }
@@ -1270,12 +1381,13 @@ function displayBet(num,data,hasStarted,currentBets,t,index){
         }
 
         let fix = getFix((t < 10 ? data.matchID: (t < 100 ? "daily" + data[0].group.groupOrderID: "saison" + (t-100))),i,playernames[index]);
+        let betDisplay = t < 10 ? (fix ? fix.fix_data : bet) : getDailyDisplay(data,(fix ? fix.fix_data : bet),t != 10,t == 25);
         if(fix == null){
             typebet = t
             
-            display += getBetDisplay(bet,changeColorBet(data,typebet,hasStarted,i,bet,index),playernames[index],(t < 10 ? data.matchID: (t < 100 ? "daily" + data[0].group.groupOrderID: "saison" + (t-100))),i);
+            display += getBetDisplay(betDisplay,changeColorBet(data,typebet,hasStarted,i,bet,index),playernames[index],(t < 10 ? data.matchID: (t < 100 ? "daily" + data[0].group.groupOrderID: "saison" + (t-100))),i);
         }else{
-            display += getBetDisplay(fix.fix_data,changeColorBet(data,t,hasStarted,i,bet,index),playernames[index],fix.game_id,i)
+            display += getBetDisplay(betDisplay,changeColorBet(data,t,hasStarted,i,bet,index),playernames[index],fix.game_id,i)
         }
         if(t == 7 || t == 6) display += "</div>"
     }
@@ -1650,9 +1762,14 @@ function championsLeagueDaysBeforeDay(day){
     let days = 0;
     for(let i = 0; i < championsLeagueGamedays.length; i++){
         if(championsLeagueGamedays[i] < day){
-            days += 1;
+            days++;
         }else{
             break;
+        }
+    }
+    for(let i = 0; i < champiosLeagueKnockout.length; i++){
+        if(champiosLeagueKnockout[i].days[0] < day){
+            days++;
         }
     }
     return days;
