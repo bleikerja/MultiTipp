@@ -7,21 +7,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         require_once("dbh.php");
         
         // Retrieve and sanitize input data
-        $old_playername = $_SESSION["user_data"]["username"];
+        $old_password = $_SESSION["user_data"]["user_password"];
         $data = json_decode(file_get_contents("php://input"), true);
-        $playername = $data["input"] ?? null;
+        $password = $data["input"] ?? null;
 
         // Prepare and execute the update query
-        $query = "UPDATE users SET username = :playername WHERE username = :old_playername;";
+        $query = "UPDATE users SET user_password = :password WHERE user_password = :old_password;";
         $stmt = $pdo->prepare($query);
-        $stmt->bindParam(':playername', $playername, PDO::PARAM_STR);
-        $stmt->bindParam(':old_playername', $old_playername, PDO::PARAM_STR);
+        $stmt->bindParam(':password', $password, PDO::PARAM_STR);
+        $stmt->bindParam(':old_password', $old_password, PDO::PARAM_STR);
         $stmt->execute();
 
         // Retrieve the updated user data
-        $login_query = "SELECT * FROM users WHERE username = :username;";
+        $login_query = "SELECT * FROM users WHERE user_password = :user_password;";
         $login_stmt = $pdo->prepare($login_query);
-        $login_stmt->bindParam(':username', $playername, PDO::PARAM_STR);
+        $login_stmt->bindParam(':user_password', $password, PDO::PARAM_STR);
         $login_stmt->execute();
         $login_result = $login_stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -41,9 +41,4 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 } else {
     header("Location: anmelden");
     exit();
-}
-
-function debug_to_console($data) {
-    $output = is_array($data) ? implode(',', $data) : $data;
-    echo "<script>console.log('Debug Objects: " . addslashes($output) . "');</script>";
 }

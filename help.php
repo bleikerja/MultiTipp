@@ -30,23 +30,21 @@
     <a class="menu-button selected" aria-disabled="true">
         <div class="menu-item selected">Hilfe</div>
     </a>
+    <a class="menu-button" href="einstellungen">
+        <span role="button" class="menu-item material-symbols-outlined">settings</span>
+    </a>
     <a class="menu-button logout hideBig" href="anmelden">
+        <div class="menu-item logout">Ausloggen</div>
+    </a>
+    </div>
+    <div class="menu-account">
+        <a class="menu-button logout" href="anmelden">
+            <span class="icon">
+                <svg xmlns="http://www.w3.org/2000/svg" height="100%" viewBox="0 -960 960 960" width="24px" fill="#000000"><path d="M647-440H160v-80h487L423-744l57-56 320 320-320 320-57-56 224-224Z"/></svg>
+            </span>
             <div class="menu-item logout">Ausloggen</div>
         </a>
     </div>
-    <div class="menu-account">
-            <form id="editForm" action="php/changePlayerName.php" method="post">
-                <input name="input" id="edit-name" class="edit-name" type="text" style="display:none" autocomplete="off">
-            </form>
-            <div id="name"><?php echo $_SESSION["user_data"]["username"] ?></div>
-            <span role="button" onClick="editName()" class="edit-button material-symbols-outlined">edit</span>
-            <a class="menu-button logout" href="anmelden">
-                <span class="icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" height="inherit" viewBox="0 -960 960 960" width="24px" fill="#000000"><path d="M647-440H160v-80h487L423-744l57-56 320 320-320 320-57-56 224-224Z"/></svg>
-                </span>
-                <div class="menu-item logout">Ausloggen</div>
-            </a>
-        </div>
   </div>
     <h1>Hilfe</h1>
     <h4>Bundesliga</h4>
