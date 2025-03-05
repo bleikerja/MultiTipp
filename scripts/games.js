@@ -774,8 +774,11 @@ function displayResults(data,started,t){
     if(!started) return display;
     let result = getResult(data,t)
     display += '<div class="betResultContainer">'
+    if(result.length == 0) result = getFix((t < 10 ? data.matchID: (t < 100 ? "daily" + data[0].group.groupOrderID: "saison" + (t-100))),0);
+    result = result != null && result.fix_data ? [result.fix_data]: [];
     for(let i = 0; i < result.length;i++){
         let newType = t;
+        console.log(result[i])
         if(t == 7 || t == 6) newType = t + (0.5 * i)
         if(t == 7){
             display += getTitle(`${i+1}. Halbzeit`,false)
