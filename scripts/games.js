@@ -775,7 +775,7 @@ function displayResults(data,started,t){
     let result = getResult(data,t)
     display += '<div class="betResultContainer">'
     if(result.length == 0) result = getFix((t < 10 ? data.matchID: (t < 100 ? "daily" + data[0].group.groupOrderID: "saison" + (t-100))),0);
-    result = result != null && result.fix_data ? [result.fix_data]: [];
+    result = result != null && result.fix_data ? [result.fix_data]: result == null ? []: result;
     for(let i = 0; i < result.length;i++){
         let newType = t;
         console.log(result[i])
@@ -812,6 +812,7 @@ function getFix(game,i,user=""){
 }
 
 function getDailyDisplay(data, bet, isChampion = false, isKnockout = false){
+    console.log(bet,isChampion,isKnockout)
     if(!isChampion){
         switch(dailyType){
             case 1:
