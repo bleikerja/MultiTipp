@@ -110,6 +110,11 @@ html,body{
     min-width: 470px;
 }
 
+.saisonContainer{
+    margin-bottom: 15px;
+    padding: 5px;
+}
+
 .team1{
     text-align: center;
     width:100%;
@@ -340,8 +345,7 @@ ul {
 }
 
 .groupContainer{
-    margin-top:134.5px;
-   
+    margin-top:126px;
 }
 
 .pointBar{
@@ -417,7 +421,7 @@ li{
     margin-left: 10px;
 }
 .carousel-control-prev, .carousel-control-next {
-    width: 5%; /* Breitere Buttons */
+    width: 50px; /* Breitere Buttons */
     top: 87px;
     transform: translateY(-50%);
     background-color: grey;
@@ -428,14 +432,15 @@ li{
 }
 
 .carousel-control-prev {
-    left: -5%; /* Positioniere den linken Pfeil außerhalb des Carousels */
+    left: -50px; /* Positioniere den linken Pfeil außerhalb des Carousels */
 }
 
 .carousel-control-next {
-    right: -5%; /* Positioniere den rechten Pfeil außerhalb des Carousels */
+    right: -50px; /* Positioniere den rechten Pfeil außerhalb des Carousels */
 }
 .carousel{
     margin-right: 50px;
+    margin-left: 50px;
 }
 .playernameBar{
     display: flex;

@@ -12,8 +12,7 @@ let germanTeams = ["Stuttgart","Dortmund","Bayern","Leipzig","Leverkusen"]
 
 let types = [];
 let typesLeft = [1,2,3,4,5,6,7,8,9];
-let extraInfo = [];
-let dailyType = 2;
+let dailyType = 1;
 
 let d = null;
 let liveDayData = null
@@ -25,24 +24,19 @@ let wholeTableChampion = null
 let championsDay = null
 let championsDayData = []
 
-let shift = 0
-let saisonShift = 0
 let sortingByTotal = true;
 
 let bets = [];
 let saisonBetsFix = []
 let saisonBets = []
-let saisonOrder = [100,101,102]
 let points = [];
+let saisonPoints = [];
 let currentDay = 0;
-let currentDayIndex = 0;
 let liveDay = 0;
 let liveDayChampion = 0;
 let liveDayIsChampion = false
-let positionDaily = 9
 
 let playernames = []
-
 let is_admin = false;
 let username = "";
 let fixes = []
@@ -54,7 +48,6 @@ let removeInput = document.getElementById("groupDelete");
 
 let editingName = false
 let selectedCarouselItem = 0
- 
 let carouselWidth = 0;
 
 start();
@@ -94,7 +87,7 @@ async function start(){
     await load(); 
     await loadPoints(); 
 
-    //daySelect.insertAdjacentHTML('beforeend', `<option value="0">Saisonswetten</option>`);
+    daySelect.insertAdjacentHTML('beforeend', `<option value="0">Saisonswetten</option>`);
 
     let j = 1
     for(let i = 1; i <= 34; i++){
@@ -126,7 +119,7 @@ async function showSpieltag(n,index = false){
     }else{
         document.getElementById("moveFront").style.display = '';
     }
-    if(n == 1){
+    if(n == 0){
         document.getElementById("moveBack").style.display = 'none';
     }else{
         document.getElementById("moveBack").style.display = '';
@@ -141,7 +134,7 @@ async function showSpieltag(n,index = false){
     
     gameCarousel.innerHTML = '';
     let daysBefore = championsLeagueDaysBeforeDay(liveDay);
-    let selectedOption = daySelect.options[liveDayIsChampion ? liveDay+daysBefore+1: liveDay+daysBefore];
+    let selectedOption = daySelect.options[liveDayIsChampion ? liveDay+daysBefore+2: liveDay+daysBefore+1];
     selectedOption.style.fontWeight = "bold";
   
     let options = daySelect.options;
@@ -151,14 +144,10 @@ async function showSpieltag(n,index = false){
         }
         if(options[i].value == n) {
             daySelect.selectedIndex = i;
-            currentDayIndex = i;
         }
     }
 
     currentDay = n;
-    shift = 0
-    positionDaily = 9
-    
     
     if(n > 34){
         championsDay = n - 34
@@ -181,7 +170,8 @@ async function showSpieltag(n,index = false){
         
         changePlayerOrder(sortingByTotal);
         selectCarouselItem(getLastStarted(data))
-
+        document.getElementsByClassName("carousel-control-next")[0].hidden = false;
+        document.getElementsByClassName("carousel-control-prev")[0].hidden = false;
         return
     }
     
@@ -191,14 +181,15 @@ async function showSpieltag(n,index = false){
     if(n == 0){
         const response3 = await fetch(new URL(`https://api.openligadb.de/getmatchdata/bl1/2024/4`));
         const data3 = await response3.json();
-        dataDay3 = data3
+        firstDay = data3
 
         const tableResponse = await fetch(new URL(`https://api.openligadb.de/getbltable/bl1/2024`));
         const tableData = await tableResponse.json();
         wholeTable = tableData
         
-        const tableResponseChampion = await fetch(new URL(`https://api.openligadb.de/getbltable/cl24de/2024`));
-        const tableDataChampion = await tableResponseChampion.json();
+        //const tableResponseChampion = await fetch(new URL(`https://api.openligadb.de/getbltable/cl24de/2024`));
+        //const tableDataChampion = await tableResponseChampion.json();
+        const tableDataChampion = [{name:"Leverkusen", place:6},{name:"Dortmund", place:10},{name:"Bayern", place:12}, {name:"Stuttgart", place:26}, {name:"Leipzig", place:32}]
         wholeTableChampion = tableDataChampion
         
         const lastDayResponse = await fetch(new URL(`https://api.openligadb.de/getmatchdata/bl1/2024/34`));
@@ -213,14 +204,11 @@ async function showSpieltag(n,index = false){
 
         if(championsDayData.length == 0) championsDayData = await fetch(new URL(`https://api.openligadb.de/getmatchdata/cl24de/2024/${championsDay.groupOrderID}`)).then(response => response.json());
         
-        showData(tableData,100,true,false,goalgetterData)
-        showData(goalgetterData,101,false,false,tableData)
-        showData(tableData,102,false,false,tableDataChampion)
-        showData(tableDataChampion,103,false,false,championsDay,true)
-        showData([championsDay],104,false,false,null,true)
-
-        displayPlayerPoints();
-        displayPoints(n)
+        updateDisplay()
+        loadSaisonPoints();
+        changePlayerOrder(sortingByTotal);
+        document.getElementsByClassName("carousel-control-next")[0].hidden = false;
+        document.getElementsByClassName("carousel-control-prev")[0].hidden = false;
         return
     }
 
@@ -240,14 +228,16 @@ async function showSpieltag(n,index = false){
     
     changePlayerOrder(sortingByTotal);
     selectCarouselItem(getLastStarted(data))
+    document.getElementsByClassName("carousel-control-next")[0].hidden = false;
+    document.getElementsByClassName("carousel-control-prev")[0].hidden = false;
 }
 
 function displayPoints(n){
     for(let i = 0; i < playernames.length; i++){
-        if(!points[i][n-1]) points[i][n-1] = 0;
+        if(n != 0 && !points[i][n-1]) points[i][n-1] = 0;
         let player = playernames[i];
         let totalPoints = getTotalPoints(i)
-        let dayPoints = points[i][n-1]
+        let dayPoints = n != 0 ? points[i][n-1]: saisonPoints[i];
         document.getElementById("totalPoints" + player).innerHTML = totalPoints;
         document.getElementById("dayPoints" + player).innerHTML = dayPoints;
         for(let n of document.getElementsByClassName("totalPoints" + player)){
@@ -277,14 +267,22 @@ function updateDisplay(){
             }
         }
     }else{
-        for(let n of saisonOrder){
-            if(n == 100){
-                showData(wholeTable,100,true)
-            }else if(n == 101){
-                showData(goalgetters,101)
-            }else if(n == 102){
-                showData(wholeTable,102)
+        let displays = []
+        displays.push(showData(wholeTable,100,true,true))
+        displays.push(showData(goalgetters,101,false,true))
+        displays.push(showData(wholeTable,102,false,true))
+        displays.push(showData(wholeTableChampion,103,false,true,null,true))
+        displays.push(showData([championsDay],104,false,true,null,true))
+        let num = 0
+        while(num < displays.length){
+            let div =  `<div class="carouselItem carousel-item ${num == 0 ? "active":""}"><div class="d-flex">`
+            for(let i = 0; i < getPlayerDisplayCount(); i++){
+                div += displays[num]
+                num++
+                if(num == displays.length) break
             }
+            div += `</div></div></div>`;
+            document.getElementById("gameCarousel").insertAdjacentHTML('beforeend', div);
         }
     }
     
@@ -314,18 +312,18 @@ function updateDisplay(){
 function moveGameday(num){
     let selectedIndex = daySelect.selectedIndex
     let maxValue = daySelect.options.length
-    if(currentDayIndex + num > maxValue || currentDayIndex + num < 0) return;
-    if(currentDayIndex + num == maxValue){
+    if(selectedIndex + num > maxValue || selectedIndex + num < 0) return;
+    if(selectedIndex + num == maxValue){
         document.getElementById("moveFront").style.display = 'none';
     }else{
         document.getElementById("moveFront").style.display = '';
     }
-    if(currentDayIndex + num == 0){
+    if(selectedIndex + num == 0){
         document.getElementById("moveBack").style.display = 'none';
     }else{
         document.getElementById("moveBack").style.display = '';
     }
-    showSpieltag(currentDayIndex + num,true);
+    showSpieltag(selectedIndex + num,true);
     daySelect.selectedIndex = selectedIndex + num
 }
 
@@ -395,7 +393,7 @@ function showData(data,num,first=false,returnResult=false,nextData = null,champi
         </div>`
     
     }    
-    newHtml += (num + 1) % getPlayerDisplayCount() != 0 && num != 104 ? showData(nextData != null ? nextData: data,num+1,false,true,null,champions):""  
+    newHtml += (num + 1) % getPlayerDisplayCount() != 0 && num < 100 ? showData(nextData != null ? nextData: data,num+1,false,true,null,champions):""  
     newHtml += returnResult ? "": `</div></div></div>`;
     
 
@@ -407,9 +405,11 @@ function showData(data,num,first=false,returnResult=false,nextData = null,champi
 
 function changeColor(data,type,result = false){
     if(type >= 100){
-        if(isOver(lastDay[0])) return "#949494"
-        let saisonHasStarted = type < 103 ? hasStarted(dataDay3[0]): (championsDay > 1 ? true: hasStarted(championsDayData[0]))
-        if(saisonHasStarted) return "#ffd599";
+        if(isOver(lastDay[0]) || type == 103 && liveDayChampion > 8) return "#949494"
+        let saisonHasStarted = type < 103 ? hasStarted(firstDay[0]): (championsDay > 1 ? true: hasStarted(championsDayData[0]))
+        if(saisonHasStarted){
+            return "#ffd599";  
+        } 
         return "#f5f5f5";
     }
     
@@ -477,12 +477,12 @@ function showDaily(data,num,returnResult = true,champions=false){
 }
 
 function showSaison(data,num){
-    let saisonHasStarted = num < 103 ? hasStarted(dataDay3[0]): (championsDay > 1 ? true: hasStarted(championsDayData[0]))
+    let saisonHasStarted = num < 103 ? hasStarted(firstDay[0]): (championsDay > 1 ? true: hasStarted(championsDayData[0]))
     const newHtml = `<div class="saison flex-fill p-2">
         <div class="betContainer">
             <div id="SaisonContainer" class="border rounded-3 border-black saisonContainer">
                 <div id="betDaily" class="d-flex flex-row mb-2 game border rounded-3 border-black bg-white" aria-expanded="false">
-                    <h1>${num < 103 ? ("Bundesliga #"+ (num-99)):("Champions League #"+ (num-102))}</h1>
+                    <h2>${num < 103 ? ("Bundesliga #"+ (num-99)):("Champions League #"+ (num-102))}</h2>
                 </div>
                 <div class="border rounded-3 border-black" style="min-height:77px;padding:5px;background-color:${changeColor(data,num,true)}">
                     ${displayResults([...data],saisonHasStarted,num)}
@@ -513,7 +513,6 @@ function isFix(data,type){
 function isFixBet(data,type,bet = null){
     if(type > 10 && type < 20) type = 10;
     if(isOver(data) && type != 10) return true;
-
     switch (type){
         case 2: case 3:
             return getFirstGoal(data) != null;
@@ -675,7 +674,7 @@ function isFixBet(data,type,bet = null){
         case 100:case 101:case 102:
             return isOver(lastDay[0])
         case 103:
-            return championsDay > 8
+            return liveDayChampion > 8
         case 104:
             false
     }
@@ -778,7 +777,6 @@ function displayResults(data,started,t){
     result = result != null && result.fix_data ? [result.fix_data]: result == null ? []: result;
     for(let i = 0; i < result.length;i++){
         let newType = t;
-        console.log(result[i])
         if(t == 7 || t == 6) newType = t + (0.5 * i)
         if(t == 7){
             display += getTitle(`${i+1}. Halbzeit`,false)
@@ -787,11 +785,11 @@ function displayResults(data,started,t){
             display += getTitle(getShortName(getTeams(data)[i]),false)
         }
         let fix = getFix((t < 10 ? data.matchID: (t < 100 ? "daily" + data[0].group.groupOrderID: "saison" + (t-100))),i);
-        let betDisplay = t < 10 ? (fix ? fix.fix_data : result[i]) : getDailyDisplay(data,(fix ? fix.fix_data : result[i]),t != 10, t == 25);
+        let betDisplay = t < 10 ? (fix ? fix.fix_data : result[i]) : getDailyDisplay(data,(fix ? fix.fix_data : result[i]),t);
         if(fix == null){
-            display += getBetDisplay(betDisplay,t < 100 ? (isFixBet(data,newType,t >= 10 ? result[i]: null) ? "gray": "white"): "gray","",(t < 10 ? data.matchID: t < 100 ? ("daily" + data[0].group.groupOrderID): "saison" + (t-100).toString()),i);
+            display += getBetDisplay(betDisplay,isFixBet(data,newType,t >= 10 ? result[i]: null) ? "gray": "white","",(t < 10 ? data.matchID: t < 100 ? ("daily" + data[0].group.groupOrderID): "saison" + (t-100).toString()),i);
         }else{
-            display += getBetDisplay(betDisplay,t < 100 ? (isFixBet(data,newType,t >= 10 ? result[i]: null) ? "gray": "white"): "gray","",fix.game_id,i)
+            display += getBetDisplay(betDisplay,isFixBet(data,newType,t >= 10 ? result[i]: null) ? "gray": "white","",fix.game_id,i)
         }
     }
     display += "</div>"
@@ -811,9 +809,8 @@ function getFix(game,i,user=""){
     return null
 }
 
-function getDailyDisplay(data, bet, isChampion = false, isKnockout = false){
-    console.log(bet,isChampion,isKnockout)
-    if(!isChampion){
+function getDailyDisplay(data, bet, type){
+    if(type == 10){
         switch(dailyType){
             case 1:
                 for(let game of data){
@@ -873,7 +870,7 @@ function getDailyDisplay(data, bet, isChampion = false, isKnockout = false){
                     }
                 }
         }
-    }else if(!isKnockout){
+    }else if(type == 20){
         switch(dailyType){
             case 1:{
                 for(let game of data){
@@ -895,7 +892,7 @@ function getDailyDisplay(data, bet, isChampion = false, isKnockout = false){
                 return bet
             }
         }
-    }else{
+    }else if(type == 25){
         switch(dailyType){
             case 1:{
                 let goals = 0;
@@ -930,6 +927,19 @@ function getDailyDisplay(data, bet, isChampion = false, isKnockout = false){
             case 3:{
                 return bet;
             }
+        }
+    }else{
+        switch(type){
+            case 100:
+                return bet + " (" + (data.findIndex(team => team.shortName == bet) + 1) + ".)"
+            case 101:
+                return bet + " (" + data.filter(player => getPlayerName(player.goalGetterName) == bet).reduce((a, b) => a + b.goalCount,0) + ")"
+            case 102:
+                return bet + " (" + (data.findIndex(team => team.shortName == bet) + 1) + ".)"
+            case 103:
+                return bet + " (" + data.find(team => team.name == bet).place + ".)"
+            case 104:
+                return bet
         }
     }
     return bet
@@ -1315,12 +1325,13 @@ function getResult(data,t,dailyT = dailyType){
             }
             break;
         case 103:
-            for(let n of wholeTableChampion){
-                if(germanTeams.includes(getShortName(n))){
-                    result = [getShortName(n)]
-                    break;
-                }
-            }
+            // for(let n of wholeTableChampion){
+            //     if(germanTeams.includes(getShortName(n))){
+            //         result = [getShortName(n)]
+            //         break;
+            //     }
+            // }
+            result = [wholeTableChampion[0].name]
             break;
         case 104:
             
@@ -1414,7 +1425,7 @@ function displayBet(num,data,hasStarted,currentBets,t,index){
         }
 
         let fix = getFix((t < 10 ? data.matchID: (t < 100 ? "daily" + data[0].group.groupOrderID: "saison" + (t-100))),i,playernames[index]);
-        let betDisplay = t < 10 ? (fix ? fix.fix_data : bet) : getDailyDisplay(data,(fix ? fix.fix_data : bet),t != 10,t == 25);
+        let betDisplay = t < 10 ? (fix ? fix.fix_data : bet) : getDailyDisplay(data,(fix ? fix.fix_data : bet),t);
         if(fix == null){
             typebet = t
             
@@ -1473,7 +1484,6 @@ function displayPlayerPoints(){
 }
 
 function changePlayerOrder(total){
-    shift = 0;
     selectedCarouselItem = getSelectedCarouselItem()
     gameCarousel.innerHTML = '';
     sortingByTotal = total;
@@ -1484,6 +1494,7 @@ function changePlayerOrder(total){
         bets = indices.map(i => bets[i]);
         points = indices.map(i => points[i]);
         saisonBets = indices.map(i => saisonBets[i]);
+        saisonPoints = indices.map(i => saisonPoints[i]);
     }else{
         let indices = Array.from({length: playernames.length}, (_, i) => i);    
         indices.sort((a, b) => comparePointsDay(playernames[a],playernames[b]));
@@ -1491,6 +1502,7 @@ function changePlayerOrder(total){
         bets = indices.map(i => bets[i]);
         points = indices.map(i => points[i]);
         saisonBets = indices.map(i => saisonBets[i]);
+        saisonPoints = indices.map(i => saisonPoints[i]);
     }
 
     updateDisplay()
@@ -1503,9 +1515,8 @@ function comparePoints(a,b){
 }
 
 function comparePointsDay(a,b){
-    
-    const pointsA = points[playernames.indexOf(a)][currentDay-1];
-    const pointsB = points[playernames.indexOf(b)][currentDay-1];
+    const pointsA = currentDay != 0 ? points[playernames.indexOf(a)][currentDay-1]: saisonPoints[playernames.indexOf(a)];
+    const pointsB = currentDay != 0 ? points[playernames.indexOf(b)][currentDay-1]: saisonPoints[playernames.indexOf(b)];
     return pointsB - pointsA;
 }   
 
@@ -1775,6 +1786,17 @@ async function loadPoints(){
         xhr.open("GET", "php/savePoints.php?data=" + encodeURIComponent(JSON.stringify(points[i]))
         + "&user=" + encodeURIComponent(playernames[i]), true);
         xhr.send();
+    }
+}
+
+function loadSaisonPoints(){
+    for(let i = 0; i < bets.length; i++){
+        saisonPoints[i] = 0
+        saisonPoints[i] += getPoints(100, wholeTable, saisonBets[i][0],100, hasStarted(firstDay[0]),null, i)*10;
+        saisonPoints[i] += getPoints(101, goalgetters, saisonBets[i][1],101, hasStarted(firstDay[0]),null, i)*10;
+        saisonPoints[i] += getPoints(102, wholeTable, saisonBets[i][2],102, hasStarted(firstDay[0]),null, i)*5;
+        saisonPoints[i] += getPoints(103, wholeTableChampion, saisonBets[i][3],103, liveDayChampion > 1 || hasStarted(championsDayData[0]),null, i)*5;
+        saisonPoints[i] += getPoints(104, [championsDay], saisonBets[i][4],104, liveDayChampion > 1 || hasStarted(championsDayData[0]),null, i)*5;
     }
 }
 

@@ -1,10 +1,5 @@
 const players = {}
 
-let types = [];
-let typesLeft = [1,2,3,4,5,6,7,8,9]
-let dailyType = 5  
-let extraInfo = [];
-
 const titles = ["Wer gewinnt?", "Wer schießt das 1. Tor?","Welcher Spieler schießt das 1. Tor?","Welche Spieler schießen ein Tor?","Wie viele Tore fallen?","Wie viele Tore schießt das Team?","Wie viele Tore fallen in der Halbzeit?","Welches Team gewinnt mit welchem Abstand?","Schießen beide Teams ein Tor?"];
 const dailyTitles = ["Welches Team schießt die meisten Tore?","Welcher Spieler schießt die meisten Tore?","In welchem Spiel fallen die meisten Tore?","Welche Teams schießen kein Tor?","Welches Team gewinnt mit dem höchsten Abstand?"]
 const saisonTitles = ["Wer wird Meister?", "Welcher Spieler schießt die meisten Tore?", "Welche Teams belegen die letzten 3 Plätze?","Welches deutsche Team hat die beste Platzierung?","Welches deutsche Team kommt am weitesten?"]
@@ -15,38 +10,39 @@ const championsLeagueGamedays = [3,5,7,9,11,13,18,19]
 const champiosLeagueKnockout = [{name:"Playoffs",days:[21,22]},{name:"AF",days:[24,25]}]
 let germanTeams = ["Stuttgart","Dortmund","Bayern","Leipzig","Leverkusen"]
 
+let types = [];
+let typesLeft = [1,2,3,4,5,6,7,8,9]
+let dailyType = 1
 
-let bets = []
-let saisonBets = []
-let currentDay = 0;
-let currentDayIndex = 0;
+let d = null
 let liveDay = 0;
 let liveDayChampion = 0
 let liveDayIsChampion = false
 let championsDayData = []
 let lastDay = null
-let firstDay = null
 let goalgetters = null
 let wholeTable = null
 let wholeTableChampion = null
 let championsDay = null
-let username = "";
-let d = null
-let fixes = []
-
 let allTeams = [];
 
+let bets = []
+let saisonBets = []
+let currentDay = 0;
+let currentDayIndex = 0;
+
+let username = "";
+let fixes = []
+
 let lastSelectedSaison = 0
-
 let editingName = false
-
 let currentFilterTeam = "all"
 let currentFilterPosition = "all"
 
 start();
 async function start(){
    await load(); 
-   //daySelect.insertAdjacentHTML('beforeend', `<option value="0">Saisonswetten</option>`);
+   daySelect.insertAdjacentHTML('beforeend', `<option value="0">Saisonswetten</option>`);
 
     let j = 1
     for(let i = 1; i <= 34; i++){
@@ -100,7 +96,7 @@ async function showSpieltag(n=null,index = false){
     }else{
         document.getElementById("moveFront").style.display = '';
     }
-    if(n == 1){
+    if(n == 0){
         document.getElementById("moveBack").style.display = 'none';
     }else{
         document.getElementById("moveBack").style.display = '';
@@ -122,7 +118,7 @@ async function showSpieltag(n=null,index = false){
 
     
     let daysBefore = championsLeagueDaysBeforeDay(liveDay);
-    let selectedOption = daySelect.options[liveDayIsChampion ? liveDay+daysBefore+1: liveDay+daysBefore];
+    let selectedOption = daySelect.options[liveDayIsChampion ? liveDay+daysBefore+2: liveDay+daysBefore+1];
     selectedOption.style.fontWeight = "bold";
   
     let options = daySelect.options;
@@ -154,8 +150,9 @@ async function showSpieltag(n=null,index = false){
         const tableData = await tableResponse.json();
         wholeTable = tableData
         
-        const tableResponseChampion = await fetch(new URL(`https://api.openligadb.de/getbltable/cl24de/2024`));
-        const tableDataChampion = await tableResponseChampion.json();
+        //const tableResponseChampion = await fetch(new URL(`https://api.openligadb.de/getbltable/cl24de/2024`));
+        //const tableDataChampion = await tableResponseChampion.json();
+        const tableDataChampion = [{name:"Leverkusen", place:6},{name:"Dortmund", place:10},{name:"Bayern", place:12}, {name:"Stuttgart", place:26}, {name:"Leipzig", place:32}]
         wholeTableChampion = tableDataChampion
         
         const lastDayResponse = await fetch(new URL(`https://api.openligadb.de/getmatchdata/bl1/2024/34`));
@@ -373,7 +370,7 @@ function displayResults(num,data,t,teams = null){
         let fixBet = data == null ? null: getFix((t < 10 ? data.matchID: (t < 100 ? "daily" + data[0].group.groupOrderID: "saison" + (t-100))),i,username)
         if(fixBet != null) bet = fixBet.fix_data
         let displayBet = bet;
-        if(t >= 10 && t < 100) displayBet = getDailyDisplay(data,bet,t != 10, t == 25);
+        if(t >= 10) displayBet = getDailyDisplay(data,bet,t);
         display += getBetDisplay(displayBet,changeColorBet(data,t,data == null ? false: hasStarted(data),i,bet));
     }
     return display;
@@ -1001,12 +998,16 @@ function changeColorBet(data,type,hasStarted,i,bet){
 function isFixBet(data,type,bet = null){
     if(type > 10 && type < 20) type = 10;
     if(isOver(data) && type != 10) return true;
-
     switch (type){
         case 2: case 3:
             return getFirstGoal(data) != null;
         case 4:
-            if(bet == null && data.goals.length != 0) return true
+            if(bet == null && data.goals.length != 0 && data.leagueShortcut != "cl24de") return true
+            if(bet == null && data.leagueShortcut == "cl24de"){
+                let goals = getGoals(data);
+                if(goals[0] == 0 && germanTeams.includes(getShortName(data.team1))) return false;
+                if(goals[1] == 0 && germanTeams.includes(getShortName(data.team2))) return false;
+            }
             if(bet == "kein Tor" && getFirstGoal(data) != null) return true
             return getResult(data,type).includes(bet) 
         case 5:
@@ -1158,15 +1159,15 @@ function isFixBet(data,type,bet = null){
         case 100:case 101:case 102:
             return isOver(lastDay[0])
         case 103:
-            return championsDay > 8
+            return liveDayChampion > 8
         case 104:
             false
     }
     return false;
 }
 
-function getDailyDisplay(data, bet, isChampion = false, isKnockout = false){
-    if(!isChampion){
+function getDailyDisplay(data, bet, type){
+    if(type == 10){
         switch(dailyType){
             case 1:
                 for(let game of data){
@@ -1226,7 +1227,7 @@ function getDailyDisplay(data, bet, isChampion = false, isKnockout = false){
                     }
                 }
         }
-    }else if(!isKnockout){
+    }else if(type == 20){
         switch(dailyType){
             case 1:{
                 for(let game of data){
@@ -1248,7 +1249,7 @@ function getDailyDisplay(data, bet, isChampion = false, isKnockout = false){
                 return bet
             }
         }
-    }else{
+    }else if(type == 25){
         switch(dailyType){
             case 1:{
                 let goals = 0;
@@ -1283,6 +1284,19 @@ function getDailyDisplay(data, bet, isChampion = false, isKnockout = false){
             case 3:{
                 return bet;
             }
+        }
+    }else{
+        switch(type){
+            case 100:
+                return bet + " (" + (wholeTable.findIndex(team => team.shortName == bet) + 1) + ".)"
+            case 101:
+                return bet + " (" + goalgetters.filter(player => getPlayerName(player.goalGetterName) == bet).reduce((a, b) => a + b.goalCount,0) + ")"
+            case 102:
+                return bet + " (" + (wholeTable.findIndex(team => team.shortName == bet) + 1) + ".)"
+            case 103:
+                return bet + " (" + wholeTableChampion.find(team => team.name == bet).place + ".)"
+            case 104:
+                return bet
         }
     }
     return bet
@@ -1668,12 +1682,13 @@ function getResult(data,t,dailyT = dailyType){
             }
             break;
         case 103:
-            for(let n of wholeTableChampion){
-                if(germanTeams.includes(getShortName(n))){
-                    result = [getShortName(n)]
-                    break;
-                }
-            }
+            // for(let n of wholeTableChampion){
+            //     if(germanTeams.includes(getShortName(n))){
+            //         result = [getShortName(n)]
+            //         break;
+            //     }
+            // }
+            result = [wholeTableChampion[0].name]
             break;
         case 104:
             

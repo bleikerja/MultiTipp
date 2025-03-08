@@ -11,7 +11,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <title>Multi Tipp</title>
-    <link rel="stylesheet" href="styles/styleGames.css?v=5">
+    <link rel="stylesheet" href="styles/styleGames.css?v=6">
 </head>
 <body>
     <div class="menu">
@@ -66,11 +66,11 @@
             <div id="gameCarousel" class="carousel-inner">
                 
             </div>
-            <button class="carousel-control-prev" type="button" data-bs-target="#carousel" data-bs-slide="prev">
+            <button class="carousel-control-prev" type="button" data-bs-target="#carousel" data-bs-slide="prev" hidden>
                 <span class="carousel-control-prev-icon" aria-hidden="true"></span>
                 <span class="visually-hidden">Previous</span>
             </button>
-            <button class="carousel-control-next" type="button" data-bs-target="#carousel" data-bs-slide="next">
+            <button class="carousel-control-next" type="button" data-bs-target="#carousel" data-bs-slide="next" hidden>
                 <span class="carousel-control-next-icon" aria-hidden="true"></span>
                 <span class="visually-hidden">Next</span>
             </button>
@@ -85,7 +85,7 @@
         </div>
         
     </div>
-    <script src="scripts/games.js?v=42"></script>
+    <script src="scripts/games.js?v=43"></script>
     <script>
         navigator.serviceWorker.register('sw.js');
     </script>
