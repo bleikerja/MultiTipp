@@ -371,7 +371,7 @@ function displayResults(num,data,t,teams = null){
         if(fixBet != null) bet = fixBet.fix_data
         let displayBet = bet;
         if(t >= 10) displayBet = getDailyDisplay(data,bet,t);
-        display += getBetDisplay(displayBet,changeColorBet(data,t,data == null ? false: hasStarted(data),i,bet));
+        display += getBetDisplay(displayBet,changeColorBet(data,t,data == null ? false: hasStarted(t < 10 ? data: data[0]),i,bet));
     }
     return display;
 }
@@ -967,6 +967,7 @@ function championsLeagueDaysBeforeDay(day){
 }
 
 function changeColorBet(data,type,hasStarted,i,bet){
+    console.log(hasStarted)
     if(!hasStarted) return "white"
     let result = getResult(data,type)
     
