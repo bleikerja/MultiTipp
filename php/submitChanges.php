@@ -6,7 +6,7 @@ if (isset($_GET['data']) && isset($_GET['user']) && isset($_GET['match'])) {
 }
 
 function change($data, $user, $match) {
-    require_once("dbh.php");
+    require_once "../dbh.php";
 
     $search_query = "SELECT * FROM fixes WHERE game_id = :matchId AND user = :user;";
     $search_stmt = $pdo->prepare($search_query);

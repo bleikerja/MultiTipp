@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-require_once("dbh.php");
+require_once "../dbh.php";
 
 // Get subscription data
 $subscription = json_decode(file_get_contents("php://input"), true);

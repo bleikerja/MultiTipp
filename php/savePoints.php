@@ -5,7 +5,7 @@
     }
 
     function save($data,$user){
-        require_once("dbh.php");
+        require_once "../dbh.php";
         $user_data = json_encode($data,JSON_UNESCAPED_UNICODE);
         $username = json_encode($user,JSON_UNESCAPED_UNICODE);
 

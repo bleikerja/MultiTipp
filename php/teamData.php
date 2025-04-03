@@ -2,7 +2,7 @@
 
     session_start();
 
-    require_once("dbh.php");
+    require_once "../dbh.php";
 
     $data_query = "SELECT * FROM teams;";
     $data_stmt = $pdo->prepare($data_query);

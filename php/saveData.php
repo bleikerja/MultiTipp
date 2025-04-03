@@ -6,7 +6,7 @@
     }
 
     function save($data, $index){
-        require_once("dbh.php");
+        require_once "../dbh.php";
         $username = $_SESSION["user_data"]["username"];
         $password = $_SESSION["user_data"]["user_password"];
         

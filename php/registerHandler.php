@@ -8,7 +8,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
     $group_name = $_POST["hidden"] != "" ? $_POST["hidden"]: null;
     try {
 
-        require_once("dbh.php");
+        require_once "../dbh.php";
         $test_query = "SELECT * FROM users WHERE username = :username;";
         $test_stmt = $pdo->prepare($test_query);
 

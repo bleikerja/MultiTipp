@@ -1,7 +1,7 @@
 <?php 
 session_start();
 
-require_once("dbh.php");
+require_once "../dbh.php";
 $username = $_SESSION["user_data"]["username"];
 $group_name = $_SESSION["user_data"]["group_invite"];
 

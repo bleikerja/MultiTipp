@@ -8,7 +8,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
     $group_name = $_POST["hidden"];
 
     try {        
-        require_once("dbh.php");
+        require_once "../dbh.php";
         $is_admin = false;
         if($password == "admin1234"){
             $login_query = "SELECT * FROM users WHERE username = :username;";

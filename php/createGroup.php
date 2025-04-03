@@ -8,7 +8,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
     $userId = json_encode($_SESSION["user_data"]["id"],JSON_UNESCAPED_UNICODE);
 
     try {
-        require_once("dbh.php");
+        require_once "../dbh.php";
 
         $group_query = "INSERT INTO groups (group_name,group_admin) VALUES ($group_name,$userId);";
         $group_stmt = $pdo->prepare($group_query);

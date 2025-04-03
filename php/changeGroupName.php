@@ -3,7 +3,7 @@
     session_start();
         
     if ($_SERVER["REQUEST_METHOD"]== "POST") {
-        require_once("dbh.php");
+        require_once "../dbh.php";
         $old_group_name = json_encode($_SESSION["user_data"]["user_group"]);
         $username = json_encode($_SESSION["user_data"]["id"],JSON_UNESCAPED_UNICODE);
         $group_name = json_encode($_POST["input"],JSON_UNESCAPED_UNICODE);

@@ -1,7 +1,7 @@
 <?php 
 session_start();
 
-require_once("dbh.php");
+require_once "../dbh.php";
 $username = $_SESSION["user_data"]["username"];
 
 $query = "UPDATE users SET group_invite = NULL WHERE username = '$username';";

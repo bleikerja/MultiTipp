@@ -2,7 +2,7 @@
     session_start();
     
     if ($_SERVER["REQUEST_METHOD"]== "POST") {
-        require_once("dbh.php");
+        require_once "../dbh.php";
         $remove_user = json_encode($_POST["input"],JSON_UNESCAPED_UNICODE);
 
         $query = "UPDATE users SET user_group = NULL, group_invite = NULL WHERE username = $remove_user;";
