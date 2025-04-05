@@ -7,7 +7,7 @@ const saisonTitles = ["Wer wird Meister?", "Welcher Spieler schießt die meisten
 let championsLeagueTitles = ["In welchem Spiel fallen die meisten Tore?","Welches deutsche Team spielt am besten?","Welche deutschen Teams gewinnen?"]
 let championsLeagueKnockoutTitles = ["In welcher Begegnung fallen die meisten Tore?","Welches deutsche Team spielt am besten?","Welche deutschen Teams kommen weiter?"]
 const championsLeagueGamedays = [3,5,7,9,11,13,18,19]
-const champiosLeagueKnockout = [{name:"Playoffs",days:[21,22]},{name:"AF",days:[24,25]}]
+const champiosLeagueKnockout = [{name:"Playoffs",days:[21,22]},{name:"AF",days:[24,25]},{name:"VF",days:[28,29]}]
 let germanTeams = ["Stuttgart","Dortmund","Bayern","Leipzig","Leverkusen"]
 
 let types = [];
