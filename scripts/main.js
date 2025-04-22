@@ -1162,7 +1162,7 @@ function isFixBet(data,type,bet = null){
         case 103:
             return liveDayChampion > 8
         case 104:
-            false
+            return true
     }
     return false;
 }

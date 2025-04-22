@@ -405,7 +405,7 @@ function showData(data,num,first=false,returnResult=false,nextData = null,champi
 
 function changeColor(data,type,result = false){
     if(type >= 100){
-        if(isOver(lastDay[0]) || type == 103 && liveDayChampion > 8) return "#949494"
+        if(isOver(lastDay[0]) || type == 103 && liveDayChampion > 8 || type == 104) return "#949494"
         let saisonHasStarted = type < 103 ? hasStarted(firstDay[0]): (championsDay > 1 ? true: hasStarted(championsDayData[0]))
         if(saisonHasStarted){
             return "#ffd599";  
@@ -676,7 +676,7 @@ function isFixBet(data,type,bet = null){
         case 103:
             return liveDayChampion > 8
         case 104:
-            false
+            return true
     }
     return false;
 }
