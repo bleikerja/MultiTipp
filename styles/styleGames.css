@@ -38,7 +38,25 @@ html,body{
         width: 50%;
         display: flex;
         flex-direction: row;
+    }
+    .carousel-control-prev, .carousel-control-next {
+        width: 50px; /* Breitere Buttons */
+        top: 87px;
+        transform: translateY(-50%);
+        background-color: grey;
+        height: 150px;
+        border-color: black;
+        border-radius: 10px;
+        border-width: 5px;
     }    
+    
+    .carousel-control-prev {
+        left: -50px; /* Positioniere den linken Pfeil außerhalb des Carousels */
+    }
+
+    .carousel-control-next {
+        right: -50px; /* Positioniere den rechten Pfeil außerhalb des Carousels */
+    }
 }
 
 
@@ -97,9 +115,6 @@ html,body{
     .carousel{
         margin: auto !important;
         width: 100vw; /* Set a fixed width for the carousel */
-    }
-    .carousel-control-prev, .carousel-control-next {
-        display: none !important;
     }
     .saison, .saisonContainer{
         min-width: 1px !important;
@@ -427,24 +442,7 @@ li{
     width: 50%;
     margin-left: 10px;
 }
-.carousel-control-prev, .carousel-control-next {
-    width: 50px; /* Breitere Buttons */
-    top: 87px;
-    transform: translateY(-50%);
-    background-color: grey;
-    height: 150px;
-    border-color: black;
-    border-radius: 10px;
-    border-width: 5px;
-}
 
-.carousel-control-prev {
-    left: -50px; /* Positioniere den linken Pfeil außerhalb des Carousels */
-}
-
-.carousel-control-next {
-    right: -50px; /* Positioniere den rechten Pfeil außerhalb des Carousels */
-}
 .carousel{
     margin-right: 50px;
     margin-left: 50px;
