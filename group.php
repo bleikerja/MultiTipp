@@ -265,7 +265,7 @@
     ?>
 
     <?php if($_SESSION["user_data"]["user_group"] != null){
-        require_once("php/dbh.php");
+        require_once "dbh.php";
         $group_name = json_encode($_SESSION["user_data"]["user_group"]);
         $query = "SELECT * FROM groups WHERE group_name = $group_name;";
         //echo $query;

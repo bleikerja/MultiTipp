@@ -118,7 +118,7 @@ async function showSpieltag(n=null,index = false){
 
     
     let daysBefore = championsLeagueDaysBeforeDay(liveDay);
-    let selectedOption = daySelect.options[liveDayIsChampion ? liveDay+daysBefore+2: liveDay+daysBefore+1];
+    let selectedOption = daySelect.options[liveDayIsChampion ? liveDay+daysBefore+2: liveDay+daysBefore];
     selectedOption.style.fontWeight = "bold";
   
     let options = daySelect.options;
@@ -377,6 +377,7 @@ function displayResults(num,data,t,teams = null){
 }
 
 function getBetDisplay(display,color="white"){
+    if(display == null || display == undefined) return "";
     return `
     <p class="betDisplay" style="background-color: ${color};">${display}</p>
 `
@@ -959,15 +960,16 @@ function championsLeagueDaysBeforeDay(day){
         }
     }
     for(let i = 0; i < champiosLeagueKnockout.length; i++){
-        if(champiosLeagueKnockout[i].days[0] < day){
-            days++;
+        for(let j = 0; j < champiosLeagueKnockout[i].days.length; j++){
+            if(champiosLeagueKnockout[i].days[j] < day){
+                days++;
+            }
         }
     }
     return days;
 }
 
 function changeColorBet(data,type,hasStarted,i,bet){
-    console.log(hasStarted)
     if(!hasStarted) return "white"
     let result = getResult(data,type)
     
@@ -989,7 +991,7 @@ function changeColorBet(data,type,hasStarted,i,bet){
         }
     }else{
         if(isFixBet(data,typeMod,bet)){
-            return "red"
+            return "#e90000"
         }else{
             return "lightgray"
         }

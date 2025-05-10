@@ -51,6 +51,8 @@ html,body{
     }
     .teamText1{
         display: inline-block !important;
+        font-size: 15px !important;
+        padding-top: 0 !important;
     }
     .newLine{
         display: inline !important;
@@ -59,8 +61,11 @@ html,body{
         margin-left: 10px !important;
     }
     .betsDisplay, .betContainer, .resultDisplay, #SaisonContainer, #dailyContainer{
-        max-width: 85vw !important;
+        max-width: 95vw !important;
         min-width: 85vw !important;
+    }
+    #betDaily{
+        height: 80px;
     }
     .betsDisplay:not(.desktop){
         max-width: 40vw !important;
@@ -85,14 +90,16 @@ html,body{
         min-width: 90% !important;
         text-align: center;
     }
-
+    .pointBar{
+        margin-left: 5px !important;
+        margin-right: 5px !important;
+    }
     .carousel{
         margin: auto !important;
-        width: 95vw; /* Set a fixed width for the carousel */
+        width: 100vw; /* Set a fixed width for the carousel */
     }
     .carousel-control-prev, .carousel-control-next {
-        top: 50% !important;
-        height: 95% !important;
+        display: none !important;
     }
     .saison, .saisonContainer{
         min-width: 1px !important;
@@ -648,6 +655,10 @@ li{
     cursor: pointer;
 }
 
+.sort.mobile{
+    width: 50%;
+}
+
 .sortText{
     font-weight: bold;
     width: 50%;
@@ -669,4 +680,23 @@ li{
 .sortText.selected{
     background-color: black;
     color: white;
+}
+
+.arrowRight{
+    border-radius: 0px 8px 8px 0px;
+}
+
+.arrowLeft{
+    border-radius: 8px 0px 0px 8px;
+}
+
+.arrowRight, .arrowLeft{
+    margin: auto;
+    height: 30px;
+    background-color: #b7b7b7;
+    color: black;
+    border-color: black;
+    border-width: 1px;
+    border-style: solid;
+    width: 25%;
 }

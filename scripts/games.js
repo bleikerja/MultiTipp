@@ -107,6 +107,7 @@ async function start(){
     let day = isNaN(parseInt(urlParams.get('day'))) ? urlParams.get('day'): parseInt(urlParams.get('day'))
     
     await showSpieltag(day != null ? day: (!liveDayIsChampion ? liveDay: liveDayChampion+34));
+
 }
 async function showSpieltag(n,index = false){
     if(index){
@@ -134,7 +135,7 @@ async function showSpieltag(n,index = false){
     
     gameCarousel.innerHTML = '';
     let daysBefore = championsLeagueDaysBeforeDay(liveDay);
-    let selectedOption = daySelect.options[liveDayIsChampion ? liveDay+daysBefore+2: liveDay+daysBefore+1];
+    let selectedOption = daySelect.options[liveDayIsChampion ? liveDay+daysBefore+2: liveDay+daysBefore];
     selectedOption.style.fontWeight = "bold";
   
     let options = daySelect.options;
@@ -442,7 +443,7 @@ function changeColorBet(data,type,hasStarted,i,bet,playerindex){
         }
     }else{
         if(isFixBet(data,typeMod,bet)){
-            return "red"
+            return "#e90000"
         }else{
             return "lightgray"
         }
@@ -456,7 +457,7 @@ function showDaily(data,num,returnResult = true,champions=false){
           <div class="d-flex">`
 
     newHtml += `<div class="flex-fill p-2">
-        <div class="betContainer">
+        <div class="betContainer2">
             <div id="dailyContainer" class="border rounded-3 border-black">
                 <div id="betDaily" class="d-flex flex-row mb-2 game border rounded-3 border-black bg-white" aria-expanded="false">
                     <h3>Spieltag</h3>
@@ -705,10 +706,14 @@ function isOver(data){
 
 function displayAllBets(num,data,started,t){
     let display = `
+    <div class="mobile">
         <div class="sort mobile">
             <div class="sortTotal sortText ${sortingByTotal ? "selected":""}" onclick="changePlayerOrder(true)">Gesamt</div>
             <div class="sortDay sortText ${!sortingByTotal ? "selected":""}" onclick="changePlayerOrder(false)">Spieltag</div>
         </div>
+        <div class="arrowLeft sortText" data-bs-target="#carousel" data-bs-slide="prev"><</div>
+        <div class="arrowRight sortText" data-bs-target="#carousel" data-bs-slide="next">></div>
+    </div>
     `
 
     let thisPlayerBets = bets[playernames.indexOf(username)][currentDay-1]
@@ -747,7 +752,7 @@ function getBetsDisplay(content, color, playername, i){
             <div class="playernameM">${place}. ${playername}</div>
             <div class="pointsM">
                 <div class="pointsTotalM pointsTextM">${pointsThis}</div>
-                <div class="pointsDayM pointsTextM">${points[i][currentDay-1]}</div>
+                <div class="pointsDayM pointsTextM">${currentDay != 0 ? points[i][currentDay-1]: saisonPoints[i]}</div>
             </div>
         </div>
         <div class="betsDisplay">${content}</div>
@@ -1520,6 +1525,7 @@ function getBetDisplay(display,color="white",user="",matchId,orderId){
     `
     }
     
+    if(display == null || display == "undefined") return ""
     return `<p class="border rounded-3 border-black betDisplay" style="background-color: ${color};">${display}</p>`
 }
 
@@ -1572,7 +1578,7 @@ function getPlayers(team,position=null){
 }
 
 function getTitle(title,i=true){
-    return `<p class="gameTitle" style="font-size: ${i ? 17: 15}px;">${title}</p>`
+    return `<p class="gameTitle" style="font-size: ${i ? 16: 15}px;">${title}</p>`
 }
 
 function RND(seed) {
@@ -1737,7 +1743,7 @@ async function loadPoints(){
     }
 
     startIndex = getLastFilledChamp(points);
-    for(let day = startIndex; day <= 34 + liveDayChampion; day++){
+    for(let day = startIndex; day <= 33 + liveDayChampion; day++){
         let rand = new RND(day+1);
         let typesLeftN = [1,4,5,6,8];
         let typesN = []
@@ -1810,8 +1816,10 @@ function championsLeagueDaysBeforeDay(day){
         }
     }
     for(let i = 0; i < champiosLeagueKnockout.length; i++){
-        if(champiosLeagueKnockout[i].days[0] < day){
-            days++;
+        for(let j = 0; j < champiosLeagueKnockout[i].days.length; j++){
+            if(champiosLeagueKnockout[i].days[j] < day){
+                days++;
+            }
         }
     }
     return days;
