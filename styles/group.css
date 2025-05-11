@@ -1,0 +1,55 @@
+body{
+    background-color: #f0f0f0;
+    font-family: 'Roboto', sans-serif;
+}
+.searchbar{
+    display:flex;
+    margin: 20px auto;
+    width: fit-content;
+}
+
+.list-group{
+    width: 70%;
+    margin: auto;
+}
+
+.invite{
+    display: flex;
+    justify-content: space-between;
+    width: 60%;
+    margin: auto;
+    border: 1px black solid;
+    border-radius: 6px;
+}
+
+.list-group-item p{
+    margin: 5px;
+    font-size: 18px;
+}
+
+.list-group-item{
+    border-color: black;
+}
+
+.remove-button{
+    background:none;
+    border:none;
+}
+
+.editGroupname{
+    border: hidden;
+    font-size: calc(1.375rem + 1.5vw);
+    width: fit-content;
+    text-align: center;
+    font-weight: 500;
+    background-color: inherit;
+}
+
+.editGroupname:focus{
+    outline-width: 0;
+}
+
+#deleteGroup{
+    width: fit-content;
+    margin: 20px auto;
+}
