@@ -336,6 +336,10 @@ ul {
     min-height: 52.2px;
 }
 
+.playerPointDiv.bold, .betsDisplay.bold{
+    border-width: 2px !important;
+}
+
 .playerPointDiv p{
     margin: 0;
 }
@@ -596,13 +600,17 @@ li{
     flex-direction: row;
     justify-content: space-between;
     margin: 10px 0;
-    border: 3px solid black;
+    border: 2px solid black;
     border-radius: 10px;
     height: 100px;
 }
 
+.boxM.bold{
+    border-width: 4px;
+}
+
 .playerM{
-    border-right: 3px solid black;
+    border-right: 2px solid black;
     width: 50%;
     height: 100%;
     background-color: #d3d3d3;
@@ -613,7 +621,7 @@ li{
 .playernameM{
     font-size: larger;
     font-weight: bold;
-    border-bottom: 3px solid black;
+    border-bottom: 2px solid black;
     height: 50%;
     display: flex;
     align-items: center;

@@ -11,7 +11,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <title>Multi Tipp</title>
-    <link rel="stylesheet" href="styles/styleGames.css?v=8">
+    <link rel="stylesheet" href="styles/styleGames.css?v=9">
 </head>
 <body>
     <div class="menu">
@@ -85,7 +85,7 @@
         </div>
         
     </div>
-    <script src="scripts/games.js?v=48"></script>
+    <script src="scripts/games.js?v=49"></script>
     <script>
         navigator.serviceWorker.register('sw.js');
     </script>

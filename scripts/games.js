@@ -179,7 +179,7 @@ async function showSpieltag(n,index = false){
     const data = n == liveDay ? liveDayData: await fetch(new URL(`https://api.openligadb.de/getmatchdata/bl1/2024/${n}`)).then(response => response.json());
     d = [...data]
 
-    if(n == 0){
+    if(n == 0 || n == 34 && isOver(data)){
         const response3 = await fetch(new URL(`https://api.openligadb.de/getmatchdata/bl1/2024/4`));
         const data3 = await response3.json();
         firstDay = data3
@@ -205,12 +205,14 @@ async function showSpieltag(n,index = false){
 
         if(championsDayData.length == 0) championsDayData = await fetch(new URL(`https://api.openligadb.de/getmatchdata/cl24de/2024/${championsDay.groupOrderID}`)).then(response => response.json());
         
-        updateDisplay()
-        loadSaisonPoints();
-        changePlayerOrder(sortingByTotal);
-        document.getElementsByClassName("carousel-control-next")[0].hidden = false;
-        document.getElementsByClassName("carousel-control-prev")[0].hidden = false;
-        return
+        if (n == 0) {
+            updateDisplay()
+            loadSaisonPoints();
+            changePlayerOrder(sortingByTotal);
+            document.getElementsByClassName("carousel-control-next")[0].hidden = false;
+            document.getElementsByClassName("carousel-control-prev")[0].hidden = false;
+            return
+        }
     }
 
     let rand = new RND(n);
@@ -744,10 +746,10 @@ function getBetsDisplay(content, color, playername, i){
         if(getTotalPoints(j) > pointsThis) place++;
     }
     return `
-    <div class="gap border rounded-3 border-black betsDisplay desktop" style="padding:5px;background-color:${color}">
+    <div class="gap border rounded-3 border-black betsDisplay desktop${playername == username ? " bold":""}" style="padding:5px;background-color:${color}">
         ${content}
     </div>
-    <div class="boxM mobile" style="background-color:${color}">
+    <div class="boxM mobile${playername == username ? " bold":""}" style="background-color:${color}">
         <div class="playerM">
             <div class="playernameM">${place}. ${playername}</div>
             <div class="pointsM">
@@ -1459,7 +1461,7 @@ function displayPlayerPoints(){
         let display = 
         `
         <div class="betContainer">
-            <div class="playerPointDiv">
+            <div class="playerPointDiv${player == username ? " bold":""}">
                 <p class=playername id="name${player}">${place}. ${player}</p>
                 <div class="playerPoints">
                     <p id="totalPoints${player}"></p>
@@ -1636,6 +1638,10 @@ function getTotalPoints(i){
     let total = 0;
     for(let day of points[i]){
         if(day) total += day;
+    }
+    if(liveDay == 34 && isOver(d)) {
+        loadSaisonPoints();
+        total += saisonPoints[i];
     }
     return total;
 }
