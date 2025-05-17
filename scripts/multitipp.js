@@ -25,6 +25,7 @@ let championsDayData = []
 let championsDay = null
 
 let lastDay = null
+let firstDay = null;
 let goalgetters = null
 let wholeTable = null
 let wholeTableChampion = null
@@ -34,6 +35,29 @@ let saisonBets = []
 let fixes = []
 
 let username = "";
+
+let points = [];
+let saisonPoints = [];
+
+let playernames = [];
+
+function moveGameday(num){
+    let selectedIndex = daySelect.selectedIndex
+    let maxValue = daySelect.options.length
+    if(selectedIndex + num > maxValue || selectedIndex + num < 0) return;
+    if(selectedIndex + num == maxValue){
+        document.getElementById("moveFront").style.display = 'none';
+    }else{
+        document.getElementById("moveFront").style.display = '';
+    }
+    if(selectedIndex + num == 0){
+        document.getElementById("moveBack").style.display = 'none';
+    }else{
+        document.getElementById("moveBack").style.display = '';
+    }
+    showSpieltag(selectedIndex + num,true);
+    daySelect.selectedIndex = selectedIndex + num
+}
 
 function getTeams(data){
     return [data.team1,data.team2]
@@ -272,6 +296,8 @@ function hasStarted(data){
 }
 
 function isOver(data){
+    if(data == null) return false;
+    if(!data.hasOwnProperty("matchIsFinished")) return data[data.length-1].matchIsFinished;
     return data.matchIsFinished;
 }
 
@@ -951,4 +977,224 @@ function updateURLParameter(url, param, paramVal){
 
     var rows_txt = temp + "" + param + "=" + paramVal;
     return baseURL + "?" + newAdditionalURL + rows_txt;
+}
+
+async function load(){
+    try{
+        let userData = await fetch('php/loginData.php')
+        .then(function (response) {
+        return response.json();
+    });
+
+    username = userData.username
+    
+    const data = await fetch('php/data.php')
+        .then(function (response) {
+            return response.json();
+        });
+
+    fixes = await fetch('php/fixes.php')
+    .then(function (response) {
+        return response.json();
+    });
+
+    is_admin = await fetch('php/is_admin.php')
+        .then(function (response) {
+            return response.json();
+        });
+
+    const teamData = await fetch('php/teamData.php')
+    .then(function (response) {
+        return response.json();
+    });
+    for(let n of teamData){
+        players[n.team_name] = JSON.parse(n.team_players)
+    }
+    bets,playernames,saisonBets = []
+    bets.push(JSON.parse(userData.user_data))
+    saisonBets.push(JSON.parse(userData.saison_bets))
+    
+    points.push(JSON.parse(userData.user_points))
+    playernames.push(username);
+
+    if(userData.user_group != null){
+        for(let player of data){
+            if(userData.user_group == player.user_group && player.username != username){
+                bets.push(JSON.parse(player.user_data))
+                saisonBets.push(JSON.parse(player.saison_bets))
+                playernames.push(player.username);
+                
+                points.push(JSON.parse(player.user_points))
+            }
+        }
+    }
+    localStorage.setItem("userData",JSON.stringify({
+        "username": username,
+        "password": userData.user_password,
+        "autoLogin": true,
+        "forceLogin": false,
+    }));
+    }catch (error) {
+        if(localStorage.getItem("userData")){
+            let temp = JSON.parse(localStorage.getItem("userData"));
+            temp.forceLogin = true;
+            localStorage.setItem("userData",JSON.stringify(temp));
+            
+        } 
+        
+        window.location.href = 'anmelden';
+        return;
+    }
+}
+
+async function loadPoints(){
+    let startIndex = getLastFilled(points)
+
+    for(let day = startIndex; day < liveDay; day++){
+        let rand = new RND(day+1);
+        let typesLeftN = [1,2,3,4,5,6,7,8,9];
+        let typesN = []
+        for(let i = 0; i < 9; i++){
+            let nextI = rand.nextInRange(0,typesLeftN.length-1);
+            let next = typesLeftN[nextI];
+            typesLeftN.splice(nextI,1);
+            typesN.push(next);
+        }
+        dailyInt = rand.nextInRange(1,5)
+        const data = day+1 == liveDay && liveDayData != null ? liveDayData: await fetch(new URL(`https://api.openligadb.de/getmatchdata/bl1/2024/${day+1}`)).then(response => response.json());
+
+        for(let playerindex = 0; playerindex < bets.length; playerindex++){
+            if(day > bets[playerindex.length-1]) break;
+            let bet = bets[playerindex][day]
+            
+            points[playerindex][day] = 0;
+            
+            if(!bet) continue;
+            for(let num = 0; num < bet.length; num++){
+                if(num == 9){
+                    points[playerindex][day] += 2 * getPoints(data,bet[num],10,hasStarted(data[0]),dailyInt,playerindex);
+                    continue;
+                }
+                points[playerindex][day] += getPoints(data[num],bet[num],typesN[num],hasStarted(data[num]),null,playerindex);
+            }
+        }
+    }
+
+    startIndex = getLastFilledChamp(points);
+    for(let day = startIndex; day <= 33 + liveDayChampion; day++){
+        let rand = new RND(day+1);
+        let typesLeftN = [1,4,5,6,8];
+        let typesN = []
+        for(let i = 0; i < 5; i++){
+            let nextI = rand.nextInRange(0,typesLeftN.length-1);
+            let next = typesLeftN[nextI];
+            typesLeftN.splice(nextI,1);
+            typesN.push(next);
+        }
+        dailyInt = rand.nextInRange(1,3)
+
+        let data = championsDayData.length != 0 ? championsDayData: await fetch(new URL(`https://api.openligadb.de/getmatchdata/cl24de/2024/${day-33}`)).then(response => response.json());
+        
+        for(let playerindex = 0; playerindex < bets.length; playerindex++){
+            if(day > bets[playerindex.length-1]) break;
+            let bet = bets[playerindex][day]
+
+            points[playerindex][day] = 0;
+            
+            if(!bet) continue;
+            for(let num = 0; num <= data.length; num++){
+                if(num == data.length){
+                    points[playerindex][day] += 2 * getPoints(data,bet[num],day <= 41 ? 20: 25,hasStarted(data[0]),dailyInt,playerindex);
+                    break;
+                }
+                points[playerindex][day] += getPoints(data[num],bet[num],typesN[num],hasStarted(data[num]),null,playerindex);
+            }
+        }
+    }
+    
+    for(let i = 0; i < playernames.length; i++){
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", "php/savePoints.php?data=" + encodeURIComponent(JSON.stringify(points[i]))
+        + "&user=" + encodeURIComponent(playernames[i]), true);
+        xhr.send();
+    }
+}
+
+function getLastFilled(arr){
+    for(let i = 33; i >= 0; i--){
+        for(let player of arr){
+            if(player[i] > 0){
+                return i
+            };
+        }
+    }
+    return 0
+}
+
+function getLastFilledChamp(arr){
+    for(let player of arr){
+        for(let i = player.length-1; i >= 34; i--){
+            if(player[i] != 0) return i
+        }
+    }
+    return 34
+}
+
+function getTotalPoints(i){
+    let total = 0;
+    for(let day of points[i]){
+        if(day) total += day;
+    }
+    if(liveDay == 34 && isOver(d)) {
+        loadSaisonPoints();
+        total += saisonPoints[i];
+    }
+    return total;
+}
+
+function loadSaisonPoints(){
+    for(let i = 0; i < bets.length; i++){
+        saisonPoints[i] = 0
+        saisonPoints[i] += getPoints(wholeTable, saisonBets[i][0],100, hasStarted(firstDay[0]),null, i)*10;
+        saisonPoints[i] += getPoints(goalgetters, saisonBets[i][1],101, hasStarted(firstDay[0]),null, i)*10;
+        saisonPoints[i] += getPoints(wholeTable, saisonBets[i][2],102, hasStarted(firstDay[0]),null, i)*5;
+        saisonPoints[i] += getPoints(wholeTableChampion, saisonBets[i][3],103, liveDayChampion > 1 || hasStarted(championsDayData[0]),null, i)*5;
+        saisonPoints[i] += getPoints([championsDay], saisonBets[i][4],104, liveDayChampion > 1 || hasStarted(championsDayData[0]),null, i)*5;
+    }
+}
+
+function getPoints(data,bet,t,hasStarted,daily = null,playerindex){
+    if(!hasStarted) return 0;
+    
+    const result = getResult(data,t,daily)
+
+    for(let i = 0; i < result.length; i++){
+        let fixResult = getFix((t < 10 ? data.matchID: (t < 100 ? "daily" + data[0].group.groupOrderID: "saison" + (t-100))),i);
+        if(fixResult != null) result[i] = fixResult.fix_data
+    }
+    
+    for(let i = 0; i < bet.length; i++){
+        let fixBet = getFix((t < 10 ? data.matchID: (t < 100 ? "daily" + data[0].group.groupOrderID: "saison" + (t-100))),i,playernames[playerindex])
+        if(fixBet != null) bet[i] = fixBet.fix_data
+    }
+    const correct = result.filter(value => bet.includes(value));
+    let count = 0;
+    
+    if(t == 7){
+        if(result[0] == bet[0]) count++;
+        if(result[1] == bet[1]) count++;
+    }else if(t == 6){
+        if(result[0] == bet[0]) count++;
+        if(result[1] == bet[1]) count++;
+    }else if(t == 4){
+        count = correct.length - (bet.length - correct.length)
+        if(count < 0) count = 0;
+    }else if((t == 20 || t == 25) && dailyInt == 3 || t == 10 && dailyInt == 4){
+        count = (correct.length - (bet.length - correct.length)) / 2
+        if(count < 0) count = 0;
+    }else{
+        count = correct.length
+    }
+
+    return count;
 }

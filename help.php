@@ -12,8 +12,8 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <title>Multi Tipp</title>
-    <link rel="stylesheet" href="styles/help.css">
-    <link rel="stylesheet" href="styles/navBar.css">
+    <link rel="stylesheet" href="styles/help.css?v=2">
+    <link rel="stylesheet" href="styles/navBar.css?v=2">
 </head>
 <body>
   <div class="menu">
@@ -25,6 +25,9 @@
     <a class="menu-button" href="tippen">
         <div class="menu-item">Tippen</div>
     </a>
+    <a class="menu-button" href="statistiken">
+            <div class="menu-item">Statistiken</div>
+        </a>
     <a class="menu-button" href="gruppe">
         <div class="menu-item">Gruppe</div>
     </a>
