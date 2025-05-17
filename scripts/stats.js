@@ -105,12 +105,6 @@ start();
 function start() {
   liveDay = 34
   init();
-  if(isOver(lastDay)) {
-    document.querySelector("#statsTable").classList.add("blur");
-    document.querySelector("#chart").classList.add("blur");
-    document.querySelector(".container.podium").classList.add("blur");
-    document.querySelector("#blur-text").hidden = false
-  }
 }
 
 async function init() {
@@ -143,6 +137,12 @@ async function init() {
   await loadChart();
   loadPodium();
   loadStats();
+  if(!isOver(lastDay)) {
+    document.querySelector("#statsTable").classList.add("blur");
+    document.querySelector("#chart").classList.add("blur");
+    document.querySelector(".container.podium").classList.add("blur");
+    document.querySelector("#blur-text").hidden = false
+  }
 }
 
 function loadPodium() {

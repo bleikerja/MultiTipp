@@ -1145,7 +1145,7 @@ function getTotalPoints(i){
     for(let day of points[i]){
         if(day) total += day;
     }
-    if(liveDay == 34 && isOver(d)) {
+    if(liveDay == 34 && (isOver(lastDay) || isOver(d))) {
         loadSaisonPoints();
         total += saisonPoints[i];
     }
