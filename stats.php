@@ -99,6 +99,6 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="scripts/multitipp.js?v=2"></script>
-<script src="scripts/stats.js?v=2"></script>
+<script src="scripts/stats.js?v=3"></script>
 </body>
 </html>
