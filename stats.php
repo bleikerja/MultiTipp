@@ -9,8 +9,8 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
 
     <link rel="shortcut icon" type="x-icon" href="logo.png">
-    <link rel="stylesheet" href="styles/stats.css">
-    <link rel="stylesheet" href="styles/navBar.css">
+    <link rel="stylesheet" href="styles/stats.css?v=2">
+    <link rel="stylesheet" href="styles/navBar.css?v=2">
 </head>
 <body>
     <div class="menu">
@@ -98,7 +98,7 @@
 
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="scripts/multitipp.js"></script>
-<script src="scripts/stats.js"></script>
+<script src="scripts/multitipp.js?v=2"></script>
+<script src="scripts/stats.js?v=2"></script>
 </body>
 </html>
