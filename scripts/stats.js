@@ -105,7 +105,7 @@ start();
 function start() {
   liveDay = 34
   init();
-  if(!isOver(lastDay)) {
+  if(isOver(lastDay)) {
     document.querySelector("#statsTable").classList.add("blur");
     document.querySelector("#chart").classList.add("blur");
     document.querySelector(".container.podium").classList.add("blur");
