@@ -25,9 +25,9 @@ async function start(){
     const currentDaySearch = await fetch(new URL(`https://api.openligadb.de/getcurrentgroup/bl1`));
     const currentDayData = await currentDaySearch.json();
     liveDay = currentDayData.groupOrderID;
-    const responseLiveday = await fetch(new URL(`https://api.openligadb.de/getmatchdata/bl1/2024/${liveDay}`));
+    const responseLiveday = await fetch(new URL(`https://api.openligadb.de/getmatchdata/bl1/${liveSeason}/${liveDay}`));
     liveDayData = await responseLiveday.json();
-    liveDayChampion = (await fetch(new URL(`https://api.openligadb.de/getcurrentgroup/cl24de`)).then(response => response.json())).groupOrderID;
+    // liveDayChampion = (await fetch(new URL(`https://api.openligadb.de/getcurrentgroup/cl24de`)).then(response => response.json())).groupOrderID;
 
     if((championsLeagueGamedays.includes(liveDay) || champiosLeagueKnockout.some(e => e.days.includes(liveDay))) && isOver(liveDayData[liveDayData.length - 1]) 
         || (championsLeagueGamedays.includes(liveDay - 1) || champiosLeagueKnockout.some(e => e.days.includes(liveDay))) && !hasStarted(liveDayData[liveDayData.length - 1])){
@@ -37,8 +37,8 @@ async function start(){
                 if(i <= liveDay) liveDayChampion = championsLeagueGamedays.indexOf(i)
             }*/
             liveDayIsChampion = true
-            const currentChampionsDayResponse = await fetch(new URL(`https://api.openligadb.de/getmatchdata/cl24de/2024/${championsDay}`));
-            championsDayData = await currentChampionsDayResponse.json();
+            // const currentChampionsDayResponse = await fetch(new URL(`https://api.openligadb.de/getmatchdata/cl24de/${liveSeason}/${championsDay}`));
+            // championsDayData = await currentChampionsDayResponse.json();
         }else{
             liveDayIsChampion = false
         }
@@ -97,50 +97,50 @@ async function showSpieltag(n=null,index = false){
         }
     }
 
-    const data = n == liveDay ? liveDayData: await fetch(new URL(`https://api.openligadb.de/getmatchdata/bl1/2024/${n}`)).then(response => response.json());
+    const data = n == liveDay ? liveDayData: await fetch(new URL(`https://api.openligadb.de/getmatchdata/bl1/${liveSeason}/${n}`)).then(response => response.json());
     d = data;
 
-    const url1 = new URL(`https://api.openligadb.de/getavailableteams/bl1/2024`);
+    const url1 = new URL(`https://api.openligadb.de/getavailableteams/bl1/${liveSeason}`);
     const response1 = await fetch(url1);
     allTeams = await response1.json();
 
     if(n == 0){
-        const urlDay3 = new URL(`https://api.openligadb.de/getmatchdata/bl1/2024/4`);
+        const urlDay3 = new URL(`https://api.openligadb.de/getmatchdata/bl1/${liveSeason}/4`);
         const responseDay3 = await fetch(urlDay3);
         const dataDay3 = await responseDay3.json();
         let saisonHasStarted = liveDay > 4 ? true: (liveDay < 4 ? false: hasStarted(dataDay3[0]))
-        if(championsDayData.length == 0) championsDayData = await fetch(new URL(`https://api.openligadb.de/getmatchdata/cl24de/2024/1`)).then(response => response.json());
-        let championHasStarted = hasStarted(championsDayData[0])
-        const tableResponse = await fetch(new URL(`https://api.openligadb.de/getbltable/bl1/2024`));
+        // if(championsDayData.length == 0) championsDayData = await fetch(new URL(`https://api.openligadb.de/getmatchdata/cl24de/${liveSeason}/1`)).then(response => response.json());
+        // let championHasStarted = hasStarted(championsDayData[0])
+        const tableResponse = await fetch(new URL(`https://api.openligadb.de/getbltable/bl1/${liveSeason}`));
         const tableData = await tableResponse.json();
         wholeTable = tableData
         
-        //const tableResponseChampion = await fetch(new URL(`https://api.openligadb.de/getbltable/cl24de/2024`));
+        //const tableResponseChampion = await fetch(new URL(`https://api.openligadb.de/getbltable/cl24de/${liveSeason}`));
         //const tableDataChampion = await tableResponseChampion.json();
         const tableDataChampion = [{name:"Leverkusen", place:6},{name:"Dortmund", place:10},{name:"Bayern", place:12}, {name:"Stuttgart", place:26}, {name:"Leipzig", place:32}]
         wholeTableChampion = tableDataChampion
         
-        const lastDayResponse = await fetch(new URL(`https://api.openligadb.de/getmatchdata/bl1/2024/34`));
+        const lastDayResponse = await fetch(new URL(`https://api.openligadb.de/getmatchdata/bl1/${liveSeason}/34`));
         lastDay = await lastDayResponse.json();
         
-        const goalgetterResponse = await fetch(new URL(`https://api.openligadb.de/getgoalgetters/bl1/2024`));
+        const goalgetterResponse = await fetch(new URL(`https://api.openligadb.de/getgoalgetters/bl1/${liveSeason}`));
         const goalgetterData = await goalgetterResponse.json();
         goalgetters = goalgetterData
 
-        const championsDayResponse = await fetch(new URL(`https://api.openligadb.de/getcurrentgroup/cl24de`));
-        championsDay = await championsDayResponse.json().groupOrderID;
+        // const championsDayResponse = await fetch(new URL(`https://api.openligadb.de/getcurrentgroup/cl24de`));
+        // championsDay = await championsDayResponse.json().groupOrderID;
 
         showSaison(data,1,saisonHasStarted)
         showSaison(data,2,saisonHasStarted)
         showSaison(data,3,saisonHasStarted)
-        showSaison(data,4,championHasStarted)
-        showSaison(data,5,championHasStarted)
+        // showSaison(data,4,championHasStarted)
+        // showSaison(data,5,championHasStarted)
         
         return;
     }
     if(n > 34){
         championsDay = n - 34
-        let dataChamp = championsDayData.length != 0 ? championsDayData: await fetch(new URL(`https://api.openligadb.de/getmatchdata/cl24de/2024/${championsDay}`)).then(response => response.json());
+        // let dataChamp = championsDayData.length != 0 ? championsDayData: await fetch(new URL(`https://api.openligadb.de/getmatchdata/cl24de/${liveSeason}/${championsDay}`)).then(response => response.json());
 
         let rand = new RND(n);
         typesLeft = [1,4,5,6,8];
@@ -195,13 +195,14 @@ function showData(data,num,champions=false){
             <div id="bet${data.matchID}" class="resultContainer">
                 <div class="team1"> 
                     <div class="oneline text" id="name">${getShortName(data.team1)}</div>
-                    <div class="oneline small"><img src="${getTeamIcon(data.team1)}" alt="img" height="100%" id="image"></div>
+                    <div class="oneline smallImg"><img src="${getTeamIcon(data.team1)}" alt="img" id="image"></div>
+                    <div class="oneline text textBelow" id="name">${getShortName(data.team1)}</div>
                 </div>
                 <div class="resultDiv" id="games">
                     ${getGameResult(data)}
                 </div>
                 <div class="team2">
-                    <div class="oneline small"><img src="${getTeamIcon(data.team2)}" alt="img" height="100%" id="image"></div>
+                    <div class="oneline smallImg"><img src="${getTeamIcon(data.team2)}" alt="img" id="image"></div>
                     <div class="oneline text" id="name">${getShortName(data.team2)}</div>
                 </div>
             </div>

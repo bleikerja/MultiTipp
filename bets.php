@@ -26,9 +26,9 @@
         <a class="menu-button selected" aria-disabled="true">
             <div class="menu-item selected">Tippen</div>
         </a>
-        <a class="menu-button" href="statistiken">
+        <!-- <a class="menu-button" href="statistiken">
             <div class="menu-item">Statistiken</div>
-        </a>
+        </a> -->
         <a class="menu-button" href="gruppe">
             <div class="menu-item">Gruppe</div>
         </a>
@@ -70,7 +70,7 @@
         </div>
     </div>
     
-    <script src="scripts/multitipp.js?v=2"></script>
-    <script src="scripts/bets.js?v=2"></script>
+    <script src="scripts/multitipp.js?v=3"></script>
+    <script src="scripts/bets.js?v=3"></script>
 </body>
 </html>

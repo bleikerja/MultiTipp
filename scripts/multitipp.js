@@ -4,9 +4,11 @@ const saisonTitles = ["Wer wird Meister?", "Welcher Spieler schießt die meisten
 
 let championsLeagueTitles = ["In welchem Spiel fallen die meisten Tore?","Welches deutsche Team spielt am besten?","Welche deutschen Teams gewinnen?"]
 let championsLeagueKnockoutTitles = ["In welcher Begegnung fallen die meisten Tore?","Welches deutsche Team spielt am besten?","Welche deutschen Teams kommen weiter?"]
-const championsLeagueGamedays = [3,5,7,9,11,13,18,19]
-const champiosLeagueKnockout = [{name:"Playoffs",days:[21,22]},{name:"AF",days:[24,25]},{name:"VF",days:[28,29]}]
-let germanTeams = ["Stuttgart","Dortmund","Bayern","Leipzig","Leverkusen"]
+// const championsLeagueGamedays = [3,5,7,9,11,13,18,19]
+const championsLeagueGamedays = []
+const champiosLeagueKnockout = []
+// const champiosLeagueKnockout = [{name:"Playoffs",days:[21,22]},{name:"AF",days:[24,25]},{name:"VF",days:[28,29]}]
+let germanTeams = ["Dortmund","Bayern","Leverkusen"]
 
 const players = {}
 
@@ -14,6 +16,7 @@ let types = [];
 let typesLeft = [1,2,3,4,5,6,7,8,9]
 let dailyType = 1
 
+let liveSeason = 2025;
 let d = null
 let liveDay = 0;
 let currentDay = 0;
@@ -288,6 +291,7 @@ function isHalbzeit(data){
 }
 
 function hasStarted(data){
+    if(data.length > 0) data = data[0];
     const date = new Date(data.matchDateTime);
     let now = new Date();
     if(now < date) return false;
@@ -316,6 +320,8 @@ function getShortName(team){
     switch(teamname){
         case "BVB":
             return "Dortmund"
+        case "HSV":
+            return "Hamburg"
     }
     return teamname
 }
@@ -1037,9 +1043,8 @@ async function load(){
     }catch (error) {
         if(localStorage.getItem("userData")){
             let temp = JSON.parse(localStorage.getItem("userData"));
-            temp.forceLogin = true;
-            localStorage.setItem("userData",JSON.stringify(temp));
-            
+            temp.forceLogin = false;
+            localStorage.setItem("userData",JSON.stringify(temp));  
         } 
         
         window.location.href = 'anmelden';
@@ -1061,7 +1066,7 @@ async function loadPoints(){
             typesN.push(next);
         }
         dailyInt = rand.nextInRange(1,5)
-        const data = day+1 == liveDay && liveDayData != null ? liveDayData: await fetch(new URL(`https://api.openligadb.de/getmatchdata/bl1/2024/${day+1}`)).then(response => response.json());
+        const data = day+1 == liveDay && liveDayData != null ? liveDayData: await fetch(new URL(`https://api.openligadb.de/getmatchdata/bl1/${liveSeason}/${day+1}`)).then(response => response.json());
 
         for(let playerindex = 0; playerindex < bets.length; playerindex++){
             if(day > bets[playerindex.length-1]) break;
@@ -1080,37 +1085,37 @@ async function loadPoints(){
         }
     }
 
-    startIndex = getLastFilledChamp(points);
-    for(let day = startIndex; day <= 33 + liveDayChampion; day++){
-        let rand = new RND(day+1);
-        let typesLeftN = [1,4,5,6,8];
-        let typesN = []
-        for(let i = 0; i < 5; i++){
-            let nextI = rand.nextInRange(0,typesLeftN.length-1);
-            let next = typesLeftN[nextI];
-            typesLeftN.splice(nextI,1);
-            typesN.push(next);
-        }
-        dailyInt = rand.nextInRange(1,3)
+    // startIndex = getLastFilledChamp(points);
+    // for(let day = startIndex; day <= 33 + liveDayChampion; day++){
+    //     let rand = new RND(day+1);
+    //     let typesLeftN = [1,4,5,6,8];
+    //     let typesN = []
+    //     for(let i = 0; i < 5; i++){
+    //         let nextI = rand.nextInRange(0,typesLeftN.length-1);
+    //         let next = typesLeftN[nextI];
+    //         typesLeftN.splice(nextI,1);
+    //         typesN.push(next);
+    //     }
+    //     dailyInt = rand.nextInRange(1,3)
 
-        let data = championsDayData.length != 0 ? championsDayData: await fetch(new URL(`https://api.openligadb.de/getmatchdata/cl24de/2024/${day-33}`)).then(response => response.json());
+    //     let data = championsDayData.length != 0 ? championsDayData: await fetch(new URL(`https://api.openligadb.de/getmatchdata/cl24de/${liveSeason}/${day-33}`)).then(response => response.json());
         
-        for(let playerindex = 0; playerindex < bets.length; playerindex++){
-            if(day > bets[playerindex.length-1]) break;
-            let bet = bets[playerindex][day]
+    //     for(let playerindex = 0; playerindex < bets.length; playerindex++){
+    //         if(day > bets[playerindex.length-1]) break;
+    //         let bet = bets[playerindex][day]
 
-            points[playerindex][day] = 0;
+    //         points[playerindex][day] = 0;
             
-            if(!bet) continue;
-            for(let num = 0; num <= data.length; num++){
-                if(num == data.length){
-                    points[playerindex][day] += 2 * getPoints(data,bet[num],day <= 41 ? 20: 25,hasStarted(data[0]),dailyInt,playerindex);
-                    break;
-                }
-                points[playerindex][day] += getPoints(data[num],bet[num],typesN[num],hasStarted(data[num]),null,playerindex);
-            }
-        }
-    }
+    //         if(!bet) continue;
+    //         for(let num = 0; num <= data.length; num++){
+    //             if(num == data.length){
+    //                 points[playerindex][day] += 2 * getPoints(data,bet[num],day <= 41 ? 20: 25,hasStarted(data[0]),dailyInt,playerindex);
+    //                 break;
+    //             }
+    //             points[playerindex][day] += getPoints(data[num],bet[num],typesN[num],hasStarted(data[num]),null,playerindex);
+    //         }
+    //     }
+    // }
     
     for(let i = 0; i < playernames.length; i++){
         var xhr = new XMLHttpRequest();
@@ -1158,8 +1163,8 @@ function loadSaisonPoints(){
         saisonPoints[i] += getPoints(wholeTable, saisonBets[i][0],100, hasStarted(firstDay[0]),null, i)*10;
         saisonPoints[i] += getPoints(goalgetters, saisonBets[i][1],101, hasStarted(firstDay[0]),null, i)*10;
         saisonPoints[i] += getPoints(wholeTable, saisonBets[i][2],102, hasStarted(firstDay[0]),null, i)*5;
-        saisonPoints[i] += getPoints(wholeTableChampion, saisonBets[i][3],103, liveDayChampion > 1 || hasStarted(championsDayData[0]),null, i)*5;
-        saisonPoints[i] += getPoints([championsDay], saisonBets[i][4],104, liveDayChampion > 1 || hasStarted(championsDayData[0]),null, i)*5;
+        // saisonPoints[i] += getPoints(wholeTableChampion, saisonBets[i][3],103, liveDayChampion > 1 || hasStarted(championsDayData[0]),null, i)*5;
+        // saisonPoints[i] += getPoints([championsDay], saisonBets[i][4],104, liveDayChampion > 1 || hasStarted(championsDayData[0]),null, i)*5;
     }
 }
 

@@ -25,9 +25,9 @@
     <a class="menu-button" href="tippen">
         <div class="menu-item">Tippen</div>
     </a>
-    <a class="menu-button" href="statistiken">
+    <!-- <a class="menu-button" href="statistiken">
             <div class="menu-item">Statistiken</div>
-        </a>
+    </a> -->
     <a class="menu-button" href="gruppe">
         <div class="menu-item">Gruppe</div>
     </a>

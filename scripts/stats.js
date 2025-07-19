@@ -108,36 +108,36 @@ function start() {
 }
 
 async function init() {
-  const response3 = await fetch(new URL(`https://api.openligadb.de/getmatchdata/bl1/2024/4`));
-  const data3 = await response3.json();
-  firstDay = data3
+  const response = await fetch(new URL(`https://api.openligadb.de/getmatchdata/bl1/${liveSeason}/1`));
+  const data = await response.json();
+  firstDay = data
 
-  const tableResponse = await fetch(new URL(`https://api.openligadb.de/getbltable/bl1/2024`));
+  const tableResponse = await fetch(new URL(`https://api.openligadb.de/getbltable/bl1/${liveSeason}`));
   const tableData = await tableResponse.json();
   wholeTable = tableData
   
-  //const tableResponseChampion = await fetch(new URL(`https://api.openligadb.de/getbltable/cl24de/2024`));
+  //const tableResponseChampion = await fetch(new URL(`https://api.openligadb.de/getbltable/cl24de/${liveSeason}`));
   //const tableDataChampion = await tableResponseChampion.json();
   const tableDataChampion = [{name:"Leverkusen", place:6},{name:"Dortmund", place:10},{name:"Bayern", place:12}, {name:"Stuttgart", place:26}, {name:"Leipzig", place:32}]
   wholeTableChampion = tableDataChampion
   
-  const lastDayResponse = await fetch(new URL(`https://api.openligadb.de/getmatchdata/bl1/2024/34`));
+  const lastDayResponse = await fetch(new URL(`https://api.openligadb.de/getmatchdata/bl1/${liveSeason}/34`));
   lastDay = await lastDayResponse.json();
   
-  const goalgetterResponse = await fetch(new URL(`https://api.openligadb.de/getgoalgetters/bl1/2024`));
+  const goalgetterResponse = await fetch(new URL(`https://api.openligadb.de/getgoalgetters/bl1/${liveSeason}`));
   const goalgetterData = await goalgetterResponse.json();
   goalgetters = goalgetterData
 
-  const championsDayResponse = await fetch(new URL(`https://api.openligadb.de/getcurrentgroup/cl24de`));
-  championsDay = await championsDayResponse.json();
+  // const championsDayResponse = await fetch(new URL(`https://api.openligadb.de/getcurrentgroup/cl24de`));
+  // championsDay = await championsDayResponse.json();
 
-  if(championsDayData.length == 0) championsDayData = await fetch(new URL(`https://api.openligadb.de/getmatchdata/cl24de/2024/${championsDay.groupOrderID}`)).then(response => response.json());
+  // if(championsDayData.length == 0) championsDayData = await fetch(new URL(`https://api.openligadb.de/getmatchdata/cl24de/${liveSeason}/${championsDay.groupOrderID}`)).then(response => response.json());
   await load();
   await loadPoints();
   await loadChart();
   loadPodium();
   loadStats();
-  if(!isOver(lastDay)) {
+  if(!hasStarted(firstDay)) {
     document.querySelector("#statsTable").classList.add("blur");
     document.querySelector("#chart").classList.add("blur");
     document.querySelector(".container.podium").classList.add("blur");

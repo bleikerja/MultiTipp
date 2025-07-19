@@ -17,6 +17,9 @@
         width: 40px !important;
         height: 40px !important;
     }
+    .smallImg img{
+        height: 32px !important;
+    }
 }
 
 @media (max-width: 717px){
@@ -35,10 +38,18 @@
 
 @media (max-width: 649px){
     .text{
+        font-size: 10px !important;
+        text-align: center !important;
+    }
+    .textBelow{
+        display: inline-block !important;
+    }
+    .team1 .text:not(.textBelow){
         display: none !important;
     }
     .team1,.team2{
         width: 35% !important;
+        text-align: center !important;
     }
     .resultDiv{
         width: 30% !important;
@@ -118,6 +129,16 @@ body, html{
     margin: auto 0;
 }
 
+.smallImg{
+    text-align: center;
+    padding: 4px;
+    margin: auto 0;
+}
+
+.smallImg img{
+    height: 42px;
+}
+
 .title{
     width: 40px;
     position: relative;
@@ -126,6 +147,10 @@ body, html{
 
 .text{
     width: fit-content;
+}
+
+.textBelow{
+    display: none;
 }
 
 .result{

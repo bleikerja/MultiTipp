@@ -25,9 +25,9 @@
         <a class="menu-button" href="tippen">
             <div class="menu-item">Tippen</div>
         </a>
-        <a class="menu-button" href="statistiken">
+        <!-- <a class="menu-button" href="statistiken">
             <div class="menu-item">Statistiken</div>
-        </a>
+        </a> -->
         <a class="menu-button selected" aria-disabled="true">
             <div class="menu-item selected">Gruppe</div>
         </a>

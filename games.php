@@ -24,9 +24,9 @@
         <a class="menu-button" id="link" href="tippen<?php echo isset($_GET['day']) ? '?day='.$_GET['day'] : ''; ?>">
             <div class="menu-item ">Tippen</div>
         </a>
-        <a class="menu-button" href="statistiken">
+        <!-- <a class="menu-button" href="statistiken">
             <div class="menu-item">Statistiken</div>
-        </a>
+        </a> -->
         <a class="menu-button" href="gruppe">
             <div class="menu-item">Gruppe</div>
         </a>
@@ -89,8 +89,8 @@
         </div>
         
     </div>
-    <script src="scripts/multitipp.js?v=2"></script>
-    <script src="scripts/games.js?v=52"></script>
+    <script src="scripts/multitipp.js?v=3"></script>
+    <script src="scripts/games.js?v=2"></script>
     <script>
         navigator.serviceWorker.register('sw.js');
     </script>

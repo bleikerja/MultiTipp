@@ -173,6 +173,14 @@ html,body{
     text-align: center;
 }
 
+.smallImg{
+    text-align: center;
+}
+
+.smallImg img{
+    height: 34px;
+}
+
 .title{
     width: 40px;
     position: relative;
