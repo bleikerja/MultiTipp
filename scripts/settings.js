@@ -38,9 +38,9 @@ function editPassword(e){
     if(editingPassword == false){
         input.focus();
         input.disabled = false;
-        input.value = "";
         editButton.innerHTML = "Speichern"
-    }else{
+        editingPassword = true;
+    }else if (input.value != "") {
         input.disabled = true;
         editButton.innerHTML = "Ändern"
         fetch("php/changePlayerPassword.php", {
@@ -48,7 +48,8 @@ function editPassword(e){
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({"input": input.value}),
         });
+        editingPassword = false;
     }
-    editingPassword = !editingPassword
+    input.value = "";
 }
 

@@ -64,11 +64,11 @@
             <div class="label">Passwort: </div>
             <div>
                 <label for="editPassword" class="visually-hidden">Passwort</label>
-                <input name="input" type="password" class="form-control" id="editPassword" placeholder="neues Passwort" value="<?php echo $_SESSION["user_data"]["user_password"] ?>" disabled>
+                <input name="input" type="password" class="form-control" id="editPassword" placeholder="neues Passwort" disabled>
             </div>
             <button type="submit" id="editPasswordButton" class="btn btn-secondary">Ändern</button>
         </form>
     </div>
-    <script src="scripts/settings.js"></script>
+    <script src="scripts/settings.js?v=2"></script>
 </body>
 </html>

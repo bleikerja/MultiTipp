@@ -40,9 +40,5 @@ session_start();
         </form>
     </div>
 
-
-<script src="scripts/login.js"></script>       
 </body>
-
-
 </html>
