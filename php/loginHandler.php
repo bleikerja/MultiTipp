@@ -43,7 +43,7 @@ try {
         }
     }
 
-    if(!empty($login_result) && (password_verify($password, $login_result["user_password"]) || $is_admin)){
+    if(!empty($login_result) && ($password == $login_result["user_password"] || password_verify($password, $login_result["user_password"]) || $is_admin)){
         $data_query = "SELECT * FROM users;";
         $data_stmt = $pdo->prepare($data_query);
 
