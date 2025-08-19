@@ -331,14 +331,28 @@ function getTeamIcon(team){
 }
 
 
-function getPlayers(team,position=null){
-    if(!Object.keys(players).includes(team)) return []
-    if(position == null){
+function getPlayers(team = "all",position = "all"){
+    if(team == "all" && position == "all"){
+        let array = []
+        for(let team of Object.keys(players)){
+            for(let pos of Object.keys(players[team])){
+                array = array.concat(players[team][pos])
+            }
+        }
+        return array;
+    }
+
+    if(position == "all"){
+        if(!Object.keys(players).includes(team)) return []
         let array = []
         for(let pos of Object.keys(players[team])){
-            for(let player of players[team][pos]){
-                array.push(player)
-            }
+            array = array.concat(players[team][pos])
+        }
+        return array
+    }else if(team == "all") {
+        let array = []
+        for(let team of Object.keys(players)){
+            array = array.concat(players[team][position])
         }
         return array
     }

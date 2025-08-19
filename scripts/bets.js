@@ -2,8 +2,6 @@ let allTeams = [];
 
 let lastSelectedSaison = 0
 let editingName = false
-let currentFilterTeam = "all"
-let currentFilterPosition = "all"
 
 start();
 async function start(){
@@ -48,7 +46,62 @@ async function start(){
     const urlParams = new URLSearchParams(queryString);
     let day = isNaN(parseInt(urlParams.get('day'))) ? urlParams.get('day'): parseInt(urlParams.get('day'))
     
-    showSpieltag(day != null ? day: (!liveDayIsChampion ? liveDay: liveDayChampion+34));
+    await showSpieltag(day != null ? day: (!liveDayIsChampion ? liveDay: liveDayChampion+34));
+    
+    let container = document.getElementById("list");
+
+    if(window.screen.width < 500){
+        let shiftWidth = container.lastElementChild.offsetWidth;
+        container.firstElementChild.before(container.lastElementChild);
+        container.scrollLeft += shiftWidth;
+        container.addEventListener("scroll", () => {
+            let firstChild = container.firstElementChild;
+            let lastChild = container.lastElementChild;
+            let containerRect = container.getBoundingClientRect();
+            let firstRect = firstChild.getBoundingClientRect();
+            let lastRect = lastChild.getBoundingClientRect();
+
+            // --- Scroll to END ---
+            if (lastRect.right <= containerRect.right) {
+                let shiftWidth = firstChild.offsetWidth;
+                lastChild.after(firstChild);
+                container.scrollLeft -= shiftWidth;
+            }
+
+            // --- Scroll to START ---
+            if (firstRect.left >= containerRect.left) {
+                let shiftWidth = lastChild.offsetWidth;
+                firstChild.before(lastChild);
+                container.scrollLeft += shiftWidth;
+            }
+        });
+    }
+    
+	let isDragging = false;
+	let startX
+	let scrollLeft;
+
+	container.addEventListener('mousedown', (e) => {
+		isDragging = true;
+		startX = e.pageX - container.offsetLeft;
+		scrollLeft = container.scrollLeft;
+    });
+
+	container.addEventListener('mouseleave', () => {
+		isDragging = false;
+	});
+
+	container.addEventListener('mouseup', () => {
+		isDragging = false;
+	});
+
+	container.addEventListener('mousemove', (e) => {
+		if (!isDragging) return;
+		e.preventDefault();
+		const x = e.pageX - container.offsetLeft;
+		const walkX = x - startX;
+		container.scrollLeft = scrollLeft - walkX;
+	});
 }
 
 async function showSpieltag(n=null,index = false){
@@ -68,8 +121,6 @@ async function showSpieltag(n=null,index = false){
         document.getElementById("moveBack").style.display = '';
     }
     currentDay = n;
-    currentFilterPosition = "all"
-    currentFilterTeam = "all"
 
     var newURL = updateURLParameter(window.location.href, 'locId', 'newLoc');
     newURL = updateURLParameter(newURL, 'resId', 'newResId');
@@ -77,12 +128,9 @@ async function showSpieltag(n=null,index = false){
     window.history.replaceState('', '', updateURLParameter(window.location.href, "day", n));
     document.getElementById("link").href = "übersicht?day=" + n
 
-
     list.innerHTML = "";
-    betContent.innerHTML = "";
     daySelect.selectedIndex = n;
 
-    
     let daysBefore = championsLeagueDaysBeforeDay(liveDay);
     let selectedOption = daySelect.options[liveDayIsChampion ? liveDay+daysBefore+2: liveDay+daysBefore];
     selectedOption.style.fontWeight = "bold";
@@ -185,13 +233,14 @@ async function showSpieltag(n=null,index = false){
 }
 
 function showData(data,num,champions=false){
+    // document.getElementById("Saison-warning").hidden = true
     let displayTitle = titles[types[num]-1]
     if(data.leagueShortcut == "cl24de" && types[num] == 4){
         let germanTeam = germanTeams.includes(getShortName(data.team1)) ? getShortName(data.team1): getShortName(data.team2)
         displayTitle = displayTitle.replace("Spieler",germanTeam+" Spieler")
     }
     const newHtml = `<li>
-        <div id="bet${data.matchID}" class="game" role="button" onClick="showBet('${data.matchID}')">
+        <div id="bet${data.matchID}" class="game" role="button">
             <div id="bet${data.matchID}" class="resultContainer">
                 <div class="team1"> 
                     <div class="oneline text" id="name">${getShortName(data.team1)}</div>
@@ -207,79 +256,49 @@ function showData(data,num,champions=false){
                 </div>
             </div>
             <div class="selectedBetDisplay">
-                ${getTitle(displayTitle)}
-                <div id="betContainer${data.matchID}">
-                    ${displayResults(num,data,types[num])}
+                <div id="betContainer${data.matchID}" class="betContainer">
+                    ${getBetContent(data,types[num],num,champions)}
                 </div>
             </div>
         </div>
     </li>`;
-    
-    let newBet = `<div id="main${data.matchID}" class="border border-black rounded-3 betContent" style="display:none;padding:8px">
-                    ${getBetContent(data,types[num],num,champions)}
-                </div>`;
-    
 
     list.insertAdjacentHTML('beforeend', newHtml);
-    betContent.insertAdjacentHTML('beforeend', newBet);
-    
-    if(num == 0){
-        showBet(data.matchID);
-    }
-
 }
 
 function showDaily(data,num,champions){
     const newHtml = `<li>
-        <div id="betDaily" class="game" role="button" onClick="showBet('Daily')">
+        <div id="betDaily" class="game" role="button">
             <div class="resultContainer">
                 <h1>Spieltag</h1>
             </div>
             <div class="selectedBetDisplay">
-                ${getTitle(!champions ? dailyTitles[dailyType-1]: (data[0].group.groupOrderID <= 8 ? championsLeagueTitles[dailyType-1]: championsLeagueKnockoutTitles[dailyType-1]))}
-                <div id="betContainerDaily">
-                    ${displayResults(num,data,champions ? (data[0].group.groupOrderID <= 8 ? 20: 25): 10)}
+                <div id="betContainerDaily" class="betContainer">
+                    ${getBetContent(data,champions ? (data[0].group.groupOrderID <= 8 ? 20: 25): 10,num,champions)}
                 </div>
             </div>
         </div>
-    </li>`;
-
-    let newBet = `<div id="mainDaily" class="border border-black rounded-3 betContent" style="display:none;padding:8px">
-                    ${getBetContent(data,champions ? (data[0].group.groupOrderID <= 8 ? 20: 25): 10,num,champions)}
-                </div>`;
-    
+    </li>`;    
 
     list.insertAdjacentHTML('beforeend', newHtml);
-    betContent.insertAdjacentHTML('beforeend', newBet);
 }
 
 function showSaison(data,num,saisonHasStarted){
-    document.getElementById("Saison-warning").hidden = saisonHasStarted
+    // document.getElementById("Saison-warning").hidden = saisonHasStarted
     let newHtml = `<li>
-        <div id="betSaison${num}" class="game" role="button" onClick="showBet('Saison${num}')">
+        <div id="betSaison${num}" class="game" role="button">
             <div class="resultContainer">
                 <h1>${num < 4 ? ("Bundesliga #"+ (num)):("Champions League #"+ (num-3))}</h1>
             </div>
             <div class="selectedBetDisplay">
-                ${getTitle(saisonTitles[num-1])}
-                <div id="betContainerSaison${num}">
-                    ${displayResults(num-1,data,num+99,num)}
+                <div id="betContainerSaison${num}" class="betContainer">
+                    ${getBetContent(data,num+100,num+100,false,saisonHasStarted)}
                 </div>
             </div>
         </div>
     </li>`;
 
-    let newBet = `<div id="mainSaison${num}" class="border border-black rounded-3 betContent" style="display:none;padding:8px">
-                    ${getBetContent(data,num+100,num+100,false,saisonHasStarted)}
-                </div>`;
-    
-
     list.insertAdjacentHTML('beforeend', newHtml);
-    betContent.insertAdjacentHTML('beforeend', newBet);
-
-    if(num == 1){
-        showBet("Saison1")
-    }
 }
 
 function displayResults(num,data,t,teams = null){
@@ -315,7 +334,7 @@ function getBetContent(data,type,num,champions=false,saisonHasStarted=null){
     let elements = "";
     let teams = [];
     let allPlayers = []
-    let title = type < 10 ? getTitle(titles[type-1]): (type < 100 ? (getTitle(type == 10 ? dailyTitles[dailyType-1]: (type == 20 ? championsLeagueTitles[dailyType-1]: championsLeagueKnockoutTitles[dailyType-1] ))): getTitle(saisonTitles[type-100]));
+    let title = type < 10 ? getTitle(titles[type-1]): (type < 100 ? (getTitle(type == 10 ? dailyTitles[dailyType-1]: (type == 20 ? championsLeagueTitles[dailyType-1]: championsLeagueKnockoutTitles[dailyType-1] ))): getTitle(saisonTitles[type-101]));
     switch (type) {
         case 1:
             return title +  getButtonToggle(data,getShortName(data.team1),data.matchID,num,type) + getButtonToggle(data,"Unentschieden",data.matchID,num,type) + getButtonToggle(data,getShortName(data.team2),data.matchID,num,type);
@@ -327,7 +346,7 @@ function getBetContent(data,type,num,champions=false,saisonHasStarted=null){
                 elements += getButtonToggle(data,player,data.matchID,num,type) + "\n"
             }
             elements += getAddButton(data,data.matchID,num,type)
-            return title + getButtonToggle(data,"kein Tor",data.matchID,num,type) + getSearch([getPlayers(data.team1.teamName),getPlayers(data.team2.teamName)],data.matchID,[data.team1,data.team2]) + `<div id="${data.matchID}">` + elements + "</div>"
+            return title + getButtonToggle(data,"kein Tor",data.matchID,num,type) + getSearch([getPlayers(data.team1.teamName),getPlayers(data.team2.teamName)],data.matchID,[data.team1,data.team2]) + `<div id="${data.matchID}" class="betButtons">` + elements + "</div>"
         case 4:
             allPlayers = sortPlayers(getPlayers(data.team1.teamName).concat(getPlayers(data.team2.teamName)))
             for(let player of allPlayers){
@@ -337,7 +356,7 @@ function getBetContent(data,type,num,champions=false,saisonHasStarted=null){
             teams = []
             if(!champions || germanTeams.includes(getShortName(data.team1))) teams.push(data.team1)
             if(!champions || germanTeams.includes(getShortName(data.team2))) teams.push(data.team2)
-            return title + getButtonToggle(data,"kein Tor",data.matchID,num,type,false) + getSearch([getPlayers(data.team1.teamName),getPlayers(data.team2.teamName)],data.matchID,teams) + `<div id="${data.matchID}">` + elements + "</div>"
+            return title + getButtonToggle(data,"kein Tor",data.matchID,num,type,false) + getSearch([getPlayers(data.team1.teamName),getPlayers(data.team2.teamName)],data.matchID,teams) + `<div id="${data.matchID}" class="betButtons">` + elements + "</div>"
         case 5:
             elements = title
             for(let i = 0; i < 6;i+=2){
@@ -347,6 +366,7 @@ function getBetContent(data,type,num,champions=false,saisonHasStarted=null){
             return elements
         case 6:
             elements = title;
+            elements += '<div class="betButtons">';
             elements += getTitle(data.team1.teamName,false);
             for(let i = 0; i < 4;i++){
                 elements += getButtonToggle(data,i,data.matchID,num,type) + "\n"
@@ -357,9 +377,11 @@ function getBetContent(data,type,num,champions=false,saisonHasStarted=null){
                 elements += getButtonToggle(data,i,data.matchID+"team2",num,type+0.5) + "\n"
             }
             elements += getButtonToggle(data,4 + "+",data.matchID+"team2",num,type+0.5) + "\n"
+            elements += '</div>';
             return elements
         case 7:
             elements = title;
+            elements += '<div class="betButtons">';
             elements += getTitle("1. Halbzeit",false)
             for(let i = 0; i < 4;i++){
                 elements += getButtonToggle(data,i,data.matchID,num,type) + "\n"
@@ -370,9 +392,11 @@ function getBetContent(data,type,num,champions=false,saisonHasStarted=null){
                 elements += getButtonToggle(data,i,data.matchID+"2.Hz",num,type+0.5) + "\n"
             }
             elements += getButtonToggle(data,4 + "+",data.matchID+"2.Hz",num,type+0.5) + "\n"
+            elements += '</div>';
             return elements
         case 8:
             elements = title;
+            elements += '<div class="betButtons">';
             for(let i = 1; i < 4;i++){
                 elements += getButtonToggle(data,getShortName(data.team1) + " & " + i,data.matchID,num,type) + "\n"
             }
@@ -382,9 +406,10 @@ function getBetContent(data,type,num,champions=false,saisonHasStarted=null){
             }
             elements += getButtonToggle(data,getShortName(data.team2) + " & " + 4 + "+",data.matchID,num,type) + "\n"
             elements += getButtonToggle(data,"Unentschieden",data.matchID,num,type)
+            elements += '</div>';
             return elements
         case 9:
-            return title +  getButtonToggle(data,"Ja",data.matchID,num,type) + getButtonToggle(data,"Nein",data.matchID,num,type);
+            return title + getButtonToggle(data,"Ja",data.matchID,num,type) + getButtonToggle(data,"Nein",data.matchID,num,type);
         case 10:
             switch(dailyType){
                 case 1:
@@ -401,7 +426,7 @@ function getBetContent(data,type,num,champions=false,saisonHasStarted=null){
                     for(let team of teams){
                         elements += getButtonToggle(data[0],team,"Daily",num,type,true,hasStarted(data[0]) && !hasStarted(data[data.length - 1]) ? bets[currentDay-1][9].length != 0: null)
                     }
-                    return title + getSearch([teams],"Daily") + `<div id="Daily">` + elements + "</div>"
+                    return title + getSearch([teams],"Daily") + `<div id="Daily" class="betButtons">` + elements + "</div>"
                 case 2:
                     elements = "";
                     let teamList = []
@@ -419,7 +444,7 @@ function getBetContent(data,type,num,champions=false,saisonHasStarted=null){
                         elements += getButtonToggle(data[0],player,"Daily",num,type,true,hasStarted(data[0]) && !hasStarted(data[data.length - 1]) ? bets[currentDay-1][9].length != 0: null)
                     }
                     elements += getAddButton(data[0],"Daily",num,type)
-                    return title + getSearch(teamList,"Daily",allTeams) + `<div id="Daily">` + elements + "</div>"
+                    return title + getSearch(teamList,"Daily",allTeams) + `<div id="Daily" class="betButtons">` + elements + "</div>"
                 case 3:
                     elements = title;
                     for(let game of data){
@@ -442,7 +467,7 @@ function getBetContent(data,type,num,champions=false,saisonHasStarted=null){
                             elements += getButtonToggle(data[0],getShortName(game.team2),"Daily",num,type,false,hasStarted(data[0]) && !hasStarted(data[data.length - 1]) ? bets[currentDay-1][9].length != 0: null)
                         }
                     }
-                    return title + getButtonToggle(data[0],"kein Team","Daily",num,type) + getSearch([teams],"Daily") + `<div id="Daily">` + elements + "</div>"
+                    return title + getButtonToggle(data[0],"kein Team","Daily",num,type) + getSearch([teams],"Daily") + `<div id="Daily" class="betButtons">` + elements + "</div>"
                 case 5:
                     elements = "";
                     teams = []
@@ -457,7 +482,7 @@ function getBetContent(data,type,num,champions=false,saisonHasStarted=null){
                     for(let team of teams){
                         elements += getButtonToggle(data[0],team,"Daily",num,type,true,hasStarted(data[0]) && !hasStarted(data[data.length - 1]) ? bets[currentDay-1][9].length != 0: null)
                     }
-                    return title + getSearch([teams],"Daily") + `<div id="Daily">` + elements + "</div>"
+                    return title + getSearch([teams],"Daily") + `<div id="Daily" class="betButtons">` + elements + "</div>"
             }
             break;
         case 20:
@@ -526,7 +551,7 @@ function getBetContent(data,type,num,champions=false,saisonHasStarted=null){
             for(let team of teams){
                 elements += getButtonToggle(data[0],team,"Saison1",0,type,true,saisonHasStarted)
             }
-            return title + getSearch([teams],"Saison1") + `<div id="Saison1">` + elements + "</div>"
+            return title + getSearch([teams],"Saison1") + `<div id="Saison1" class="betButtons">` + elements + "</div>"
         case 102:
             elements = "";
             let teamList = []
@@ -540,7 +565,7 @@ function getBetContent(data,type,num,champions=false,saisonHasStarted=null){
                 elements += getButtonToggle(data[0],player,"Saison2",1,type,true,saisonHasStarted)
             }
             elements += getAddButton(data[0],"Saison2",1,type)
-            return title + getSearch(teamList,"Saison2",allTeams) + `<div id="Saison2">` + elements + "</div>"
+            return title + getSearch(teamList,"Saison2",allTeams) + `<div id="Saison2" class="betButtons">` + elements + "</div>"
         case 103:
             elements = "";
             teams = []
@@ -549,9 +574,9 @@ function getBetContent(data,type,num,champions=false,saisonHasStarted=null){
             }
             teams.sort()
             for(let team of teams){
-                elements += getButtonToggle(data[0],team,"Saison3",2,type,true,saisonHasStarted)
+                elements += getButtonToggle(data[0],team,"Saison3",2,type,false,saisonHasStarted)
             }
-            return title + getSearch([teams],"Saison3") + `<div id="Saison3">` + elements + "</div>"
+            return title + getSearch([teams],"Saison3") + `<div id="Saison3" class="betButtons">` + elements + "</div>"
         case 104: case 105:
             elements = "";
             teams = []
@@ -567,16 +592,15 @@ function getBetContent(data,type,num,champions=false,saisonHasStarted=null){
 }
 
 function getAddButton(data,group,num,type){
-    return `<div id="addNewButtom${group}" class="chooseAdd" style="display:none"> 
-                <input type="buttom" class="btn-check" id="addNew${group}" onClick="saveBet('customValue',${num},${type},'${group == "Daily" || typeof group =="string" ? group: data.matchID}','${getShortName(getTeams(data)[0])}','${getShortName(getTeams(data)[1])}',this.name)">
-                <label class="btn btn-outline-secondary" for="addNew${group}">hinzufügen</label>
-             </div>`
+    return `<button id="addNewButtom${group}" class="toggleButton add" name="${group}" id="addNew${group}" onClick="toggleButton(this);saveBet('customValue',${num},${type},'${group == "Daily" || typeof group =="string" ? group: data.matchID}',this.name)">
+                hinzufügen
+            </button>`
 }
 
-function getButtonToggle(data,name,group,num,type,toggle=true,thisHasStarted=null){
-    
+function getButtonToggle(data,name,group,num,type,radio=true,thisHasStarted=null){
     let checked = false;
     if(currentDay != 0 && bets[currentDay-1].length <= num) bets[currentDay-1][num] = []
+    if(currentDay == 0 && saisonBets.length <= num) saisonBets[num] = [];
     let currentBet = currentDay != 0 ? bets[currentDay-1][num]: saisonBets[num];
     if(type == 7 && currentBet[0] == name){
         checked = true;
@@ -586,15 +610,13 @@ function getButtonToggle(data,name,group,num,type,toggle=true,thisHasStarted=nul
         checked = true;
     }else if(type == 6.5 && currentBet[1] == name){
         checked = true;
-        
     }else if(currentBet.includes(name)){
         checked = true;
     }
 
-    return `<div id="full${name + group}" class="choose"> 
-                <input type="${toggle ? "radio" : "checkbox"}" class="btn-check" name="${group}" id="${name + "" + group}" autocomplete="off" onClick="saveBet('${name}',${num},${type},'${group == "Daily" || typeof group =="string" ? group: data.matchID}','${getShortName(getTeams(data)[0])}','${getShortName(getTeams(data)[1])}',this.name)" ${checked ? "checked":""} ${(thisHasStarted == null ? hasStarted(data): thisHasStarted) ? "disabled":""}>
-                <label class="btn btn-outline-secondary" for="${name + "" + group}">${name}</label>
-             </div>`
+    return `<button id="${name + "" + group}" class="toggleButton${checked ? " active" : ""}${radio ? " radio" : ""}" name="${group}" id="${name + "" + group}" onClick="toggleButton(this);saveBet('${name}',${num},${type},'${group == "Daily" || typeof group =="string" ? group: data.matchID}',this.name)" ${(thisHasStarted == null ? hasStarted(data): thisHasStarted) ? "disabled":""}>
+                ${name}
+            </button>`
 }
 
 function getSearch(teams,group,teamnames=null){
@@ -611,7 +633,8 @@ function getSearch(teams,group,teamnames=null){
         for(let n of teamnames){
             teamnamesNames.push("\'"+n.teamName+"\'");
         }
-        search += `<div class="filterContainer"><select onChange="filterResultsTeam('${group}',[${playersList}],this.options[this.selectedIndex].value,[${teamnamesNames}])" class="form-select">
+        search += `<div class="filterContainer">
+        <select id="teamFilter${group}" onChange="filterResults('${group}')" class="form-select">
         <option value="all" selected>alle Teams</option>`            
         
         teamnames.sort((a, b) => getShortName(a).localeCompare(getShortName(b)));
@@ -620,8 +643,7 @@ function getSearch(teams,group,teamnames=null){
         }
         search += "</select>"
 
-
-        search += `<select onChange="filterResultsPosition('${group}',[${playersList}],this.options[this.selectedIndex].value,[${teamnamesNames}])" class="form-select">
+        search += `<select id="positionFilter${group}" onChange="filterResults('${group}')" class="form-select">
         <option value="all" selected>alle Positionen</option>`            
         
         for(let pos of Object.keys(players[teamnames[0].teamName])){
@@ -633,49 +655,24 @@ function getSearch(teams,group,teamnames=null){
     return search;
 }
 
-function filterResultsTeam(id,playerlist,value,teamnames,first = true){
-    if(first){
-        let element = document.getElementById(id);
-        for(let e of element.children){
-            e.hidden = false;
-        }
+function filterResults(id) {
+    console.log(id)
+    let element = document.getElementById(id);
+    console.log(element)
+    for(let e of element.children){
+        e.hidden = true;
     }
-    currentFilterTeam = value
-    
-    if(value == "all"){
-        if(first) filterResultsPosition(id,playerlist,currentFilterPosition,teamnames,false);
-        return;
-    }
-    for(let player of playerlist){
-        if(!getPlayers(value).includes(player)){
-            document.getElementById("full" + player + id).hidden = true;
-        }
-    }
-    if(first) filterResultsPosition(id,playerlist,currentFilterPosition,teamnames,false);
-}
 
-function filterResultsPosition(id,playerlist,value,teamnames,first = true){
-    if(first){
-        let element = document.getElementById(id);
-        for(let e of element.children){
-            e.hidden = false;
-        }
+    let currentFilterTeam = document.getElementById("teamFilter" + id).value;
+    let currentFilterPosition = document.getElementById("positionFilter" + id).value;
+
+    let playernames = getPlayers(currentFilterTeam,currentFilterPosition);
+    console.log(playernames);
+
+    for(let player of playernames){
+        let element = document.getElementById(player + id);
+        if(element) element.hidden = false;
     }
-    currentFilterPosition = value
-    if(value == "all"){
-        if(first) filterResultsTeam(id,playerlist,currentFilterTeam,teamnames,false);
-        return;
-    }
-    for(let player of playerlist){
-        let found = false
-        for(let team of teamnames){
-            if(players[team][value].includes(player)){
-                found = true
-            }
-        }
-        if(!found) document.getElementById("full" + player + id).hidden = true;
-    }
-    if(first) filterResultsTeam(id,playerlist,currentFilterTeam,teamnames,false);
 }
 
 function sortPlayers(playerlist){
@@ -693,14 +690,13 @@ function showPlayers(id,list,value){
     let found = false
     for(let player of list){
         if(player.includes(capitalizedStr)){
-            document.getElementById("full" + player + id).style.display = "";
+            document.getElementById(player + id).style.display = "";
             found = true
-            //element.insertAdjacentHTML('beforeend', getButtonToggle(data,player));
         }
     }
     let addButton = document.getElementById("addNewButtom"+id)
     if(!found){
-        addButton.children[1].innerText = '\"'+document.getElementById('Search'+ id).value+"\""
+        addButton.innerText = '\"'+document.getElementById('Search'+ id).value+"\""
         addButton.style.display = ""
     }else{
         addButton.style.display = "none"
@@ -711,25 +707,10 @@ function getTitle(title,i=true){
     return `<p class="gameTitle" style="font-size: ${i ? 17: 15}px;">${title}</p>`
 }
 
-function showBet(id){
-    currentFilterPosition = "all"
-    currentFilterTeam = "all"
-    for(let bet of document.getElementsByClassName("game")){
-        bet.style.backgroundColor = "white"
-    }
-    document.getElementById("bet" + id).style.backgroundColor = "#bdb3b3"
-    for(let bet of betContent.children){
-        bet.style.display = "none";
-    }
-    let element = document.getElementById("main" + id);
-    element.style.display = "";
-}
-
-function saveBet(bet,i,type,id,team1,team2,groupId){
-    document.body.scrollTop = document.documentElement.scrollTop = 0;
+function saveBet(bet,i,type,id,groupId){
     if(type < 100 && ((type < 10) && hasStarted(d[i]))){
-        if(bets[currentDay - 1][i].length > 0) document.getElementById(bets[currentDay - 1][i][type == 6.5 ||type == 7.5 ? 1:0]+groupId).checked = true
-        document.getElementById(bet+groupId).checked = false
+        if(bets[currentDay - 1][i].length > 0) checkButton(document.getElementById(bets[currentDay - 1][i][type == 6.5 ||type == 7.5 ? 1:0]+groupId), true)
+        checkButton(document.getElementById(bet+groupId), false)
         return;
     }
 
@@ -744,12 +725,12 @@ function saveBet(bet,i,type,id,team1,team2,groupId){
             });
         }else{
             if(bets[currentDay - 1][i].includes("kein Team") || bets[currentDay - 1][i].includes("kein Tor")) {
-                document.getElementById(bets[currentDay - 1][i][0]+groupId).checked = false
+                checkButton(document.getElementById(bets[currentDay - 1][i][0]+groupId), false)
                 bets[currentDay - 1][i] = []
             }
             if(bet == "kein Team" || bet == "kein Tor"){
                 for(let j = 0; j < bets[currentDay - 1][i].length; j++){
-                    document.getElementById(bets[currentDay - 1][i][j]+groupId).checked = false
+                    checkButton(document.getElementById(bets[currentDay - 1][i][j]+groupId), false)
                 }
                 bets[currentDay - 1][i] = [bet]
             }else{
@@ -772,7 +753,7 @@ function saveBet(bet,i,type,id,team1,team2,groupId){
                 });
             }else{
                 if(saisonBets[i].length == 3){
-                    document.getElementById(saisonBets[i][lastSelectedSaison]+groupId).checked = false
+                    checkButton(document.getElementById(saisonBets[i][lastSelectedSaison]+groupId), false)
                     saisonBets[i][lastSelectedSaison] = bet
                     lastSelectedSaison = (lastSelectedSaison + 1) % 3
                 }else{
@@ -786,10 +767,27 @@ function saveBet(bet,i,type,id,team1,team2,groupId){
     }else{
         bets[currentDay - 1][i][0] = bet;
     }
-    let thisBetDisplay = document.getElementById("betContainer" + id.replace("2.Hz","").replace("team2",""))
-    thisBetDisplay.innerHTML = '';
-    thisBetDisplay.innerHTML = displayResults(i,null,types[i],[team1,team2])
     save(currentDay - 1,i < d.length ? d[i].matchDateTime: null);
+}
+
+function toggleButton(button) {
+    const buttons = document.querySelectorAll(`.toggleButton[name="${button.name}"]`);
+    if(button.classList.contains("radio")){
+        buttons.forEach(btn => {
+            checkButton(btn, false);
+        });
+        checkButton(button, true);
+    }else{
+        checkButton(button, !button.classList.contains("active"));
+    }
+}
+
+function checkButton(button, check = true) {
+    if (check) {
+        button.classList.add("active");
+    } else {
+        button.classList.remove("active");
+    }
 }
 
 function save(index,betTime){
