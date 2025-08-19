@@ -51,9 +51,8 @@ async function start(){
     let container = document.getElementById("list");
 
     if(window.screen.width < 500){
-        let shiftWidth = container.lastElementChild.offsetWidth;
+        container.lastElementChild.offsetWidth;
         container.firstElementChild.before(container.lastElementChild);
-        container.scrollLeft += shiftWidth;
         container.addEventListener("scroll", () => {
             let firstChild = container.firstElementChild;
             let lastChild = container.lastElementChild;
