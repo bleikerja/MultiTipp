@@ -327,6 +327,7 @@ function getShortName(team){
 }
 
 function getTeamIcon(team){    
+    if(team.shortName == "Union Berlin") return "https://derivates.kicker.de/image/fetch/f_webp/w_120%2Ch_120%2Cc_fit%2Cq_auto:best/https://mediadb.kicker.de/2021/fussball/vereine/xxl/62_20210316732.png"
     return team.teamIconUrl
 }
 

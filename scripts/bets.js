@@ -50,31 +50,31 @@ async function start(){
     
     let container = document.getElementById("list");
 
-    if(window.screen.width < 500){
-        container.lastElementChild.offsetWidth;
-        container.firstElementChild.before(container.lastElementChild);
-        container.addEventListener("scroll", () => {
-            let firstChild = container.firstElementChild;
-            let lastChild = container.lastElementChild;
-            let containerRect = container.getBoundingClientRect();
-            let firstRect = firstChild.getBoundingClientRect();
-            let lastRect = lastChild.getBoundingClientRect();
+    // if(window.screen.width < 500){
+    //     container.lastElementChild.offsetWidth;
+    //     container.firstElementChild.before(container.lastElementChild);
+    //     container.addEventListener("scroll", () => {
+    //         let firstChild = container.firstElementChild;
+    //         let lastChild = container.lastElementChild;
+    //         let containerRect = container.getBoundingClientRect();
+    //         let firstRect = firstChild.getBoundingClientRect();
+    //         let lastRect = lastChild.getBoundingClientRect();
 
-            // --- Scroll to END ---
-            if (lastRect.right <= containerRect.right) {
-                let shiftWidth = firstChild.offsetWidth;
-                lastChild.after(firstChild);
-                container.scrollLeft -= shiftWidth;
-            }
+    //         // --- Scroll to END ---
+    //         if (lastRect.right <= containerRect.right) {
+    //             let shiftWidth = firstChild.offsetWidth;
+    //             lastChild.after(firstChild);
+    //             container.scrollLeft -= shiftWidth;
+    //         }
 
-            // --- Scroll to START ---
-            if (firstRect.left >= containerRect.left) {
-                let shiftWidth = lastChild.offsetWidth;
-                firstChild.before(lastChild);
-                container.scrollLeft += shiftWidth;
-            }
-        });
-    }
+    //         // --- Scroll to START ---
+    //         if (firstRect.left >= containerRect.left) {
+    //             let shiftWidth = lastChild.offsetWidth;
+    //             firstChild.before(lastChild);
+    //             container.scrollLeft += shiftWidth;
+    //         }
+    //     });
+    // }
     
 	let isDragging = false;
 	let startX
@@ -225,6 +225,7 @@ async function showSpieltag(n=null,index = false){
 
     
     if(!bets[n-1]) bets[n-1] = [[],[],[],[],[],[],[],[],[],[]]
+    document.getElementById("bottomRow").innerHTML = "";
     for(let i = 0; i < data.length; i++){
         showData(data[i],i);
     }
@@ -262,6 +263,14 @@ function showData(data,num,champions=false){
         </div>
     </li>`;
 
+    let navLogo = `
+        <div id="logoButton${data.matchID}" class="logoButton ${hasStarted(data) ? "started" : ""} ${bets[currentDay-1][num] == null || bets[currentDay-1][num].length == 0 || bets[currentDay-1][num] == "" ? "" : "bet"}" onclick="document.getElementById('bet${data.matchID}').scrollIntoView({ behavior: 'smooth'});">
+            <img class="left" src=${getTeamIcon(data.team1)} alt="${getShortName(data.team1)}">
+            <img class="right" src=${getTeamIcon(data.team2)} alt="${getShortName(data.team2)}">
+        </div>
+    `;
+
+    document.getElementById("bottomRow").insertAdjacentHTML('beforeend', navLogo);
     list.insertAdjacentHTML('beforeend', newHtml);
 }
 
@@ -277,8 +286,15 @@ function showDaily(data,num,champions){
                 </div>
             </div>
         </div>
-    </li>`;    
+    </li>`;
 
+    let navLogo = `
+        <div id="logoButtonDaily" class="logoButton ${hasStarted(data[0]) ? "started" : ""} ${bets[currentDay-1][num] == null || bets[currentDay-1][num].length == 0 || bets[currentDay-1][num] == "" ? "" : "bet"}" onclick="document.getElementById('betDaily').scrollIntoView({ behavior: 'smooth' });">
+            <img src=logo.png alt="Daily">
+        </div>
+    `;
+
+    document.getElementById("bottomRow").insertAdjacentHTML('beforeend', navLogo);
     list.insertAdjacentHTML('beforeend', newHtml);
 }
 
@@ -765,6 +781,11 @@ function saveBet(bet,i,type,id,groupId){
         saveSaison()
     }else{
         bets[currentDay - 1][i][0] = bet;
+    }
+    if (bets[currentDay-1][i] == null || bets[currentDay-1][i].length == 0 || bets[currentDay-1][i] == ""){
+        document.getElementById("logoButton"+groupId).classList.remove("bet");
+    }else{
+        document.getElementById("logoButton"+groupId).classList.add("bet");
     }
     save(currentDay - 1,i < d.length ? d[i].matchDateTime: null);
 }

@@ -79,11 +79,10 @@ body, html{
     align-items: center;
     border: 3px solid black;
     border-radius: 10px;
-    margin-bottom: 10px;
     padding: 5px;
     display: flex;
     flex-direction: column;
-    height: 82vh;
+    height: calc(92vh - 90px);
 }
 
 .collapse{
@@ -331,4 +330,57 @@ ul {
 li {
     width: fit-content;
     height: 100%;
+}
+
+#bottomRow{
+    display: flex;
+    height: 4vh;
+    gap: 3px;
+    width: fit-content;
+    margin: 5px auto 0;
+}
+
+.logoButton{
+    height: 4vh;
+    border: 1px solid black;
+    width: 5vw;
+    border-radius: 5px;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.logoButton.started {
+    background: lightgray;
+}
+
+.logoButton.bet {
+    border: 3px solid rgb(0, 158, 0);
+}
+
+.logoButton img{
+    height: 75%;
+    position: relative;
+}
+
+@media (max-width: 800px){
+    .logoButton img.left {
+        left: 10%;
+        z-index: 10;
+    }
+
+    .logoButton img.right {
+        right: 10%;
+    }
+
+    .logoButton{
+        width: calc((100vw - 10 * 3px) / 10);
+    }
+}
+
+@media (min-width: 801px){
+
 }

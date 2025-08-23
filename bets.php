@@ -12,7 +12,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <title>Multi Tipp</title>
-    <link rel="stylesheet" href="styles/bets.css?v=7">
+    <link rel="stylesheet" href="styles/bets.css?v=8">
     <link rel="stylesheet" href="styles/navBar.css?v=2">
 </head>
 <body>
@@ -61,12 +61,16 @@
             <!-- <div id="Saison-warning" hidden>Tipps können bis zum Beginn des 3. Bundesligaspieltags abgegeben werden</div> -->
             <!-- <div id="Saison-warning" hidden>Tipps können bis zum Beginn des 3. Bundesligaspieltags bzw. zu Beginn der Champions League abgegeben werden</div> -->
             
-            <div class="d-flex flex-row mb-2 main">
+            <div class="d-flex flex-row main">
                 <ul class="list-group" id="list"></ul>    
+            </div>
+
+            <div id="bottomRow">
+                
             </div>
         </div>
     </div>
-    <script src="scripts/multitipp.js?v=4"></script>
-    <script src="scripts/bets.js?v=6"></script>
+    <script src="scripts/multitipp.js?v=5"></script>
+    <script src="scripts/bets.js?v=7"></script>
 </body>
 </html>
