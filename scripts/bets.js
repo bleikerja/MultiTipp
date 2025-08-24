@@ -1,7 +1,9 @@
 let allTeams = [];
 
 let lastSelectedSaison = 0
-let editingName = false
+let editingName = false;
+
+let scrolling = false;
 
 start();
 async function start(){
@@ -128,6 +130,7 @@ async function showSpieltag(n=null,index = false){
     document.getElementById("link").href = "übersicht?day=" + n
 
     list.innerHTML = "";
+    document.getElementById("bottomRow").innerHTML = "";
     daySelect.selectedIndex = n;
 
     let daysBefore = championsLeagueDaysBeforeDay(liveDay);
@@ -225,7 +228,6 @@ async function showSpieltag(n=null,index = false){
 
     
     if(!bets[n-1]) bets[n-1] = [[],[],[],[],[],[],[],[],[],[]]
-    document.getElementById("bottomRow").innerHTML = "";
     for(let i = 0; i < data.length; i++){
         showData(data[i],i);
     }
@@ -264,7 +266,8 @@ function showData(data,num,champions=false){
     </li>`;
 
     let navLogo = `
-        <div id="logoButton${data.matchID}" class="logoButton ${hasStarted(data) ? "started" : ""} ${bets[currentDay-1][num] == null || bets[currentDay-1][num].length == 0 || bets[currentDay-1][num] == "" ? "" : "bet"}" onclick="document.getElementById('bet${data.matchID}').scrollIntoView({ behavior: 'smooth'});">
+        <div id="logoButton${data.matchID}" class="logoButton ${hasStarted(data) ? "started" : ""} ${bets[currentDay-1][num] == null || bets[currentDay-1][num].length == 0 || bets[currentDay-1][num] == "" ? "" : "bet"}" 
+        onclick="document.getElementById('bet${data.matchID}').scrollIntoView({ behavior: 'smooth', inline: 'start' });">
             <img class="left" src=${getTeamIcon(data.team1)} alt="${getShortName(data.team1)}">
             <img class="right" src=${getTeamIcon(data.team2)} alt="${getShortName(data.team2)}">
         </div>
@@ -289,7 +292,8 @@ function showDaily(data,num,champions){
     </li>`;
 
     let navLogo = `
-        <div id="logoButtonDaily" class="logoButton ${hasStarted(data[0]) ? "started" : ""} ${bets[currentDay-1][num] == null || bets[currentDay-1][num].length == 0 || bets[currentDay-1][num] == "" ? "" : "bet"}" onclick="document.getElementById('betDaily').scrollIntoView({ behavior: 'smooth' });">
+        <div id="logoButtonDaily" class="logoButton ${hasStarted(data[0]) ? "started" : ""} ${bets[currentDay-1][num] == null || bets[currentDay-1][num].length == 0 || bets[currentDay-1][num] == "" ? "" : "bet"}" 
+        onclick="document.getElementById('betDaily').scrollIntoView({ behavior: 'smooth' });">
             <img src=logo.png alt="Daily">
         </div>
     `;
@@ -783,9 +787,9 @@ function saveBet(bet,i,type,id,groupId){
         bets[currentDay - 1][i][0] = bet;
     }
     if (bets[currentDay-1][i] == null || bets[currentDay-1][i].length == 0 || bets[currentDay-1][i] == ""){
-        document.getElementById("logoButton"+groupId).classList.remove("bet");
+        document.getElementById("logoButton"+d[i].matchID).classList.remove("bet");
     }else{
-        document.getElementById("logoButton"+groupId).classList.add("bet");
+        document.getElementById("logoButton"+d[i].matchID).classList.add("bet");
     }
     save(currentDay - 1,i < d.length ? d[i].matchDateTime: null);
 }
@@ -808,6 +812,22 @@ function checkButton(button, check = true) {
     } else {
         button.classList.remove("active");
     }
+}
+
+function scrollGames(dir){
+    const elements = Array.from(document.getElementById('list').children);
+    let element = elements[((dir == -1 ? elements.findIndex(isInViewport): elements.findLastIndex(isInViewport)) + dir + elements.length) % elements.length];
+    element.scrollIntoView({ behavior: 'smooth' });
+}
+
+function isInViewport(element) {
+    const rect = element.getBoundingClientRect();
+    return (
+        rect.top >= 0 &&
+        rect.left >= 0 &&
+        rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
+        rect.right <= (window.innerWidth || document.documentElement.clientWidth)
+    );
 }
 
 function save(index,betTime){
