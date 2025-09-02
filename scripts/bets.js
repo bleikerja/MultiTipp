@@ -786,10 +786,11 @@ function saveBet(bet,i,type,id,groupId){
     }else{
         bets[currentDay - 1][i][0] = bet;
     }
+    let matchId = d[i] != null ? d[i].matchID: groupId;
     if (bets[currentDay-1][i] == null || bets[currentDay-1][i].length == 0 || bets[currentDay-1][i] == ""){
-        document.getElementById("logoButton"+d[i].matchID).classList.remove("bet");
+        document.getElementById("logoButton"+matchId).classList.remove("bet");
     }else{
-        document.getElementById("logoButton"+d[i].matchID).classList.add("bet");
+        document.getElementById("logoButton"+matchId).classList.add("bet");
     }
     save(currentDay - 1,i < d.length ? d[i].matchDateTime: null);
 }
