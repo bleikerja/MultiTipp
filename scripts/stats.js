@@ -116,7 +116,7 @@ async function init() {
   const tableData = await tableResponse.json();
   wholeTable = tableData
   
-  //const tableResponseChampion = await fetch(new URL(`https://api.openligadb.de/getbltable/cl24de/${liveSeason}`));
+  //const tableResponseChampion = await fetch(new URL(`https://api.openligadb.de/getbltable/ucl/${liveSeason}`));
   //const tableDataChampion = await tableResponseChampion.json();
   const tableDataChampion = [{name:"Leverkusen", place:6},{name:"Dortmund", place:10},{name:"Bayern", place:12}, {name:"Stuttgart", place:26}, {name:"Leipzig", place:32}]
   wholeTableChampion = tableDataChampion
@@ -128,10 +128,10 @@ async function init() {
   const goalgetterData = await goalgetterResponse.json();
   goalgetters = goalgetterData
 
-  // const championsDayResponse = await fetch(new URL(`https://api.openligadb.de/getcurrentgroup/cl24de`));
+  // const championsDayResponse = await fetch(new URL(`https://api.openligadb.de/getcurrentgroup/ucl`));
   // championsDay = await championsDayResponse.json();
 
-  // if(championsDayData.length == 0) championsDayData = await fetch(new URL(`https://api.openligadb.de/getmatchdata/cl24de/${liveSeason}/${championsDay.groupOrderID}`)).then(response => response.json());
+  // if(championsDayData.length == 0) championsDayData = await fetch(new URL(`https://api.openligadb.de/getmatchdata/ucl/${liveSeason}/${championsDay.groupOrderID}`)).then(response => response.json());
   await load();
   await loadPoints();
   await loadChart();

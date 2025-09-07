@@ -4,8 +4,7 @@ const saisonTitles = ["Wer wird Meister?", "Welcher Spieler schießt die meisten
 
 let championsLeagueTitles = ["In welchem Spiel fallen die meisten Tore?","Welches deutsche Team spielt am besten?","Welche deutschen Teams gewinnen?"]
 let championsLeagueKnockoutTitles = ["In welcher Begegnung fallen die meisten Tore?","Welches deutsche Team spielt am besten?","Welche deutschen Teams kommen weiter?"]
-// const championsLeagueGamedays = [3,5,7,9,11,13,18,19]
-const championsLeagueGamedays = []
+const championsLeagueGamedays = [3,5,7,9,11,13,18,19]
 const champiosLeagueKnockout = []
 // const champiosLeagueKnockout = [{name:"Playoffs",days:[21,22]},{name:"AF",days:[24,25]},{name:"VF",days:[28,29]}]
 let germanTeams = ["Dortmund","Bayern","Leverkusen"]
@@ -88,8 +87,8 @@ function isFixBet(data,type,bet = null){
         case 2: case 3:
             return getFirstGoal(data) != null;
         case 4:
-            if(bet == null && data.goals.length != 0 && data.leagueShortcut != "cl24de") return true
-            if(bet == null && data.leagueShortcut == "cl24de"){
+            if(bet == null && data.goals.length != 0 && data.leagueShortcut != "ucl") return true
+            if(bet == null && data.leagueShortcut == "ucl"){
                 let goals = getGoals(data);
                 if(goals[0] == 0 && germanTeams.includes(getShortName(data.team1))) return false;
                 if(goals[1] == 0 && germanTeams.includes(getShortName(data.team2))) return false;
@@ -310,7 +309,7 @@ function getGameResult(data){
     const date = new Date(data.matchDateTime);
     let goals = getGoals(data);
     let now = new Date();
-    if(now < date) return `<p class="date">${data.leagueShortcut == "cl24de" && data.group.groupOrderID > 8 && date.getTime() > now.getTime() + 7*24*60*60*1000 ? (('0' + date.getDate()).slice(-2) + '.' + ('0' + (date.getMonth() + 1)).slice(-2)) : days[date.getDay()]}</p>
+    if(now < date) return `<p class="date">${data.leagueShortcut == "ucl" && data.group.groupOrderID > 8 && date.getTime() > now.getTime() + 7*24*60*60*1000 ? (('0' + date.getDate()).slice(-2) + '.' + ('0' + (date.getMonth() + 1)).slice(-2)) : days[date.getDay()]}</p>
     <p class="date">${('0' + date.getHours()).slice(-2) + ":" + ('0' + date.getMinutes()).slice(-2)}</p>`;
     return `<p>${goals[0]}:${goals[1]}</p>`;
 }
@@ -504,7 +503,7 @@ function getResult(data,t,dailyT = dailyType){
                 if(goal.scoreTeam1 == 0 && goal.scoreTeam2 == 0) continue;
                 let goalPlayerTeam = goal.scoreTeam1 > lastScore[0] ? data.team1: data.team2;
                 lastScore = [goal.scoreTeam1,goal.scoreTeam2];
-                if(data.leagueShortcut == "cl24de" && !germanTeams.includes(getShortName(goalPlayerTeam))) continue;
+                if(data.leagueShortcut == "ucl" && !germanTeams.includes(getShortName(goalPlayerTeam))) continue;
                 
                 let goalPlayer = goal.goalGetterName != "" ? getPlayerName(goal.goalGetterName,goalPlayerTeam.teamName): "?";
                 
@@ -820,13 +819,13 @@ function getResult(data,t,dailyT = dailyType){
             }
             break;
         case 103:
-            // for(let n of wholeTableChampion){
-            //     if(germanTeams.includes(getShortName(n))){
-            //         result = [getShortName(n)]
-            //         break;
-            //     }
-            // }
-            result = [wholeTableChampion[0].name]
+            for(let n of wholeTableChampion){
+                if(germanTeams.includes(getShortName(n))){
+                    result = [getShortName(n)]
+                    break;
+                }
+            }
+            // result = [wholeTableChampion[0].name]
             break;
         case 104:
             
@@ -972,12 +971,22 @@ function getDailyDisplay(data, bet, type){
             case 102:
                 return bet + " (" + (wholeTable.findIndex(team => team.shortName == bet) + 1) + ".)"
             case 103:
-                return bet + " (" + wholeTableChampion.find(team => team.name == bet).place + ".)"
+                let i = 1;
+                for(let n of wholeTableChampion){
+                    if(n.shortName == bet){
+                        return bet + " (" + i + ".)"
+                    }
+                    i++;
+                }
             case 104:
                 return bet
         }
     }
     return bet
+}
+
+function filterGermanTeams(data){
+    return data.filter(game => germanTeams.includes(getShortName(game.team1)) || germanTeams.includes(getShortName(game.team2)))
 }
 
 function updateURLParameter(url, param, paramVal){
@@ -1100,37 +1109,37 @@ async function loadPoints(){
         }
     }
 
-    // startIndex = getLastFilledChamp(points);
-    // for(let day = startIndex; day <= 33 + liveDayChampion; day++){
-    //     let rand = new RND(day+1);
-    //     let typesLeftN = [1,4,5,6,8];
-    //     let typesN = []
-    //     for(let i = 0; i < 5; i++){
-    //         let nextI = rand.nextInRange(0,typesLeftN.length-1);
-    //         let next = typesLeftN[nextI];
-    //         typesLeftN.splice(nextI,1);
-    //         typesN.push(next);
-    //     }
-    //     dailyInt = rand.nextInRange(1,3)
+    startIndex = getLastFilledChamp(points);
+    for(let day = startIndex; day <= 33 + liveDayChampion; day++){
+        let rand = new RND(day+1);
+        let typesLeftN = [1,4,5,6,8];
+        let typesN = []
+        for(let i = 0; i < 5; i++){
+            let nextI = rand.nextInRange(0,typesLeftN.length-1);
+            let next = typesLeftN[nextI];
+            typesLeftN.splice(nextI,1);
+            typesN.push(next);
+        }
+        dailyInt = rand.nextInRange(1,3)
 
-    //     let data = championsDayData.length != 0 ? championsDayData: await fetch(new URL(`https://api.openligadb.de/getmatchdata/cl24de/${liveSeason}/${day-33}`)).then(response => response.json());
+        let data = championsDayData.length != 0 ? championsDayData: await fetch(new URL(`https://api.openligadb.de/getmatchdata/ucl/${liveSeason}/${day-33}`)).then(response => response.json());
         
-    //     for(let playerindex = 0; playerindex < bets.length; playerindex++){
-    //         if(day > bets[playerindex.length-1]) break;
-    //         let bet = bets[playerindex][day]
+        for(let playerindex = 0; playerindex < bets.length; playerindex++){
+            if(day > bets[playerindex.length-1]) break;
+            let bet = bets[playerindex][day]
 
-    //         points[playerindex][day] = 0;
+            points[playerindex][day] = 0;
             
-    //         if(!bet) continue;
-    //         for(let num = 0; num <= data.length; num++){
-    //             if(num == data.length){
-    //                 points[playerindex][day] += 2 * getPoints(data,bet[num],day <= 41 ? 20: 25,hasStarted(data[0]),dailyInt,playerindex);
-    //                 break;
-    //             }
-    //             points[playerindex][day] += getPoints(data[num],bet[num],typesN[num],hasStarted(data[num]),null,playerindex);
-    //         }
-    //     }
-    // }
+            if(!bet) continue;
+            for(let num = 0; num <= data.length; num++){
+                if(num == data.length){
+                    points[playerindex][day] += 2 * getPoints(data,bet[num],day <= 41 ? 20: 25,hasStarted(data[0]),dailyInt,playerindex);
+                    break;
+                }
+                points[playerindex][day] += getPoints(data[num],bet[num],typesN[num],hasStarted(data[num]),null,playerindex);
+            }
+        }
+    }
     
     for(let i = 0; i < playernames.length; i++){
         var xhr = new XMLHttpRequest();
@@ -1178,8 +1187,8 @@ function loadSaisonPoints(){
         saisonPoints[i] += getPoints(wholeTable, saisonBets[i][0],100, hasStarted(firstDay[0]),null, i)*10;
         saisonPoints[i] += getPoints(goalgetters, saisonBets[i][1],101, hasStarted(firstDay[0]),null, i)*10;
         saisonPoints[i] += getPoints(wholeTable, saisonBets[i][2],102, hasStarted(firstDay[0]),null, i)*5;
-        // saisonPoints[i] += getPoints(wholeTableChampion, saisonBets[i][3],103, liveDayChampion > 1 || hasStarted(championsDayData[0]),null, i)*5;
-        // saisonPoints[i] += getPoints([championsDay], saisonBets[i][4],104, liveDayChampion > 1 || hasStarted(championsDayData[0]),null, i)*5;
+        saisonPoints[i] += getPoints(wholeTableChampion, saisonBets[i][3],103, liveDayChampion > 1 || hasStarted(championsDayData[0]),null, i)*5;
+        saisonPoints[i] += getPoints([championsDay], saisonBets[i][4],104, liveDayChampion > 1 || hasStarted(championsDayData[0]),null, i)*5;
     }
 }
 

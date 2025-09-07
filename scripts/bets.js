@@ -27,18 +27,18 @@ async function start(){
     liveDay = currentDayData.groupOrderID;
     const responseLiveday = await fetch(new URL(`https://api.openligadb.de/getmatchdata/bl1/${liveSeason}/${liveDay}`));
     liveDayData = await responseLiveday.json();
-    // liveDayChampion = (await fetch(new URL(`https://api.openligadb.de/getcurrentgroup/cl24de`)).then(response => response.json())).groupOrderID;
+    liveDayChampion = (await fetch(new URL(`https://api.openligadb.de/getcurrentgroup/ucl`)).then(response => response.json())).groupOrderID;
 
     if((championsLeagueGamedays.includes(liveDay) || champiosLeagueKnockout.some(e => e.days.includes(liveDay))) && isOver(liveDayData[liveDayData.length - 1]) 
         || (championsLeagueGamedays.includes(liveDay - 1) || champiosLeagueKnockout.some(e => e.days.includes(liveDay))) && !hasStarted(liveDayData[liveDayData.length - 1])){
         let today = new Date();
         if (today.getDay() >= 2 && today.getDay() <= 3){
-            /*for(let i of championsLeagueGamedays){
-                if(i <= liveDay) liveDayChampion = championsLeagueGamedays.indexOf(i)
-            }*/
+            // for(let i of championsLeagueGamedays){
+            //     if(i <= liveDay) liveDayChampion = championsLeagueGamedays.indexOf(i)
+            // }
             liveDayIsChampion = true
-            // const currentChampionsDayResponse = await fetch(new URL(`https://api.openligadb.de/getmatchdata/cl24de/${liveSeason}/${championsDay}`));
-            // championsDayData = await currentChampionsDayResponse.json();
+            const currentChampionsDayResponse = await fetch(new URL(`https://api.openligadb.de/getmatchdata/ucl/${liveSeason}/${championsDay}`));
+            championsDayData = await currentChampionsDayResponse.json();
         }else{
             liveDayIsChampion = false
         }
@@ -146,7 +146,7 @@ async function showSpieltag(n=null,index = false){
             daySelect.selectedIndex = i;
         }
     }
-
+    console.log(n, liveDay)
     const data = n == liveDay ? liveDayData: await fetch(new URL(`https://api.openligadb.de/getmatchdata/bl1/${liveSeason}/${n}`)).then(response => response.json());
     d = data;
 
@@ -159,15 +159,15 @@ async function showSpieltag(n=null,index = false){
         const responseDay3 = await fetch(urlDay3);
         const dataDay3 = await responseDay3.json();
         let saisonHasStarted = liveDay > 4 ? true: (liveDay < 4 ? false: hasStarted(dataDay3[0]))
-        // if(championsDayData.length == 0) championsDayData = await fetch(new URL(`https://api.openligadb.de/getmatchdata/cl24de/${liveSeason}/1`)).then(response => response.json());
-        // let championHasStarted = hasStarted(championsDayData[0])
+        if(championsDayData.length == 0) championsDayData = await fetch(new URL(`https://api.openligadb.de/getmatchdata/ucl/${liveSeason}/1`)).then(response => response.json());
+        let championHasStarted = hasStarted(championsDayData[0])
         const tableResponse = await fetch(new URL(`https://api.openligadb.de/getbltable/bl1/${liveSeason}`));
         const tableData = await tableResponse.json();
         wholeTable = tableData
         
-        //const tableResponseChampion = await fetch(new URL(`https://api.openligadb.de/getbltable/cl24de/${liveSeason}`));
-        //const tableDataChampion = await tableResponseChampion.json();
-        const tableDataChampion = [{name:"Leverkusen", place:6},{name:"Dortmund", place:10},{name:"Bayern", place:12}, {name:"Stuttgart", place:26}, {name:"Leipzig", place:32}]
+        const tableResponseChampion = await fetch(new URL(`https://api.openligadb.de/getbltable/ucl/${liveSeason}`));
+        const tableDataChampion = await tableResponseChampion.json();
+        // const tableDataChampion = [{name:"Leverkusen", place:6},{name:"Dortmund", place:10},{name:"Bayern", place:12}, {name:"Stuttgart", place:26}, {name:"Leipzig", place:32}]
         wholeTableChampion = tableDataChampion
         
         const lastDayResponse = await fetch(new URL(`https://api.openligadb.de/getmatchdata/bl1/${liveSeason}/34`));
@@ -177,20 +177,22 @@ async function showSpieltag(n=null,index = false){
         const goalgetterData = await goalgetterResponse.json();
         goalgetters = goalgetterData
 
-        // const championsDayResponse = await fetch(new URL(`https://api.openligadb.de/getcurrentgroup/cl24de`));
-        // championsDay = await championsDayResponse.json().groupOrderID;
+        const championsDayResponse = await fetch(new URL(`https://api.openligadb.de/getcurrentgroup/ucl`));
+        championsDay = await championsDayResponse.json().groupOrderID;
 
         showSaison(data,1,saisonHasStarted)
         showSaison(data,2,saisonHasStarted)
         showSaison(data,3,saisonHasStarted)
-        // showSaison(data,4,championHasStarted)
-        // showSaison(data,5,championHasStarted)
+        showSaison(data,4,championHasStarted)
+        showSaison(data,5,championHasStarted)
         
         return;
     }
     if(n > 34){
         championsDay = n - 34
-        // let dataChamp = championsDayData.length != 0 ? championsDayData: await fetch(new URL(`https://api.openligadb.de/getmatchdata/cl24de/${liveSeason}/${championsDay}`)).then(response => response.json());
+        let dataChamp = championsDayData.length != 0 ? championsDayData: await fetch(new URL(`https://api.openligadb.de/getmatchdata/ucl/${liveSeason}/${championsDay}`)).then(response => response.json());
+        dataChamp = filterGermanTeams(dataChamp)
+        // console.log(dataChamp)
 
         let rand = new RND(n);
         typesLeft = [1,4,5,6,8];
@@ -237,7 +239,7 @@ async function showSpieltag(n=null,index = false){
 function showData(data,num,champions=false){
     // document.getElementById("Saison-warning").hidden = true
     let displayTitle = titles[types[num]-1]
-    if(data.leagueShortcut == "cl24de" && types[num] == 4){
+    if(data.leagueShortcut == "ucl" && types[num] == 4){
         let germanTeam = germanTeams.includes(getShortName(data.team1)) ? getShortName(data.team1): getShortName(data.team2)
         displayTitle = displayTitle.replace("Spieler",germanTeam+" Spieler")
     }
@@ -606,7 +608,7 @@ function getBetContent(data,type,num,champions=false,saisonHasStarted=null){
             for(let team of teams){
                 elements += getButtonToggle(data[0],team,"Saison"+(type-100),type-101,type,true,saisonHasStarted)
             }
-            return title + getSearch([teams],"Saison"+(type-100)) + `<div id="Saison${type-100}">` + elements + "</div>"
+            return title + getSearch([teams],"Saison"+(type-100)) + `<div id="Saison${type-100}" class="betButtons">` + elements + "</div>"
         }
 }
 
@@ -787,10 +789,12 @@ function saveBet(bet,i,type,id,groupId){
         bets[currentDay - 1][i][0] = bet;
     }
     let matchId = d[i] != null ? d[i].matchID: groupId;
-    if (bets[currentDay-1][i] == null || bets[currentDay-1][i].length == 0 || bets[currentDay-1][i] == ""){
-        document.getElementById("logoButton"+matchId).classList.remove("bet");
-    }else{
-        document.getElementById("logoButton"+matchId).classList.add("bet");
+    if(type < 100){
+        if (bets[currentDay-1][i] == null || bets[currentDay-1][i].length == 0 || bets[currentDay-1][i] == ""){
+            document.getElementById("logoButton"+matchId).classList.remove("bet");
+        }else{
+            document.getElementById("logoButton"+matchId).classList.add("bet");
+        }
     }
     save(currentDay - 1,i < d.length ? d[i].matchDateTime: null);
 }
