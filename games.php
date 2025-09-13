@@ -89,7 +89,7 @@
         </div>
         
     </div>
-    <script src="scripts/multitipp.js?v=6"></script>
+    <script src="scripts/multitipp.js?v=7"></script>
     <script src="scripts/games.js?v=3"></script>
     <script>
         navigator.serviceWorker.register('sw.js');

@@ -7,7 +7,7 @@ let championsLeagueKnockoutTitles = ["In welcher Begegnung fallen die meisten To
 const championsLeagueGamedays = [3,5,7,9,11,13,18,19]
 const champiosLeagueKnockout = []
 // const champiosLeagueKnockout = [{name:"Playoffs",days:[21,22]},{name:"AF",days:[24,25]},{name:"VF",days:[28,29]}]
-let germanTeams = ["Dortmund","Bayern","Leverkusen"]
+let germanTeams = ["Dortmund","Bayern","Leverkusen","Frankfurt"]
 
 const players = {}
 
