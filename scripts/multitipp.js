@@ -1123,7 +1123,8 @@ async function loadPoints(){
         dailyInt = rand.nextInRange(1,3)
 
         let data = championsDayData.length != 0 ? championsDayData: await fetch(new URL(`https://api.openligadb.de/getmatchdata/ucl/${liveSeason}/${day-33}`)).then(response => response.json());
-        
+        data = filterGermanTeams(data)
+
         for(let playerindex = 0; playerindex < bets.length; playerindex++){
             if(day > bets[playerindex.length-1]) break;
             let bet = bets[playerindex][day]

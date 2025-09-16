@@ -35,9 +35,9 @@ async function start(){
         || (championsLeagueGamedays.includes(liveDay - 1) || champiosLeagueKnockout.some(e => e.days.includes(liveDay))) && !hasStarted(liveDayData[liveDayData.length - 1])){
         let today = new Date();
         if (today.getDay() >= 2 && today.getDay() <= 3){
-            for(let i of championsLeagueGamedays){
-                if(i <= liveDay) liveDayChampion = championsLeagueGamedays.indexOf(i)
-            }
+            // for(let i of championsLeagueGamedays){
+            //     if(i <= liveDay) liveDayChampion = championsLeagueGamedays.indexOf(i)
+            // }
             liveDayIsChampion = true
             const currentChampionsDayResponse = await fetch(new URL(`https://api.openligadb.de/getmatchdata/ucl/${liveSeason}/${championsDay}`));
             championsDayData = await currentChampionsDayResponse.json();

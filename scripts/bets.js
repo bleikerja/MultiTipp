@@ -146,7 +146,6 @@ async function showSpieltag(n=null,index = false){
             daySelect.selectedIndex = i;
         }
     }
-    console.log(n, liveDay)
     const data = n == liveDay ? liveDayData: await fetch(new URL(`https://api.openligadb.de/getmatchdata/bl1/${liveSeason}/${n}`)).then(response => response.json());
     d = data;
 
