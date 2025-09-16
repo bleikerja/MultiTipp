@@ -39,6 +39,7 @@ async function start(){
             liveDayIsChampion = true
             const currentChampionsDayResponse = await fetch(new URL(`https://api.openligadb.de/getmatchdata/ucl/${liveSeason}/${championsDay}`));
             championsDayData = await currentChampionsDayResponse.json();
+            championsDayData = filterGermanTeams(championsDayData)
         }else{
             liveDayIsChampion = false
         }
@@ -158,7 +159,10 @@ async function showSpieltag(n=null,index = false){
         const responseDay3 = await fetch(urlDay3);
         const dataDay3 = await responseDay3.json();
         let saisonHasStarted = liveDay > 4 ? true: (liveDay < 4 ? false: hasStarted(dataDay3[0]))
-        if(championsDayData.length == 0) championsDayData = await fetch(new URL(`https://api.openligadb.de/getmatchdata/ucl/${liveSeason}/1`)).then(response => response.json());
+        if(championsDayData.length == 0) {
+            championsDayData = await fetch(new URL(`https://api.openligadb.de/getmatchdata/ucl/${liveSeason}/1`)).then(response => response.json());
+            championsDayData = filterGermanTeams(championsDayData);
+        }
         let championHasStarted = hasStarted(championsDayData[0])
         const tableResponse = await fetch(new URL(`https://api.openligadb.de/getbltable/bl1/${liveSeason}`));
         const tableData = await tableResponse.json();
