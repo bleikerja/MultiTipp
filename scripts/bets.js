@@ -526,7 +526,7 @@ function getBetContent(data,type,num,champions=false,saisonHasStarted=null){
                     return elements
                 case 3:
                     elements = title;
-                    elements += getButtonToggle(data[0],"kein Team","Daily",num,type,false)
+                    elements += getButtonToggle(data[data.length - 1],"kein Team","Daily",num,type,false, hasStarted(data[0]) && !hasStarted(data[data.length - 1]) ? bets[currentDay-1][data.length].length != 0: null)
                     for(let team of germanTeams){
                         let game = data.find(game => getShortName(game.team1) == team || getShortName(game.team2) == team)
                         elements += getButtonToggle(data[0],team,"Daily",num,type,false,hasStarted(data[0]) && !hasStarted(game) ? bets[currentDay-1][data.length].length != 0: null)
