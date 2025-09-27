@@ -12,7 +12,6 @@ let selectedCarouselItem = 0;
 let carouselWidth = 0;
 
 start();
-getPermission();
 
 setInterval(() => {
     const carousel = document.getElementById('carousel');
@@ -698,23 +697,4 @@ function getLastStarted(data){
         if(hasStarted(data[i]) && !isOver(data[i])) return j
     }
     return 0
-}
-
-function getPermission(){
-    Notification.requestPermission().then((permission) =>{
-        if(permission == "granted"){
-            navigator.serviceWorker.ready.then((sw) => {
-                sw.pushManager.subscribe({
-                    userVisibleOnly: true,
-                    applicationServerKey: "BDzyRQ8uYHRuucJ3MoLx-YNlsRFrg8EpU4lajmNQq-ZDdJYLjXpYSiB1giuzK6EDnTiq98fUm03yHzPYRbEaTQA"
-                }).then((subscription) => {
-                    fetch("php/save-subscription.php", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify(subscription),
-                    });
-                })
-            })
-        }
-    })
 }

@@ -90,9 +90,6 @@
         
     </div>
     <script src="scripts/multitipp.js?v=8"></script>
-    <script src="scripts/games.js?v=4"></script>
-    <script>
-        navigator.serviceWorker.register('sw.js');
-    </script>
+    <script src="scripts/games.js?v=5"></script>
 </body>
 </html>

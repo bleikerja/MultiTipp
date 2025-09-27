@@ -11,7 +11,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <title>Multi Tipp</title>
-    <link rel="stylesheet" href="styles/settings.css?v=2">
+    <link rel="stylesheet" href="styles/settings.css?v=3">
     <link rel="stylesheet" href="styles/navBar.css?v=2">
 </head>
 <body>
@@ -68,7 +68,17 @@
             </div>
             <button type="submit" id="editPasswordButton" class="btn btn-secondary">Ändern</button>
         </form>
+        <div class="form-check form-switch inputGroup">
+            <input class="form-check-input notification-toggle" type="checkbox" role="switch" id="switchCheckDefault" <?php echo $_SESSION["user_data"]["notifications"] == "1" ? "checked" : "" ?>>
+            <div class="flex-column">
+                <label class="form-check-label" for="switchCheckDefault">Benachrichtigungen</label>
+                <p id="notification-status" hidden></p>
+            </div>
+        </div>
     </div>
-    <script src="scripts/settings.js?v=2"></script>
+    <script>
+        navigator.serviceWorker.register('sw.js');
+    </script>
+    <script src="scripts/settings.js?v=3"></script>
 </body>
 </html>

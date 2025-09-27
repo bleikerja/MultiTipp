@@ -1,18 +1,28 @@
 .inputGroup{
-    display:flex;
-    margin: 20px auto;
-    width: fit-content;
-    text-align: center;
+  display:flex;
+  margin: 20px auto;
+  width: fit-content;
+  text-align: center;
 }
 
 .inputGroup .label{
-    margin: auto;
-    margin-right: 10px;
-    min-height: 100%;
-    text-align: center;
+  margin: auto;
+  margin-right: 10px;
+  min-height: 100%;
+  text-align: center;
 }
 
 h1,h4 {
   text-align: center;
   color: #333;
+}
+
+#switchCheckDefault{
+  height: 30px;
+  width: 60px;
+  margin-right: 5px;
+}
+
+#notification-status{
+  font-size: 12px;
 }
