@@ -79,6 +79,6 @@
     <script>
         navigator.serviceWorker.register('sw.js');
     </script>
-    <script src="scripts/settings.js?v=3"></script>
+    <script src="scripts/settings.js?v=4"></script>
 </body>
 </html>

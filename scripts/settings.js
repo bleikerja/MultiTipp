@@ -68,27 +68,47 @@ function editPassword(e){
     input.value = "";
 }
 
-function getPermission(){
+function getPermission() {
     setNotificationStatus("waiting");
-    Notification.requestPermission().then((permission) =>{
-        if(permission == "granted"){
-            navigator.serviceWorker.ready.then((sw) => {
-                sw.pushManager.subscribe({
+
+    Notification.requestPermission().then(async (permission) => {
+        if (permission === "granted") {
+            const sw = await navigator.serviceWorker.ready;
+
+            let subscription = await sw.pushManager.getSubscription();
+
+            const appServerKey = urlBase64ToUint8Array(
+                "BGraND_bLAZEjpeTMVQcOm4ggVmyIC4btqM6QoQZyQ8kiWjipzhRO0SlRbHa318rmN4PZhCPL1iijVCEEJoe-gE"
+            );
+
+            if (subscription) {
+                const rawKey = subscription.options.applicationServerKey;
+                const existingKey = rawKey ? new Uint8Array(rawKey) : null;
+
+                if (!existingKey || existingKey.toString() !== appServerKey.toString()) {
+                    await subscription.unsubscribe();
+                    subscription = null;
+                }
+            }
+
+            if (!subscription) {
+                subscription = await sw.pushManager.subscribe({
                     userVisibleOnly: true,
-                    applicationServerKey: urlBase64ToUint8Array('BGraND_bLAZEjpeTMVQcOm4ggVmyIC4btqM6QoQZyQ8kiWjipzhRO0SlRbHa318rmN4PZhCPL1iijVCEEJoe-gE')
-                }).then((subscription) => {
-                    fetch("php/save-subscription.php", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify(subscription),
-                    });
-                })
-            })
+                    applicationServerKey: appServerKey,
+                });
+            }
+
+            await fetch("php/save-subscription.php", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(subscription),
+            });
+
             setNotificationStatus("granted");
-        }else{
+        } else {
             setNotificationStatus("denied");
         }
-    })
+    });
 }
 
 function urlBase64ToUint8Array(base64String) {
