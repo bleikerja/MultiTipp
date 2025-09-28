@@ -17,7 +17,7 @@ $responseBl = json_decode(file_get_contents($urlBl),associative: true)[0]["match
 $urlCl = "https://api.openligadb.de/getmatchdata/ucl/2025/{$groupResponseCl}";
 $responseCl = json_decode(file_get_contents($urlCl),associative: true)[0]["matchDateTimeUTC"];
 
-$now = gmdate("U")+60*60*24*3;
+$now = gmdate("U");
 $timeBl = strtotime($responseBl);
 $timeCl = strtotime($responseCl);
 
@@ -33,7 +33,7 @@ if ($timeBl >= $now && ($timeCl < $now || $timeBl < $timeCl)) {
 
 // if($next_date == null || $next_date-60*60 > $now) return;
 
-$query = "SELECT * FROM push_subscriptions u WHERE user_id = 1 AND last_active = (SELECT MAX(last_active) FROM push_subscriptions WHERE user_id = u.user_id);";
+$query = "SELECT * FROM push_subscriptions u WHERE last_active = (SELECT MAX(last_active) FROM push_subscriptions WHERE user_id = u.user_id);";
 
 $stmt = $pdo->query($query);
 $stmt->execute();

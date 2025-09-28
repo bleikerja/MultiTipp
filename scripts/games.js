@@ -613,6 +613,72 @@ function getBetDisplay(display,color="white",user="",matchId,orderId){
     return `<p class="border rounded-3 border-black betDisplay" style="background-color: ${color};">${display}</p>`
 }
 
+async function load(){
+    try{
+        let userData = await fetch('php/loginData.php')
+            .then(function (response) {
+                return response.json();
+            });
+
+        username = userData.username
+        
+        const data = await fetch('php/data.php')
+            .then(function (response) {
+                return response.json();
+            });
+
+        fixes = await fetch('php/fixes.php')
+        .then(function (response) {
+            return response.json();
+        });
+
+        is_admin = await fetch('php/is_admin.php')
+            .then(function (response) {
+                return response.json();
+            });
+
+        const teamData = await fetch('php/teamData.php')
+        .then(function (response) {
+            return response.json();
+        });
+        for(let n of teamData){
+            players[n.team_name] = JSON.parse(n.team_players)
+        }
+        bets,playernames,saisonBets = []
+        bets.push(JSON.parse(userData.user_data))
+        saisonBets.push(JSON.parse(userData.saison_bets))
+        
+        points.push(JSON.parse(userData.user_points))
+        playernames.push(username);
+
+        if(userData.user_group != null){
+            for(let player of data){
+                if(userData.user_group == player.user_group && player.username != username){
+                    bets.push(JSON.parse(player.user_data))
+                    saisonBets.push(JSON.parse(player.saison_bets))
+                    playernames.push(player.username);
+                    
+                    points.push(JSON.parse(player.user_points))
+                }
+            }
+        }
+        localStorage.setItem("userData",JSON.stringify({
+            "username": username,
+            "password": userData.user_password,
+            "autoLogin": true,
+            "forceLogin": false,
+        }));
+    }catch (error) {
+        if(localStorage.getItem("userData")){
+            let temp = JSON.parse(localStorage.getItem("userData"));
+            temp.forceLogin = true;
+            localStorage.setItem("userData",JSON.stringify(temp));  
+        } 
+        window.location.href = 'anmelden';
+        return;
+    }
+}
+
 function showEdit(show,object){
     var input = object.querySelector("input");
     var p = object.querySelector("p")

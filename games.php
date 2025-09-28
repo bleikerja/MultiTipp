@@ -89,7 +89,7 @@
         </div>
         
     </div>
-    <script src="scripts/multitipp.js?v=8"></script>
-    <script src="scripts/games.js?v=5"></script>
+    <script src="scripts/multitipp.js?v=9"></script>
+    <script src="scripts/games.js?v=6"></script>
 </body>
 </html>

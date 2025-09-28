@@ -680,9 +680,7 @@ function getSearch(teams,group,teamnames=null){
 }
 
 function filterResults(id) {
-    console.log(id)
     let element = document.getElementById(id);
-    console.log(element)
     for(let e of element.children){
         e.hidden = true;
     }
@@ -691,7 +689,6 @@ function filterResults(id) {
     let currentFilterPosition = document.getElementById("positionFilter" + id).value;
 
     let playernames = getPlayers(currentFilterTeam,currentFilterPosition);
-    console.log(playernames);
 
     for(let player of playernames){
         let element = document.getElementById(player + id);
@@ -860,9 +857,14 @@ async function load(){
     try {
         userData = await fetch('php/loginData.php')
             .then(function (response) {
-            return response.json();
-        });
+                return response.json();
+            });
     } catch (error) {
+        if(localStorage.getItem("userData")){
+            let temp = JSON.parse(localStorage.getItem("userData"));
+            temp.forceLogin = true;
+            localStorage.setItem("userData",JSON.stringify(temp));  
+        }
         window.location.href = 'anmelden';
         return;
     }
