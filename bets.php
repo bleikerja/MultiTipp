@@ -79,6 +79,6 @@
         </div>
     </div>
     <script src="scripts/multitipp.js?v=9"></script>
-    <script src="scripts/bets.js?v=14"></script>
+    <script src="scripts/bets.js?v=15"></script>
 </body>
 </html>

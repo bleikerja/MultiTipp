@@ -853,12 +853,35 @@ function saveSaison(){
 }
 
 async function load(){
-    let userData;
     try {
-        userData = await fetch('php/loginData.php')
+        let userData = await fetch('php/loginData.php')
             .then(function (response) {
                 return response.json();
             });
+
+        const teamData = await fetch('php/teamData.php')
+        .then(function (response) {
+            return response.json();
+        });
+        fixes = await fetch('php/fixes.php')
+        .then(function (response) {
+            return response.json();
+        });
+
+        for(let n of teamData){
+            players[n.team_name] = JSON.parse(n.team_players)
+        }
+
+        username = userData.username
+        
+        bets = JSON.parse(userData.user_data);
+        saisonBets = JSON.parse(userData.saison_bets);
+        localStorage.setItem("userData",JSON.stringify({
+            "username": username,
+            "password": userData.user_password,
+            "autoLogin": true,
+            "forceLogin": false,
+        }));
     } catch (error) {
         if(localStorage.getItem("userData")){
             let temp = JSON.parse(localStorage.getItem("userData"));
@@ -868,30 +891,6 @@ async function load(){
         window.location.href = 'anmelden';
         return;
     }
-
-    const teamData = await fetch('php/teamData.php')
-    .then(function (response) {
-        return response.json();
-    });
-    fixes = await fetch('php/fixes.php')
-    .then(function (response) {
-        return response.json();
-    });
-
-    for(let n of teamData){
-        players[n.team_name] = JSON.parse(n.team_players)
-    }
-
-    username = userData.username
-    
-    bets = JSON.parse(userData.user_data);
-    saisonBets = JSON.parse(userData.saison_bets);
-    localStorage.setItem("userData",JSON.stringify({
-        "username": username,
-        "password": userData.user_password,
-        "autoLogin": true,
-        "forceLogin": false,
-    }));
 }
 
 function editName(){
