@@ -632,7 +632,7 @@ function getButtonToggle(data,name,group,num,type,radio=true,thisHasStarted=null
         checked = true;
     }else if(type == 6.5 && currentBet[1] == name){
         checked = true;
-    }else if(type <= 5 && type >= 8 && currentBet.includes(name)){
+    }else if((type <= 5 || type >= 8) && currentBet.includes(name)){
         checked = true;
     }
 
