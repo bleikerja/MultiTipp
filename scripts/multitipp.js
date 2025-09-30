@@ -28,6 +28,8 @@ let championsDay = null
 
 let lastDay = null
 let firstDay = null;
+let firstDayNum = 6;
+let firstDayClNum = 2;
 let goalgetters = null
 let wholeTable = null
 let wholeTableChampion = null
@@ -245,8 +247,8 @@ function isFixBet(data,type,bet = null){
             return isOver(lastDay[0])
         case 103:
             return liveDayChampion > 8
-        case 104:
-            return true
+        case 104: 
+            return false //TODO caluclate correctly
     }
     return false;
 }
@@ -327,6 +329,7 @@ function getShortName(team){
 
 function getTeamIcon(team){    
     if(team.shortName == "Union Berlin") return "https://derivates.kicker.de/image/fetch/f_webp/w_120%2Ch_120%2Cc_fit%2Cq_auto:best/https://mediadb.kicker.de/2021/fussball/vereine/xxl/62_20210316732.png"
+    if(team.shortName == "Paphos FC") return "https://derivates.kicker.de/image/fetch/f_webp/w_60%2Ch_60%2Cc_fit%2Cq_auto:best/https://mediadb.kicker.de/2020/fussball/vereine/xxl/3491_20190706482.png"
     return team.teamIconUrl
 }
 
@@ -965,15 +968,15 @@ function getDailyDisplay(data, bet, type){
     }else{
         switch(type){
             case 100:
-                return bet + " (" + (wholeTable.findIndex(team => team.shortName == bet) + 1) + ".)"
+                return bet + " (" + (wholeTable.findIndex(team => getShortName(team) == bet) + 1) + ".)"
             case 101:
                 return bet + " (" + goalgetters.filter(player => getPlayerName(player.goalGetterName) == bet).reduce((a, b) => a + b.goalCount,0) + ")"
             case 102:
-                return bet + " (" + (wholeTable.findIndex(team => team.shortName == bet) + 1) + ".)"
+                return bet + " (" + (wholeTable.findIndex(team => getShortName(team) == bet) + 1) + ".)"
             case 103:
                 let i = 1;
                 for(let n of wholeTableChampion){
-                    if(n.shortName == bet){
+                    if(getShortName(n) == bet){
                         return bet + " (" + i + ".)"
                     }
                     i++;
@@ -1127,7 +1130,7 @@ function loadSaisonPoints(){
 }
 
 function getPoints(data,bet,t,hasStarted,daily = null,playerindex){
-    if(!hasStarted) return 0;
+    if(!hasStarted || bet == null) return 0;
     
     const result = getResult(data,t,daily)
 
@@ -1135,7 +1138,7 @@ function getPoints(data,bet,t,hasStarted,daily = null,playerindex){
         let fixResult = getFix((t < 10 ? data.matchID: (t < 100 ? "daily" + data[0].group.groupOrderID: "saison" + (t-100))),i);
         if(fixResult != null) result[i] = fixResult.fix_data
     }
-    
+
     for(let i = 0; i < bet.length; i++){
         let fixBet = getFix((t < 10 ? data.matchID: (t < 100 ? "daily" + data[0].group.groupOrderID: "saison" + (t-100))),i,playernames[playerindex])
         if(fixBet != null) bet[i] = fixBet.fix_data

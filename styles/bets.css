@@ -190,8 +190,27 @@ ul {
     gap: 3px;
 }
 
+.betButtons.noSelect {
+    margin-top: 10px;
+    border-top: black 1px solid;
+}
+
+.selectedBetsContainer{
+    height: 46px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    overflow-x: auto;
+    gap: 3px;
+}
+
+.selectedBetsContainer::-webkit-scrollbar {
+    display: none;
+}
+
 .toggleButton{
     width: fit-content;
+    min-width: fit-content;
     margin: 3px auto;
     border: 1px solid black;
     border-radius: 3px;
