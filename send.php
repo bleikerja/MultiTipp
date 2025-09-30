@@ -15,11 +15,19 @@ $urlBl = "https://api.openligadb.de/getmatchdata/bl1/2025/{$groupResponseBl}";
 $responseBl = json_decode(file_get_contents($urlBl),associative: true)[0]["matchDateTimeUTC"];
 
 $urlCl = "https://api.openligadb.de/getmatchdata/ucl/2025/{$groupResponseCl}";
-$responseCl = json_decode(file_get_contents($urlCl),associative: true)[0]["matchDateTimeUTC"];
+$responseCl = json_decode(file_get_contents($urlCl),associative: true);
+$germanTeams = ["Dortmund","Bayern","Leverkusen","Frankfurt"];
+$firstClGame = null;
+foreach ($responseCl as $game) {
+    if (in_array($game["team1"]["shortName"], $germanTeams) || in_array($game["team2"]["shortName"], $germanTeams)) {
+        $firstClGame = $game;
+        break;
+    }
+}
 
 $now = gmdate("U");
 $timeBl = strtotime($responseBl);
-$timeCl = strtotime($responseCl);
+$timeCl = strtotime($firstClGame["matchDateTimeUTC"]);
 
 $next_date = null;
 $next_league = null;
