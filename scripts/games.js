@@ -95,7 +95,7 @@ async function showSpieltag(n,index = false){
     
     gameCarousel.innerHTML = '';
     let daysBefore = championsLeagueDaysBeforeDay(liveDay);
-    let selectedOption = daySelect.options[liveDayIsChampion ? liveDay+daysBefore+2: liveDay+daysBefore];
+    let selectedOption = daySelect.options[liveDayIsChampion ? liveDay+daysBefore+1: liveDay+daysBefore];
     selectedOption.style.fontWeight = "bold";
   
     let options = daySelect.options;
@@ -142,9 +142,9 @@ async function showSpieltag(n,index = false){
     d = [...data]
 
     if(n == 0 || n == 34 && isOver(data)){
-        const response3 = await fetch(new URL(`https://api.openligadb.de/getmatchdata/bl1/${liveSeason}/4`));
-        const data3 = await response3.json();
-        firstDay = data3
+        const responseStartDay = await fetch(new URL(`https://api.openligadb.de/getmatchdata/bl1/${liveSeason}/${firstDayNum}`));
+        const dataStartDay = await responseStartDay.json();
+        firstDay = dataStartDay;
 
         const tableResponse = await fetch(new URL(`https://api.openligadb.de/getbltable/bl1/${liveSeason}`));
         const tableData = await tableResponse.json();
@@ -164,8 +164,9 @@ async function showSpieltag(n,index = false){
 
         const championsDayResponse = await fetch(new URL(`https://api.openligadb.de/getcurrentgroup/ucl`));
         championsDay = await championsDayResponse.json();
+        championsDay = championsDay.groupOrderID;
 
-        if(championsDayData.length == 0) championsDayData = await fetch(new URL(`https://api.openligadb.de/getmatchdata/ucl/${liveSeason}/${championsDay.groupOrderID}`)).then(response => response.json());
+        if(championsDayData.length == 0) championsDayData = await fetch(new URL(`https://api.openligadb.de/getmatchdata/ucl/${liveSeason}/${championsDay}`)).then(response => response.json());
         
         if (n == 0) {
             updateDisplay()
@@ -234,11 +235,11 @@ function updateDisplay(){
         }
     }else{
         let displays = []
-        displays.push(showData(wholeTable,100,true,true))
-        displays.push(showData(goalgetters,101,false,true))
-        displays.push(showData(wholeTable,102,false,true))
-        displays.push(showData(wholeTableChampion,103,false,true,null,true))
-        displays.push(showData([championsDay],104,false,true,null,true))
+        displays.push(showData(wholeTable,100,first = true, returnResult = true))
+        displays.push(showData(goalgetters,101,first = false, returnResult = true))
+        displays.push(showData(wholeTable,102,first = false, returnResult = true))
+        displays.push(showData(wholeTableChampion,103,first = false, returnResult = true,null,true))
+        displays.push(showData([championsDay],104,first = false, returnResult = true,null,true))
         let num = 0
         while(num < displays.length){
             let div =  `<div class="carouselItem carousel-item ${num == 0 ? "active":""}"><div class="d-flex">`
@@ -333,7 +334,7 @@ function showData(data,num,first=false,returnResult=false,nextData = null,champi
 function changeColor(data,type,result = false){
     if(type >= 100){
         if(isOver(lastDay[0]) || type == 103 && liveDayChampion > 8) return "#949494"
-        let saisonHasStarted = type < 103 ? hasStarted(firstDay[0]): (championsDay > 1 ? true: hasStarted(championsDayData[0]))
+        let saisonHasStarted = type < 103 ? hasStarted(firstDay[0]): (championsDay > firstDayClNum || hasStarted(championsDayData[0]))
         if(saisonHasStarted){
             return "#ffd599";  
         } 
@@ -373,7 +374,7 @@ function showDaily(data,num,returnResult = true,champions=false){
 }
 
 function showSaison(data,num){
-    let saisonHasStarted = num < 103 ? hasStarted(firstDay[0]): (championsDay > 1 ? true: hasStarted(championsDayData[0]))
+    let saisonHasStarted = num < 103 ? hasStarted(firstDay[0]): (championsDay > firstDayClNum || hasStarted(championsDayData[0]))
     const newHtml = `<div class="saison flex-fill p-2">
         <div class="betContainer">
             <div id="SaisonContainer" class="border rounded-3 border-black saisonContainer">

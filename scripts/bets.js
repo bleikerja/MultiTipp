@@ -135,7 +135,7 @@ async function showSpieltag(n=null,index = false){
     daySelect.selectedIndex = n;
 
     let daysBefore = championsLeagueDaysBeforeDay(liveDay);
-    let selectedOption = daySelect.options[liveDayIsChampion ? liveDay+daysBefore+2: liveDay+daysBefore];
+    let selectedOption = daySelect.options[liveDayIsChampion ? liveDay+daysBefore+1: liveDay+daysBefore];
     selectedOption.style.fontWeight = "bold";
   
     let options = daySelect.options;
@@ -155,12 +155,11 @@ async function showSpieltag(n=null,index = false){
     allTeams = await response1.json();
 
     if(n == 0){
-        const urlDay3 = new URL(`https://api.openligadb.de/getmatchdata/bl1/${liveSeason}/4`);
-        const responseDay3 = await fetch(urlDay3);
-        const dataDay3 = await responseDay3.json();
-        let saisonHasStarted = liveDay > 4 ? true: (liveDay < 4 ? false: hasStarted(dataDay3[0]))
+        const responseStartDay = await fetch(new URL(`https://api.openligadb.de/getmatchdata/bl1/${liveSeason}/${firstDayNum}`));
+        const dataStartDay = await responseStartDay.json();
+        let saisonHasStarted = liveDay > firstDayNum || (liveDay === firstDayNum && hasStarted(dataStartDay[0]))
         if(championsDayData.length == 0) {
-            championsDayData = await fetch(new URL(`https://api.openligadb.de/getmatchdata/ucl/${liveSeason}/1`)).then(response => response.json());
+            championsDayData = await fetch(new URL(`https://api.openligadb.de/getmatchdata/ucl/${liveSeason}/${firstDayClNum}`)).then(response => response.json());
             championsDayData = filterGermanTeams(championsDayData);
         }
         let championHasStarted = hasStarted(championsDayData[0])
@@ -188,14 +187,10 @@ async function showSpieltag(n=null,index = false){
         showSaison(data,3,saisonHasStarted)
         showSaison(data,4,championHasStarted)
         showSaison(data,5,championHasStarted)
-        
-        return;
-    }
-    if(n > 34){
+    }else if(n > 34){
         championsDay = n - 34
         let dataChamp = championsDayData.length != 0 ? championsDayData: await fetch(new URL(`https://api.openligadb.de/getmatchdata/ucl/${liveSeason}/${championsDay}`)).then(response => response.json());
         dataChamp = filterGermanTeams(dataChamp)
-        // console.log(dataChamp)
 
         let rand = new RND(n);
         typesLeft = [1,4,5,6,8];
@@ -216,27 +211,30 @@ async function showSpieltag(n=null,index = false){
             showData(dataChamp[i],i,true);
         }
         showDaily(dataChamp,dataChamp.length,true);
-        return;
+    }else {
+        let rand = new RND(n);
+        typesLeft = [1,2,3,4,5,6,7,8,9];
+        types = []
+
+        for(let i = 0; i < 9; i++){
+            let nextI = rand.nextInRange(0,typesLeft.length-1);
+            let next = typesLeft[nextI];
+            typesLeft.splice(nextI,1);
+            types.push(next);
+        }
+        dailyType = rand.nextInRange(1,5);
+
+        
+        if(!bets[n-1]) bets[n-1] = [[],[],[],[],[],[],[],[],[],[]]
+        for(let i = 0; i < data.length; i++){
+            showData(data[i],i);
+        }
+        showDaily(data,data.length);
     }
-
-    let rand = new RND(n);
-    typesLeft = [1,2,3,4,5,6,7,8,9];
-    types = []
-
-    for(let i = 0; i < 9; i++){
-        let nextI = rand.nextInRange(0,typesLeft.length-1);
-        let next = typesLeft[nextI];
-        typesLeft.splice(nextI,1);
-        types.push(next);
-    }
-    dailyType = rand.nextInRange(1,5);
-
     
-    if(!bets[n-1]) bets[n-1] = [[],[],[],[],[],[],[],[],[],[]]
-    for(let i = 0; i < data.length; i++){
-        showData(data[i],i);
+    for(let element of document.querySelectorAll('.toggleButton.active')) {
+        checkButton(element, true);
     }
-    showDaily(data,data.length);
 }
 
 function showData(data,num,champions=false){
@@ -370,7 +368,7 @@ function getBetContent(data,type,num,champions=false,saisonHasStarted=null){
                 elements += getButtonToggle(data,player,data.matchID,num,type) + "\n"
             }
             elements += getAddButton(data,data.matchID,num,type)
-            return title + getButtonToggle(data,"kein Tor",data.matchID,num,type) + getSearch([getPlayers(data.team1.teamName),getPlayers(data.team2.teamName)],data.matchID,[data.team1,data.team2]) + `<div id="${data.matchID}" class="betButtons">` + elements + "</div>"
+            return title + getSearch([getPlayers(data.team1.teamName),getPlayers(data.team2.teamName)],data.matchID,[data.team1,data.team2]) + getButtonToggle(data,"kein Tor",data.matchID,num,type) + `<div id="${data.matchID}" class="betButtons noSelect">` + elements + "</div>"
         case 4:
             allPlayers = sortPlayers(getPlayers(data.team1.teamName).concat(getPlayers(data.team2.teamName)))
             for(let player of allPlayers){
@@ -380,7 +378,7 @@ function getBetContent(data,type,num,champions=false,saisonHasStarted=null){
             teams = []
             if(!champions || germanTeams.includes(getShortName(data.team1))) teams.push(data.team1)
             if(!champions || germanTeams.includes(getShortName(data.team2))) teams.push(data.team2)
-            return title + getButtonToggle(data,"kein Tor",data.matchID,num,type,false) + getSearch([getPlayers(data.team1.teamName),getPlayers(data.team2.teamName)],data.matchID,teams) + `<div id="${data.matchID}" class="betButtons">` + elements + "</div>"
+            return title + getSearch([getPlayers(data.team1.teamName),getPlayers(data.team2.teamName)],data.matchID,teams) + getButtonToggle(data,"kein Tor",data.matchID,num,type,false) + `<div id="${data.matchID}" class="betButtons noSelect">` + elements + "</div>"
         case 5:
             elements = title
             for(let i = 0; i < 6;i+=2){
@@ -491,7 +489,7 @@ function getBetContent(data,type,num,champions=false,saisonHasStarted=null){
                             elements += getButtonToggle(data[0],getShortName(game.team2),"Daily",num,type,false,hasStarted(data[0]) && !hasStarted(data[data.length - 1]) ? bets[currentDay-1][9].length != 0: null)
                         }
                     }
-                    return title + getButtonToggle(data[0],"kein Team","Daily",num,type) + getSearch([teams],"Daily") + `<div id="Daily" class="betButtons">` + elements + "</div>"
+                    return title + getSearch([teams],"Daily") + getButtonToggle(data[0],"kein Team","Daily",num,type,false) + `<div id="Daily" class="betButtons noSelect">` + elements + "</div>"
                 case 5:
                     elements = "";
                     teams = []
@@ -611,12 +609,12 @@ function getBetContent(data,type,num,champions=false,saisonHasStarted=null){
             for(let team of teams){
                 elements += getButtonToggle(data[0],team,"Saison"+(type-100),type-101,type,true,saisonHasStarted)
             }
-            return title + getSearch([teams],"Saison"+(type-100)) + `<div id="Saison${type-100}" class="betButtons">` + elements + "</div>"
+            return title + `<div id="Saison${type-100}" class="betButtons">` + elements + "</div>"
         }
 }
 
 function getAddButton(data,group,num,type){
-    return `<button id="addNewButtom${group}" class="toggleButton add" name="${group}" id="addNew${group}" onClick="toggleButton(this);saveBet('customValue',${num},${type},'${group == "Daily" || typeof group =="string" ? group: data.matchID}',this.name)">
+    return `<button id="addNewButtom${group}" class="toggleButton add" name="${group}" id="addNew${group}" onClick="toggleButton(this);saveBet('customValue',${num},${type},'${group == "Daily" || typeof group =="string" ? group: data.matchID}',this.name)" style="display: none;" ${hasStarted(data) ? "disabled":""}>
                 hinzufügen
             </button>`
 }
@@ -650,8 +648,9 @@ function getSearch(teams,group,teamnames=null){
             playersList.push("\'"+player+"\'");
         }
     }
-    
-    let search = `<input id="Search${group}" type="text" class="form-control" placeholder="" autocomplete="off" onInput="showPlayers('${group}',[${playersList}],value)">`
+
+    let search = `<div id='selectedBets${group}' class='selectedBetsContainer'></div>`;
+    search += `<input id="Search${group}" type="text" class="form-control" placeholder="" autocomplete="off" onInput="showPlayers('${group}',[${playersList}],value)">`
     if(teamnames != null){
         let teamnamesNames = []
         for(let n of teamnames){
@@ -816,6 +815,24 @@ function checkButton(button, check = true) {
         button.classList.add("active");
     } else {
         button.classList.remove("active");
+    }
+
+    let selectedBetsContainer = document.getElementById('selectedBets'+ button.name);
+    if(selectedBetsContainer){
+        if(button.parentElement != selectedBetsContainer){
+            if (check) {
+                let clonedButton = button.cloneNode(true);
+                clonedButton.id = button.id + "selected";
+                clonedButton.onclick = function() {
+                    button.click();
+                }
+                selectedBetsContainer.appendChild(clonedButton);
+            } else {
+                if (selectedBetsContainer.contains(document.getElementById(button.id + "selected"))) {
+                    selectedBetsContainer.removeChild(document.getElementById(button.id + "selected"));
+                }
+            }
+        }
     }
 }
 
