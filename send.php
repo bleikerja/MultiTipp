@@ -39,7 +39,7 @@ if ($timeBl >= $now && ($timeCl < $now || $timeBl < $timeCl)) {
     $next_league = "Champions League";
 }
 
-if($next_date == null || $next_date-60*60 > $now) return;
+if($next_date == null || !($next_date-60*60 <= $now && $next_date-30*60 > $now)) return;
 
 $query = "SELECT * FROM push_subscriptions u WHERE last_active = (SELECT MAX(last_active) FROM push_subscriptions WHERE user_id = u.user_id);";
 
