@@ -69,9 +69,7 @@ foreach ($users as $user) {
     $webPush->queueNotification(
         $pushSubscription,
         json_encode([
-            'title' => '⚽Schon getippt?',
-            'body' => "Der nächste {$next_league} Spieltag startet bald!",
-            'url' => "./tippen"
+            'league' => $next_league
         ])
     );
 
