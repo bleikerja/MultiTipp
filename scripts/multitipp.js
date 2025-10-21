@@ -323,6 +323,8 @@ function getShortName(team){
             return "Dortmund"
         case "HSV":
             return "Hamburg"
+        case "Paris Saint-Germain":
+            return "Paris"
     }
     return teamname
 }
