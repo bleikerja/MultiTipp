@@ -138,7 +138,8 @@ async function showSpieltag(n,index = false){
         return
     }
     
-    const data = n == liveDay ? liveDayData: await fetch(new URL(`https://api.openligadb.de/getmatchdata/bl1/${liveSeason}/${n}`)).then(response => response.json());
+    let data = n == liveDay ? liveDayData: await fetch(new URL(`https://api.openligadb.de/getmatchdata/bl1/${liveSeason}/${n}`)).then(response => response.json());
+    data = data.sort((a,b) => Date.parse(a.matchDateTime) - Date.parse(b.matchDateTime))
     d = [...data]
 
     if(n == 0 || n == 34 && isOver(data)){
