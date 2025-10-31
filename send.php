@@ -47,6 +47,16 @@ $stmt = $pdo->query($query);
 $stmt->execute();
 $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+$auth = [
+    'VAPID' => [
+        'subject' => 'mailto:me@website.com',
+        'publicKey' => 'BGraND_bLAZEjpeTMVQcOm4ggVmyIC4btqM6QoQZyQ8kiWjipzhRO0SlRbHa318rmN4PZhCPL1iijVCEEJoe-gE',
+        'privateKey' => 'EaiR1e3Iy9MPbAK1cdfQ-_eyTwtTRSiVqfUxW7MrgZI',
+    ],
+];
+$webPush = new WebPush($auth);
+$webPush->setAutomaticPadding(false);
+
 foreach ($users as $user) {
     $pushSubscription = Subscription::create([
         'endpoint' => $user['endpoint'],
@@ -56,28 +66,15 @@ foreach ($users as $user) {
         ],
     ]);
 
-    $auth = [
-        'VAPID' => [
-            'subject' => 'mailto:me@website.com', // can be a mailto: or your website address
-            'publicKey' => 'BGraND_bLAZEjpeTMVQcOm4ggVmyIC4btqM6QoQZyQ8kiWjipzhRO0SlRbHa318rmN4PZhCPL1iijVCEEJoe-gE',
-            'privateKey' => 'EaiR1e3Iy9MPbAK1cdfQ-_eyTwtTRSiVqfUxW7MrgZI',
-        ],
-    ];
+    $payload = json_encode(['league' => $next_league]);
 
-    $webPush = new WebPush($auth);
+    $webPush->queueNotification($pushSubscription, $payload);
+}
 
-    $webPush->queueNotification(
-        $pushSubscription,
-        json_encode([
-            'league' => $next_league
-        ])
-    );
-
-    foreach ($webPush->flush() as $report) {
-        if (!$report->isSuccess()) {
-            echo "Failed to send notification: " . $report->getReason() . "\n";
-        }else{
-            echo "Successfully sent notification: " . json_encode($report) . "\n";
-        }
+foreach ($webPush->flush() as $report) {
+    if (!$report->isSuccess()) {
+        echo "Failed to send notification: " . $report->getReason() . "\n";
+    } else {
+        echo "Successfully sent notification to " . $report->getEndpoint() . "\n";
     }
 }
