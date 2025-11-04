@@ -994,6 +994,14 @@ function filterGermanTeams(data){
     return data.filter(game => germanTeams.includes(getShortName(game.team1)) || germanTeams.includes(getShortName(game.team2)))
 }
 
+function sortDataByStart(data){
+    return data.sort((a,b) => {
+        let dateDiff = Date.parse(a.matchDateTime) - Date.parse(b.matchDateTime)
+        if(dateDiff != 0) return dateDiff
+        return a.team1.teamId - b.team1.teamId
+    })
+}
+
 function updateURLParameter(url, param, paramVal){
     var newAdditionalURL = "";
     var tempArray = url.split("?");

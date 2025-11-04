@@ -114,7 +114,7 @@ async function showSpieltag(n,index = false){
         championsDay = n - 34
         let data = championsDayData.length != 0 ? championsDayData: await fetch(new URL(`https://api.openligadb.de/getmatchdata/ucl/${liveSeason}/${championsDay}`)).then(response => response.json());
         data = filterGermanTeams(data)
-        data = data.sort((a,b) => Date.parse(a.matchDateTime) - Date.parse(b.matchDateTime))
+        data = sortDataByStart(data);
         
         let rand = new RND(n);
         
@@ -140,7 +140,7 @@ async function showSpieltag(n,index = false){
     }
     
     let data = n == liveDay ? liveDayData: await fetch(new URL(`https://api.openligadb.de/getmatchdata/bl1/${liveSeason}/${n}`)).then(response => response.json());
-    data = data.sort((a,b) => Date.parse(a.matchDateTime) - Date.parse(b.matchDateTime))
+    data = sortDataByStart(data);
     d = [...data]
 
     if(n == 0 || n == 34 && isOver(data)){
