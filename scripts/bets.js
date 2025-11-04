@@ -162,6 +162,7 @@ async function showSpieltag(n=null,index = false){
         if(championsDayData.length == 0) {
             championsDayData = await fetch(new URL(`https://api.openligadb.de/getmatchdata/ucl/${liveSeason}/${firstDayClNum}`)).then(response => response.json());
             championsDayData = filterGermanTeams(championsDayData);
+            championsDayData = championsDayData.sort((a,b) => Date.parse(a.matchDateTime) - Date.parse(b.matchDateTime))
         }
         let championHasStarted = hasStarted(championsDayData[0])
         const tableResponse = await fetch(new URL(`https://api.openligadb.de/getbltable/bl1/${liveSeason}`));
@@ -192,6 +193,7 @@ async function showSpieltag(n=null,index = false){
         championsDay = n - 34
         let dataChamp = championsDayData.length != 0 ? championsDayData: await fetch(new URL(`https://api.openligadb.de/getmatchdata/ucl/${liveSeason}/${championsDay}`)).then(response => response.json());
         dataChamp = filterGermanTeams(dataChamp)
+        dataChamp = dataChamp.sort((a,b) => Date.parse(a.matchDateTime) - Date.parse(b.matchDateTime))
 
         let rand = new RND(n);
         typesLeft = [1,4,5,6,8];

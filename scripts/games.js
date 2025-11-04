@@ -114,6 +114,7 @@ async function showSpieltag(n,index = false){
         championsDay = n - 34
         let data = championsDayData.length != 0 ? championsDayData: await fetch(new URL(`https://api.openligadb.de/getmatchdata/ucl/${liveSeason}/${championsDay}`)).then(response => response.json());
         data = filterGermanTeams(data)
+        data = data.sort((a,b) => Date.parse(a.matchDateTime) - Date.parse(b.matchDateTime))
         
         let rand = new RND(n);
         
