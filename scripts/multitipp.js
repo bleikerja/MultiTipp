@@ -2,8 +2,8 @@ const titles = ["Wer gewinnt?", "Wer schießt das 1. Tor?","Welcher Spieler schi
 const dailyTitles = ["Welches Team schießt die meisten Tore?","Welcher Spieler schießt die meisten Tore?","In welchem Spiel fallen die meisten Tore?","Welche Teams schießen kein Tor?","Welches Team gewinnt mit dem höchsten Abstand?"]
 const saisonTitles = ["Wer wird Meister?", "Welcher Spieler schießt die meisten Tore?", "Welche Teams belegen die letzten 3 Plätze?","Welches deutsche Team hat die beste Platzierung?","Welches deutsche Team kommt am weitesten?"]
 
-let championsLeagueTitles = ["In welchem Spiel fallen die meisten Tore?","Welches deutsche Team spielt am besten?","Welche deutschen Teams gewinnen?"]
-let championsLeagueKnockoutTitles = ["In welcher Begegnung fallen die meisten Tore?","Welches deutsche Team spielt am besten?","Welche deutschen Teams kommen weiter?"]
+const championsLeagueTitles = ["In welchem Spiel fallen die meisten Tore?","Welches deutsche Team spielt am besten?","Welche deutschen Teams gewinnen?"]
+const championsLeagueKnockoutTitles = ["In welcher Begegnung fallen die meisten Tore?","Welches deutsche Team spielt am besten?","Welche deutschen Teams kommen weiter?"]
 const championsLeagueGamedays = [3,5,7,9,11,13,18,19]
 const champiosLeagueKnockout = []
 // const champiosLeagueKnockout = [{name:"Playoffs",days:[21,22]},{name:"AF",days:[24,25]},{name:"VF",days:[28,29]}]
@@ -11,20 +11,28 @@ let germanTeams = ["Dortmund","Bayern","Leverkusen","Frankfurt"]
 
 const players = {}
 
+const BL = "bl1"
+const CL = "ucl" 
+
+let datas = {
+    "bl1":[],
+    "ucl":[]
+}
+
 let types = [];
 let typesLeft = [1,2,3,4,5,6,7,8,9]
 let dailyType = 1
 
 let liveSeason = 2025;
 let d = null
-let liveDay = 0;
+let liveDay = null;
 let currentDay = 0;
 let liveDayData = null
 
-let liveDayChampion = 0
+let liveDayChampion = null
 let liveDayIsChampion = false
 let championsDayData = []
-let championsDay = null
+let currentChampionsDay = null
 
 let lastDay = null
 let firstDay = null;
@@ -89,8 +97,8 @@ function isFixBet(data,type,bet = null){
         case 2: case 3:
             return getFirstGoal(data) != null;
         case 4:
-            if(bet == null && data.goals.length != 0 && data.leagueShortcut != "ucl") return true
-            if(bet == null && data.leagueShortcut == "ucl"){
+            if(bet == null && data.goals.length != 0 && data.leagueShortcut != CL) return true
+            if(bet == null && data.leagueShortcut == CL){
                 let goals = getGoals(data);
                 if(goals[0] == 0 && germanTeams.includes(getShortName(data.team1))) return false;
                 if(goals[1] == 0 && germanTeams.includes(getShortName(data.team2))) return false;
@@ -311,7 +319,7 @@ function getGameResult(data){
     const date = new Date(data.matchDateTime);
     let goals = getGoals(data);
     let now = new Date();
-    if(now < date) return `<p class="date">${data.leagueShortcut == "ucl" && data.group.groupOrderID > 8 && date.getTime() > now.getTime() + 7*24*60*60*1000 ? (('0' + date.getDate()).slice(-2) + '.' + ('0' + (date.getMonth() + 1)).slice(-2)) : days[date.getDay()]}</p>
+    if(now < date) return `<p class="date">${data.leagueShortcut == CL && data.group.groupOrderID > 8 && date.getTime() > now.getTime() + 7*24*60*60*1000 ? (('0' + date.getDate()).slice(-2) + '.' + ('0' + (date.getMonth() + 1)).slice(-2)) : days[date.getDay()]}</p>
     <p class="date">${('0' + date.getHours()).slice(-2) + ":" + ('0' + date.getMinutes()).slice(-2)}</p>`;
     return `<p>${goals[0]}:${goals[1]}</p>`;
 }
@@ -508,7 +516,7 @@ function getResult(data,t,dailyT = dailyType){
                 if(goal.scoreTeam1 == 0 && goal.scoreTeam2 == 0) continue;
                 let goalPlayerTeam = goal.scoreTeam1 > lastScore[0] ? data.team1: data.team2;
                 lastScore = [goal.scoreTeam1,goal.scoreTeam2];
-                if(data.leagueShortcut == "ucl" && !germanTeams.includes(getShortName(goalPlayerTeam))) continue;
+                if(data.leagueShortcut == CL && !germanTeams.includes(getShortName(goalPlayerTeam))) continue;
                 
                 let goalPlayer = goal.goalGetterName != "" ? getPlayerName(goal.goalGetterName,goalPlayerTeam.teamName): "?";
                 
@@ -995,11 +1003,43 @@ function filterGermanTeams(data){
 }
 
 function sortDataByStart(data){
+    if(Date.parse(data[0].matchDateTime) < Date.parse("2025-11-03")) return data.sort((a,b) => Date.parse(a.matchDateTime) - Date.parse(b.matchDateTime))
     return data.sort((a,b) => {
         let dateDiff = Date.parse(a.matchDateTime) - Date.parse(b.matchDateTime)
         if(dateDiff != 0) return dateDiff
         return a.team1.teamId - b.team1.teamId
     })
+}
+
+async function getData(matchday=liveDay, league=BL){
+    if(datas[league][matchday]) return datas[league][matchday]
+    let data = await fetch(new URL(`https://api.openligadb.de/getmatchdata/${league}/${liveSeason}/${matchday}`)).then(response => response.json());
+    console.log(data, matchday, league)
+    if(league == CL) data = filterGermanTeams(data)
+    data = sortDataByStart(data)
+    datas[league][matchday] = data
+    return data
+}
+
+async function getTable(league=BL){
+    return await fetch(new URL(`https://api.openligadb.de/getbltable/${league}/${liveSeason}`)).then(response => response.json());
+}
+
+async function getGoalgetters(league=BL){
+    return await fetch(new URL(`https://api.openligadb.de/getgoalgetters/${league}/${liveSeason}`)).then(response => response.json());
+}
+
+async function getLiveday(league=BL){
+    if(league == BL && liveDay) return liveDay
+    if(league == CL && liveDayChampion) return liveDayChampion
+    let day = await fetch(new URL(`https://api.openligadb.de/getcurrentgroup/${league}`)).then(response => response.json()).then(response => response.groupOrderID);
+    console.log(day, league)
+    if(league == BL){
+        liveDay = day
+    }else if(league == CL){
+        liveDayChampion = day
+    }
+    return day
 }
 
 function updateURLParameter(url, param, paramVal){
@@ -1036,7 +1076,7 @@ async function loadPoints(){
             typesN.push(next);
         }
         dailyInt = rand.nextInRange(1,5)
-        const data = day+1 == liveDay && liveDayData != null ? liveDayData: await fetch(new URL(`https://api.openligadb.de/getmatchdata/bl1/${liveSeason}/${day+1}`)).then(response => response.json());
+        const data = day+1 == liveDay && liveDayData != null ? liveDayData: await getData(day+1);
 
         for(let playerindex = 0; playerindex < bets.length; playerindex++){
             if(day > bets[playerindex.length-1]) break;
@@ -1068,8 +1108,7 @@ async function loadPoints(){
         }
         dailyInt = rand.nextInRange(1,3)
 
-        let data = championsDayData.length != 0 ? championsDayData: await fetch(new URL(`https://api.openligadb.de/getmatchdata/ucl/${liveSeason}/${day-33}`)).then(response => response.json());
-        data = filterGermanTeams(data)
+        const data = championsDayData.length != 0 ? championsDayData: await getData(day-33, CL);
 
         for(let playerindex = 0; playerindex < bets.length; playerindex++){
             if(day > bets[playerindex.length-1]) break;
@@ -1134,8 +1173,8 @@ function loadSaisonPoints(){
         saisonPoints[i] += getPoints(wholeTable, saisonBets[i][0],100, hasStarted(firstDay[0]),null, i)*10;
         saisonPoints[i] += getPoints(goalgetters, saisonBets[i][1],101, hasStarted(firstDay[0]),null, i)*10;
         saisonPoints[i] += getPoints(wholeTable, saisonBets[i][2],102, hasStarted(firstDay[0]),null, i)*5;
-        saisonPoints[i] += getPoints(wholeTableChampion, saisonBets[i][3],103, liveDayChampion > 1 || hasStarted(championsDayData[0]),null, i)*5;
-        saisonPoints[i] += getPoints([championsDay], saisonBets[i][4],104, liveDayChampion > 1 || hasStarted(championsDayData[0]),null, i)*5;
+        // saisonPoints[i] += getPoints(wholeTableChampion, saisonBets[i][3],103, liveDayChampion > 1 || hasStarted(championsDayData[0]),null, i)*5;
+        // saisonPoints[i] += getPoints([currentChampionsDay], saisonBets[i][4],104, liveDayChampion > 1 || hasStarted(championsDayData[0]),null, i)*5;
     }
 }
 
