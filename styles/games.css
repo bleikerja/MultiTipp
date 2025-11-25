@@ -19,6 +19,13 @@ html,body{
     .team2{
         font-size: 10px;
     }
+    .list-group{
+        scroll-snap-type: x mandatory !important;
+    }
+    li{
+        scroll-snap-align: start !important;
+        scroll-snap-stop: always !important;
+    }
 }
 
 @media (min-width: 661px){
@@ -38,24 +45,6 @@ html,body{
         width: 50%;
         display: flex;
         flex-direction: row;
-    }
-    .carousel-control-prev, .carousel-control-next {
-        width: 50px; /* Breitere Buttons */
-        top: 87px;
-        transform: translateY(-50%);
-        background-color: grey;
-        height: 150px;
-        border-color: black;
-        border-radius: 10px;
-        border-width: 5px;
-    }    
-    
-    .carousel-control-prev {
-        left: -50px; 
-    }
-
-    .carousel-control-next {
-        right: -50px;
     }
 }
 
@@ -79,7 +68,7 @@ html,body{
         margin-left: 10px !important;
     }
     .betsDisplay, .betContainer, .resultDisplay, #SaisonContainer, #dailyContainer{
-        max-width: 95vw !important;
+        max-width: 100% !important;
         min-width: 85vw !important;
     }
     #betDaily{
@@ -108,11 +97,11 @@ html,body{
         min-width: 90% !important;
         text-align: center;
     }
-    .pointBar{
+    .content{
         margin-left: 5px !important;
-        margin-right: 5px !important;
+        width: calc(100vw - 10px) !important;
     }
-    .carousel{
+    .games{
         margin: auto !important;
         width: 100vw; /* Set a fixed width for the carousel */
     }
@@ -125,7 +114,15 @@ html,body{
         flex-direction: row;
         margin: 5px 0;
     }
-
+    .scrollButton{
+        position: absolute !important;
+        top: 50%;
+        margin: 5px !important;
+    }
+    .betContainer2{
+        max-width: calc(100vw - 10px) !important;
+        width: calc(100vw - 10px) !important;
+    }
 }
 
 .saison, .saisonContainer{
@@ -225,10 +222,6 @@ ul {
     /* position: fixed; 
     left: 0;
     right: 0; */
-}
-
-.list-group::-webkit-scrollbar {
-    display: none;
 }
 
 #betContent{
@@ -353,9 +346,15 @@ ul {
 }
 
 .list-group{
-    overflow-y: scroll;
-    overflow-x: hidden;
-    width: 100%;
+    overflow: scroll hidden;
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    max-width: 100%;
+}
+
+.list-group::-webkit-scrollbar {
+    display: none;
 }
 
 #betDaily{
@@ -367,7 +366,7 @@ ul {
 #dailyContainer{
     padding:5px;
     min-width:474px;
-    margin-bottom: 15px;
+    margin-bottom: 20px;
 }
 
 .searchbar{
@@ -382,10 +381,10 @@ ul {
     margin-top:126px;
 }
 
-.pointBar{
+.content{
     margin-left: 20px;
-    margin-right: 20px;
     margin-top: 10px;
+    width: calc(100vw - 25px);
     display: flex;
     justify-content: space-between;
 }
@@ -455,9 +454,14 @@ li{
     margin-left: 10px;
 }
 
-.carousel{
-    margin-right: 50px;
-    margin-left: 50px;
+.games{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    flex: 1 1 auto;
+    overflow: hidden;
+    /* margin-right: 50px; */
+    /* margin-left: 50px; */
 }
 .playernameBar{
     display: flex;
@@ -574,4 +578,15 @@ li{
     border-width: 1px;
     border-style: solid;
     width: 25%;
+}
+
+.scrollButton {
+    position: relative;
+    height: 10vh;
+    width: fit-content;
+    border-radius: 5px;
+    /* margin-top: 47%; */
+    margin-right: 20px;
+    margin-left: 20px;
+    background-color: rgba(168, 168, 168, 0.7);
 }

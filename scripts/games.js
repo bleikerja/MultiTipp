@@ -4,7 +4,7 @@ let groupForm = document.getElementById("groupAdd");
 let groupInput = document.getElementById("groupInput");
 let removeForm = document.getElementById("groupRemove");
 let removeInput = document.getElementById("groupDelete");
-let gameCarousel = document.getElementById("gameCarousel");
+let gameCarousel = document.getElementById("list");
 
 let sortingByTotal = true;
 let editingName = false;
@@ -13,13 +13,13 @@ let carouselWidth = 0;
 
 start();
 
-setInterval(() => {
-    const carousel = document.getElementById('carousel');
-    if(carouselWidth == 0) carouselWidth = carousel.offsetWidth
-    if (carousel.offsetWidth != carouselWidth) {
-        carousel.style.width = carouselWidth+"px";
-    }
-}, 100);
+// setInterval(() => {
+//     const carousel = document.getElementById('carousel');
+//     if(carouselWidth == 0) carouselWidth = carousel.offsetWidth
+//     if (carousel.offsetWidth != carouselWidth) {
+//         carousel.style.width = carouselWidth+"px";
+//     }
+// }, 100);
 
 async function start(){
     gameCarousel.innerHTML = "";
@@ -35,6 +35,7 @@ async function start(){
             //     if(i <= liveDay) liveDayChampion = championsLeagueGamedays.indexOf(i)
             // }
             liveDayIsChampion = true
+            currentChampionsDay = liveDayChampion;
             championsDayData = await getData(currentChampionsDay, CL);
         }else{
             liveDayIsChampion = false
@@ -206,34 +207,20 @@ function updateDisplay(){
     
     if(currentDay != 0){
         if(currentDay > 34){
-            showData(data,0,true,false,null,true);
-            for(let i = 1; i <= data.length; i++){
-                showData(data,i,false,false,null,true);
+            for(let i = 0; i <= data.length; i++){
+                showData(data,i,true);
             }
         }else{
-            showData(data,0,true);
-            for(let i = 1; i <= data.length; i++){
+            for(let i = 0; i <= data.length; i++){
                 showData(data,i);
             }
         }
     }else{
-        let displays = []
-        displays.push(showData(wholeTable,100,first = true, returnResult = true))
-        displays.push(showData(goalgetters,101,first = false, returnResult = true))
-        displays.push(showData(wholeTable,102,first = false, returnResult = true))
+        showData(wholeTable,100)
+        showData(goalgetters,101)
+        showData(wholeTable,102)
         // displays.push(showData(wholeTableChampion,103,first = false, returnResult = true,null,true))
         // displays.push(showData([currentChampionsDay],104,first = false, returnResult = true,null,true))
-        let num = 0
-        while(num < displays.length){
-            let div =  `<div class="carouselItem carousel-item ${num == 0 ? "active":""}"><div class="d-flex">`
-            for(let i = 0; i < getPlayerDisplayCount(); i++){
-                div += displays[num]
-                num++
-                if(num == displays.length) break
-            }
-            div += `</div></div></div>`;
-            gameCarousel.insertAdjacentHTML('beforeend', div);
-        }
     }
     
     displayPlayerPoints();
@@ -259,24 +246,20 @@ function updateDisplay(){
     }
 }
 
-function showData(data,num,first=false,returnResult=false,nextData = null,champions=false){
-    if(num % getPlayerDisplayCount() != 0 && !returnResult) return;
-
+function showData(data,num,champions=false){
     if(num > data.length-1 && num < 100 || champions && num == 5) {
-        if(returnResult) return showDaily(data,data.length,true,champions)
-        showDaily(data,data.length,false,champions)
+        showDaily(data,data.length,champions)
         return
     }
     let thisData = data[num]
 
-    let newHtml = returnResult ? "": `<div class="carouselItem carousel-item ${first ? "active":""}">
-          <div class="d-flex">`
+    let newHtml = ""
     
     if(num >= 100){
         newHtml += showSaison(data,num)
     }else{
         newHtml += `
-        <div class="flex-fill p-2">
+        <li>
             <div class="betContainer2">
                 <div class="border rounded-3 border-black resultDisplay">
                     <div id="bet${thisData.matchID}" class="d-flex flex-row mb-2 game border rounded-3 border-black" aria-expanded="false" style="background-color:${changeColor(thisData,types[num],true)}">
@@ -301,16 +284,11 @@ function showData(data,num,first=false,returnResult=false,nextData = null,champi
                 </div>
                 ${displayAllBets(num,data[num],hasStarted(data[num]),types[num])}
             </div>
-        </div>`
+        </li>`
     
     }    
-    newHtml += (num + 1) % getPlayerDisplayCount() != 0 && num < 100 ? showData(nextData != null ? nextData: data,num+1,false,true,null,champions):""  
-    newHtml += returnResult ? "": `</div></div></div>`;
-    
+    // newHtml += (num + 1) % getPlayerDisplayCount() != 0 && num < 100 ? showData(nextData != null ? nextData: data,num+1,false,true,null,champions):""  
 
-    if(returnResult) {
-        return newHtml;
-    }
     gameCarousel.insertAdjacentHTML('beforeend', newHtml);
 }
 
@@ -331,11 +309,10 @@ function changeColor(data,type,result = false){
     return "#949494"
 }
 
-function showDaily(data,num,returnResult = true,champions=false){
-    let newHtml = returnResult ? "": `<div class="carouselItem carousel-item">
-          <div class="d-flex">`
+function showDaily(data,num,champions=false){
+    let newHtml = ""
 
-    newHtml += `<div class="flex-fill p-2">
+    newHtml += `<li>
         <div class="betContainer2">
             <div id="dailyContainer" class="border rounded-3 border-black">
                 <div id="betDaily" class="d-flex flex-row mb-2 game border rounded-3 border-black bg-white" aria-expanded="false">
@@ -348,11 +325,8 @@ function showDaily(data,num,returnResult = true,champions=false){
         </div>
         ${displayAllBets(num,data,hasStarted(data[0]),champions ? (data[0].group.groupOrderID <= 8 ? 20: 25): 10)}
 
-    </div>`;
+    </li>`;
     
-    newHtml += returnResult ? "": `</div></div></div>`;
-    if(returnResult) return newHtml
-
     gameCarousel.insertAdjacentHTML('beforeend', newHtml);
 }
 
@@ -382,8 +356,6 @@ function displayAllBets(num,data,started,t){
             <div class="sortTotal sortText ${sortingByTotal ? "selected":""}" onclick="changePlayerOrder(true)">Gesamt</div>
             <div class="sortDay sortText ${!sortingByTotal ? "selected":""}" onclick="changePlayerOrder(false)">Spieltag</div>
         </div>
-        <div class="arrowLeft sortText" data-bs-target="#carousel" data-bs-slide="prev"><</div>
-        <div class="arrowRight sortText" data-bs-target="#carousel" data-bs-slide="next">></div>
     </div>
     `
 
@@ -725,18 +697,18 @@ function editName(){
 
 function selectCarouselItem(index){
     let children = gameCarousel.children
-    for(let n of children) n.classList.remove("active");
-    if(index > children.length-1){
-        children[0].classList.add("active");
-    }else{
-        children[index].classList.add("active");
-    }
+    // for(let n of children) n.classList.remove("active");
+    // if(index > children.length-1){
+    //     children[0].classList.add("active");
+    // }else{
+    //     children[index].classList.add("active");
+    // }
 }
 
 function getSelectedCarouselItem(){
     let children = gameCarousel.children
-    for(let i = 0; i < children.length; i++) if(children[i].classList.contains("active")) return i
-    return 0
+    // for(let i = 0; i < children.length; i++) if(children[i].classList.contains("active")) return i
+    // return 0
 }
 
 function getLastStarted(data){

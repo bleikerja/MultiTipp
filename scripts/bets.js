@@ -34,6 +34,7 @@ async function start(){
             //     if(i <= liveDay) liveDayChampion = championsLeagueGamedays.indexOf(i)
             // }
             liveDayIsChampion = true
+            currentChampionsDay = liveDayChampion;
             championsDayData = await getData(currentChampionsDay, CL);
         }else{
             liveDayIsChampion = false
@@ -818,21 +819,6 @@ function checkButton(button, check = true) {
     }
 }
 
-function scrollGames(dir){
-    const elements = Array.from(document.getElementById('list').children);
-    let element = elements[((dir == -1 ? elements.findIndex(isInViewport): elements.findLastIndex(isInViewport)) + dir + elements.length) % elements.length];
-    element.scrollIntoView({ behavior: 'smooth' });
-}
-
-function isInViewport(element) {
-    const rect = element.getBoundingClientRect();
-    return (
-        rect.top >= 0 &&
-        rect.left >= 0 &&
-        rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
-        rect.right <= (window.innerWidth || document.documentElement.clientWidth)
-    );
-}
 
 function save(index,betTime){
     var xhr = new XMLHttpRequest();

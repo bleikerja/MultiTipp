@@ -57,39 +57,27 @@
         <button id="moveFront" type="button" class="btn btn-outline-secondary border-black" onClick="moveGameday(1)">></button>
     </div>
 
-    <div class="pointBar">
+    <div class="content">
        <div id="groupContainer" class="groupContainer">
             
         </div>
 
-        <div id="pointDisplay" class="pointDisplay" hidden>
-        
-        </div>
-
-        <div id="carousel" class="carousel slide">
-            <div id="gameCarousel" class="carousel-inner">
-                
-            </div>
-            <button class="carousel-control-prev" type="button" data-bs-target="#carousel" data-bs-slide="prev" hidden>
+        <div class="games">
+            <button class="carousel-control-prev scrollButton" type="button" onClick="scrollGames(-1)">
                 <span class="carousel-control-prev-icon" aria-hidden="true"></span>
                 <span class="visually-hidden">Previous</span>
             </button>
-            <button class="carousel-control-next" type="button" data-bs-target="#carousel" data-bs-slide="next" hidden>
+
+            <ul class="list-group" id="list"></ul>
+
+            <button class="carousel-control-next scrollButton" type="button" onClick="scrollGames(1)">
                 <span class="carousel-control-next-icon" aria-hidden="true"></span>
                 <span class="visually-hidden">Next</span>
             </button>
         </div>
-
-
-
-        <div class="navBar" style="display:block;min-width: 36px;" hidden>
-            <button type="button" class="btn btn-outline-secondary border-black" onClick="shiftBetOrder(true)" id="shiftBetForward">></button>
-            <br>
-            <button type="button" class="btn btn-outline-secondary border-black" onClick="shiftBetOrder(false)" style="margin-top:30px" id="shiftBetBack" hidden><</button>
-        </div>
         
     </div>
-    <script src="scripts/multitipp.js?v=14"></script>
-    <script src="scripts/games.js?v=12"></script>
+    <script src="scripts/multitipp.js?v=15"></script>
+    <script src="scripts/games.js?v=13"></script>
 </body>
 </html>

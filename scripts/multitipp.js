@@ -1014,7 +1014,6 @@ function sortDataByStart(data){
 async function getData(matchday=liveDay, league=BL){
     if(datas[league][matchday]) return datas[league][matchday]
     let data = await fetch(new URL(`https://api.openligadb.de/getmatchdata/${league}/${liveSeason}/${matchday}`)).then(response => response.json());
-    console.log(data, matchday, league)
     if(league == CL) data = filterGermanTeams(data)
     data = sortDataByStart(data)
     datas[league][matchday] = data
@@ -1033,13 +1032,31 @@ async function getLiveday(league=BL){
     if(league == BL && liveDay) return liveDay
     if(league == CL && liveDayChampion) return liveDayChampion
     let day = await fetch(new URL(`https://api.openligadb.de/getcurrentgroup/${league}`)).then(response => response.json()).then(response => response.groupOrderID);
-    console.log(day, league)
     if(league == BL){
         liveDay = day
     }else if(league == CL){
         liveDayChampion = day
     }
     return day
+}
+
+function scrollGames(dir){
+    // let scrollWidth = document.getElementById("list").children[0].offsetWidth
+    // console.log(scrollWidth, document.getElementById("list").children[0])
+    // document.getElementById("list").scrollBy({left: dir*scrollWidth, behavior: 'smooth'});
+    const elements = Array.from(document.getElementById('list').children);
+    let element = elements[((dir == -1 ? elements.findIndex(isInViewport): elements.findLastIndex(isInViewport)) + dir + elements.length) % elements.length];
+    element.scrollIntoView({ behavior: 'smooth' });
+}
+
+function isInViewport(element) {
+    const rect = element.getBoundingClientRect();
+    return (
+        rect.top >= 0 &&
+        rect.left >= 0 &&
+        rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
+        rect.right <= (window.innerWidth || document.documentElement.clientWidth)
+    );
 }
 
 function updateURLParameter(url, param, paramVal){
