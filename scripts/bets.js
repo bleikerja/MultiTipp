@@ -46,60 +46,7 @@ async function start(){
     let day = isNaN(parseInt(urlParams.get('day'))) ? urlParams.get('day'): parseInt(urlParams.get('day'))
     
     await showSpieltag(day != null ? day: (!liveDayIsChampion ? liveDay: liveDayChampion+34));
-    
-    let container = document.getElementById("list");
-
-    // if(window.screen.width < 500){
-    //     container.lastElementChild.offsetWidth;
-    //     container.firstElementChild.before(container.lastElementChild);
-    //     container.addEventListener("scroll", () => {
-    //         let firstChild = container.firstElementChild;
-    //         let lastChild = container.lastElementChild;
-    //         let containerRect = container.getBoundingClientRect();
-    //         let firstRect = firstChild.getBoundingClientRect();
-    //         let lastRect = lastChild.getBoundingClientRect();
-
-    //         // --- Scroll to END ---
-    //         if (lastRect.right <= containerRect.right) {
-    //             let shiftWidth = firstChild.offsetWidth;
-    //             lastChild.after(firstChild);
-    //             container.scrollLeft -= shiftWidth;
-    //         }
-
-    //         // --- Scroll to START ---
-    //         if (firstRect.left >= containerRect.left) {
-    //             let shiftWidth = lastChild.offsetWidth;
-    //             firstChild.before(lastChild);
-    //             container.scrollLeft += shiftWidth;
-    //         }
-    //     });
-    // }
-    
-	let isDragging = false;
-	let startX
-	let scrollLeft;
-
-	container.addEventListener('mousedown', (e) => {
-		isDragging = true;
-		startX = e.pageX - container.offsetLeft;
-		scrollLeft = container.scrollLeft;
-    });
-
-	container.addEventListener('mouseleave', () => {
-		isDragging = false;
-	});
-
-	container.addEventListener('mouseup', () => {
-		isDragging = false;
-	});
-
-	container.addEventListener('mousemove', (e) => {
-		if (!isDragging) return;
-		e.preventDefault();
-		const x = e.pageX - container.offsetLeft;
-		const walkX = x - startX;
-		container.scrollLeft = scrollLeft - walkX;
-	});
+    scrollSetup();    
 }
 
 async function showSpieltag(n=null,index = false){

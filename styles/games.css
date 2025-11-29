@@ -5,125 +5,6 @@ html,body{
     font-family: 'Roboto', sans-serif;
 }
 
-@media (max-width: 1320px){
-    .main{
-        width: calc(100% - 40px) !important;
-        height: calc(100% - 310px) !important;
-    }
-}
-
-@media (max-width: 830px){
-    .team1{
-        font-size: 10px;
-    }
-    .team2{
-        font-size: 10px;
-    }
-    .list-group{
-        scroll-snap-type: x mandatory !important;
-    }
-    li{
-        scroll-snap-align: start !important;
-        scroll-snap-stop: always !important;
-    }
-}
-
-@media (min-width: 661px){
-    .playernameBar{
-        display: none !important;
-    }
-    .pointsTopSmall{
-        display: none !important;
-    }
-    .hideBig{
-        display: none !important;
-    }
-    .mobile{
-        display: none !important;
-    }
-    .multiDisplay{
-        width: 50%;
-        display: flex;
-        flex-direction: row;
-    }
-}
-
-
-@media (max-width: 661px){
-    .teamText,.pointsTop,.groupContainer,.playerPointDiv,.desktop{
-        display: none !important;
-    }
-    .mobile{
-        display: flex !important;
-    }
-    .teamText1{
-        display: inline-block !important;
-        font-size: 15px !important;
-        padding-top: 0 !important;
-    }
-    .newLine{
-        display: inline !important;
-    }
-    .pointsDay{
-        margin-left: 10px !important;
-    }
-    .betsDisplay, .betContainer, .resultDisplay, #SaisonContainer, #dailyContainer{
-        max-width: 100% !important;
-        min-width: 85vw !important;
-    }
-    #betDaily{
-        height: 80px;
-    }
-    .betsDisplay:not(.desktop){
-        max-width: 40vw !important;
-        min-width: 40vw !important;
-        min-height: 100% !important;
-        max-height: 100% !important;
-        /* display: block !important; */
-        flex-direction: column !important;
-        border-bottom-right-radius: 10px;
-    }
-    .multiDisplay .betDisplay{
-        min-width: fit-content !important;
-        max-width: fit-content !important;
-    }
-    .multiDisplay .gameTitle{
-        width: 66%;
-    }
-    .betsDisplay > .betDisplay{
-        margin-top: 3px !important;
-        margin-bottom: 3px !important;
-
-        min-width: 90% !important;
-        text-align: center;
-    }
-    .content{
-        margin-left: 5px !important;
-        width: calc(100vw - 10px) !important;
-    }
-    .games{
-        margin: auto !important;
-        width: 100vw; /* Set a fixed width for the carousel */
-    }
-    .saison, .saisonContainer{
-        min-width: 1px !important;
-    }
-    .multiDisplay{
-        width: 100%;
-        display: flex;
-        flex-direction: row;
-        margin: 5px 0;
-    }
-    .scrollButton{
-        position: absolute !important;
-        top: 50%;
-        margin: 5px !important;
-    }
-    .betContainer2{
-        max-width: calc(100vw - 10px) !important;
-        width: calc(100vw - 10px) !important;
-    }
-}
 
 .saison, .saisonContainer{
     min-width: 470px;
@@ -351,6 +232,7 @@ ul {
     flex-direction: row;
     gap: 10px;
     max-width: 100%;
+    cursor: all-scroll;
 }
 
 .list-group::-webkit-scrollbar {
@@ -589,4 +471,124 @@ li{
     margin-right: 20px;
     margin-left: 20px;
     background-color: rgba(168, 168, 168, 0.7);
+}
+
+@media (max-width: 1320px){
+    .main{
+        width: calc(100% - 40px);
+        height: calc(100% - 310px);
+    }
+}
+
+@media (max-width: 830px){
+    .team1{
+        font-size: 10px;
+    }
+    .team2{
+        font-size: 10px;
+    }
+    .list-group{
+        scroll-snap-type: x mandatory;
+    }
+    li{
+        scroll-snap-align: start;
+        scroll-snap-stop: always;
+    }
+}
+
+@media (min-width: 661px){
+    .playernameBar{
+        display: none;
+    }
+    .pointsTopSmall{
+        display: none;
+    }
+    .hideBig{
+        display: none;
+    }
+    .mobile{
+        display: none;
+    }
+    .multiDisplay{
+        width: 50%;
+        display: flex;
+        flex-direction: row;
+    }
+}
+
+
+@media (max-width: 661px){
+    .teamText,.pointsTop,.groupContainer,.playerPointDiv,.desktop{
+        display: none;
+    }
+    .mobile{
+        display: flex;
+    }
+    .teamText1{
+        display: inline-block;
+        font-size: 15px;
+        padding-top: 0;
+    }
+    .newLine{
+        display: inline;
+    }
+    .pointsDay{
+        margin-left: 10px;
+    }
+    .betsDisplay, .betContainer, .resultDisplay, #SaisonContainer, #dailyContainer{
+        max-width: 100%;
+        min-width: 85vw;
+    }
+    #betDaily{
+        height: 80px;
+    }
+    .betsDisplay:not(.desktop){
+        max-width: 40vw;
+        min-width: 40vw;
+        min-height: 100%;
+        max-height: 100%;
+        /* display: block; */
+        flex-direction: column;
+        border-bottom-right-radius: 10px;
+    }
+    .multiDisplay .betDisplay{
+        min-width: fit-content;
+        max-width: fit-content;
+    }
+    .multiDisplay .gameTitle{
+        width: 66%;
+    }
+    .betsDisplay > .betDisplay{
+        margin-top: 3px;
+        margin-bottom: 3px;
+
+        min-width: 90%;
+        text-align: center;
+    }
+    .content{
+        margin-left: 5px;
+        width: calc(100vw - 10px);
+    }
+    .games{
+        margin: auto;
+        width: 100vw; /* Set a fixed width for the carousel */
+    }
+    .saison, .saisonContainer{
+        min-width: 1px;
+    }
+    .multiDisplay{
+        width: 100%;
+        display: flex;
+        flex-direction: row;
+        margin: 5px 0;
+    }
+    .scrollButton{
+        position: absolute;
+        top: 50%;
+        margin: 5px;
+    }
+    .betContainer2{
+        max-width: calc(100vw - 10px);
+        width: calc(100vw - 10px);
+    }
 }

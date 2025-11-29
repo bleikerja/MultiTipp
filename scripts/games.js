@@ -64,7 +64,7 @@ async function start(){
     let day = isNaN(parseInt(urlParams.get('day'))) ? urlParams.get('day'): parseInt(urlParams.get('day'))
     
     await showSpieltag(day != null ? day: (!liveDayIsChampion ? liveDay: liveDayChampion+34));
-
+    scrollSetup();
 }
 async function showSpieltag(n,index = false){
     if(index){

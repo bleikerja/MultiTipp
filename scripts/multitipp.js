@@ -53,6 +53,9 @@ let saisonPoints = [];
 
 let playernames = [];
 
+let firstInViewport = null;
+let lastInViewport = null;
+
 function moveGameday(num){
     let selectedIndex = daySelect.selectedIndex
     let maxValue = daySelect.options.length
@@ -1040,21 +1043,77 @@ async function getLiveday(league=BL){
     return day
 }
 
+function scrollSetup(){
+    let container = document.getElementById("list");
+    
+    let isDragging = false;
+	let startX
+	let scrollLeft;
+
+	container.addEventListener('mousedown', (e) => {
+		isDragging = true;
+		startX = e.pageX - container.offsetLeft;
+		scrollLeft = container.scrollLeft;
+    });
+
+	container.addEventListener('mouseleave', () => {
+		isDragging = false;
+	});
+
+	container.addEventListener('mouseup', () => {
+		isDragging = false;
+	});
+
+	container.addEventListener('mousemove', (e) => {
+		if (!isDragging) return;
+		e.preventDefault();
+		const x = e.pageX - container.offsetLeft;
+		const walkX = x - startX;
+		container.scrollLeft = scrollLeft - walkX;
+	});
+    calculateGamesInViewport();
+}
+
 function scrollGames(dir){
-    // let scrollWidth = document.getElementById("list").children[0].offsetWidth
-    // console.log(scrollWidth, document.getElementById("list").children[0])
-    // document.getElementById("list").scrollBy({left: dir*scrollWidth, behavior: 'smooth'});
+    let scrollWidth = document.getElementById("list").children[0].offsetWidth
     const elements = Array.from(document.getElementById('list').children);
-    let element = elements[((dir == -1 ? elements.findIndex(isInViewport): elements.findLastIndex(isInViewport)) + dir + elements.length) % elements.length];
-    element.scrollIntoView({ behavior: 'smooth' });
+
+    if(dir == 1 && lastInViewport == elements.length - 1 || dir == -1 && firstInViewport == 0){
+        let list_group = document.getElementsByClassName("list-group")[0];
+        let li_items = document.getElementsByTagName("li");
+        let scrollType = list_group.style.scrollSnapType
+        let snapAlign = list_group.style.scrollSnapAlign
+        let snapStop = list_group.style.scrollSnapStop
+        list_group.style.scrollSnapType = "none";
+        for(let e of li_items){
+            e.style.scrollSnapAlign = "none";
+            e.style.scrollSnapStop = "normal";
+        }
+        document.getElementById("list").scrollBy({left: dir*scrollWidth*-10, behavior: 'smooth'});
+        list_group.style.scrollSnapType = scrollType;
+        for(let e of li_items){
+            e.style.scrollSnapAlign = snapAlign;
+            e.style.scrollSnapStop = snapStop;
+        }
+    }else{
+        document.getElementById("list").scrollBy({left: dir*scrollWidth, behavior: 'smooth'});
+    }
+}
+
+document.getElementById("list").onscroll = (e) => {
+    calculateGamesInViewport();
+}
+
+function calculateGamesInViewport(){
+    const elements = Array.from(document.getElementById('list').children);
+    firstInViewport = elements.findIndex(isInViewport);
+    lastInViewport = elements.findLastIndex(isInViewport);    
 }
 
 function isInViewport(element) {
     const rect = element.getBoundingClientRect();
     return (
-        rect.top >= 0 &&
         rect.left >= 0 &&
-        rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
         rect.right <= (window.innerWidth || document.documentElement.clientWidth)
     );
 }
