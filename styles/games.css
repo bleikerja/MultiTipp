@@ -583,7 +583,7 @@ li{
         margin: 5px 0;
     }
     .scrollButton{
-        position: absolute;
+        position: fixed;
         top: 50%;
         margin: 5px;
     }
